@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexSports — Analytics Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <!-- Chart.js CDN for premium charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- ========== DASHBOARD WRAPPER ========== -->
+    <div class="dashboard">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                <a href="index.html" class="sidebar__logo">
+                    <span>APEX</span><span>Sports</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar__nav">
+                <button class="sidebar__nav-item active" data-tab="overview">
+                    <span class="icon">📊</span> Overview
+                </button>
+                <button class="sidebar__nav-item" data-tab="football">
+                    <span class="icon">⚽</span> Football Analytics
+                </button>
+                <button class="sidebar__nav-item" data-tab="basketball">
+                    <span class="icon">🏀</span> Basketball Analytics
+                </button>
+                <button class="sidebar__nav-item" data-tab="tennis">
+                    <span class="icon">🎾</span> Tennis Analytics
+                </button>
+                <button class="sidebar__nav-item" data-tab="baseball">
+                    <span class="icon">⚾</span> Baseball Analytics
+                </button>
+                <button class="sidebar__nav-item" data-tab="predictive">
+                    <span class="icon">🧠</span> AI Predictor
+                </button>
+            </nav>
+
+            <div class="sidebar__footer">
+                <div class="sidebar__profile">
+                    <div class="avatar">PRO</div>
+                    <div class="info">
+                        <span class="name">Premium Member</span>
+                        <span class="status">⚡ Unlimited Access</span>
+                    </div>
+                </div>
+                <a href="index.html" class="sidebar__logout">Back to Home →</a>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <main class="main-content">
+            
+            <!-- Top Header -->
+            <header class="header">
+                <div class="header__search">
+                    <span class="icon">🔍</span>
+                    <input type="text" placeholder="Search leagues, players, matches...">
+                </div>
+                <div class="header__actions">
+                    <div class="live-indicator">
+                        <span class="dot"></span>
+                        <span class="text">AI Prediction Engine Active</span>
+                    </div>
+                    <div class="notification-bell">
+                        <span class="icon">🔔</span>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="divider"></div>
+                    <span class="date-time" id="dateTime">Mon, July 6, 2026</span>
+                </div>
+            </header>
+
+            <!-- ==================== OVERVIEW TAB ==================== -->
+            <section class="tab-content active" id="tab-overview">
+                <div class="welcome-banner">
+                    <div class="welcome-banner__text">
+                        <h1>Welcome to Apex Analytics</h1>
+                        <p>Real-time machine learning predictions, advanced metrics, and custom visualizations across 147 leagues.</p>
+                    </div>
+                    <div class="welcome-banner__badge">Premium Pro Account</div>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card__header">
+                            <span class="title">Total Matches Simulated</span>
+                            <span class="icon">💻</span>
+                        </div>
+                        <div class="kpi-card__value">524,912</div>
+                        <div class="kpi-card__trend positive">⚡ +12.4% vs last week</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card__header">
+                            <span class="title">Prediction Accuracy</span>
+                            <span class="icon">🧠</span>
+                        </div>
+                        <div class="kpi-card__value">94.7%</div>
+                        <div class="kpi-card__trend positive">🎯 Backtested on 500K matches</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card__header">
+                            <span class="title">Hot Props Available</span>
+                            <span class="icon">🔥</span>
+                        </div>
+                        <div class="kpi-card__value">1,489</div>
+                        <div class="kpi-card__trend neutral">⚖️ Updated 2 mins ago</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card__header">
+                            <span class="title">Active Live Feeds</span>
+                            <span class="icon">📡</span>
+                        </div>
+                        <div class="kpi-card__value">23</div>
+                        <div class="kpi-card__trend positive">● Live tracking active</div>
+                    </div>
+                </div>
+
+                <!-- Live Matches Grid -->
+                <h2 class="section-title">Live Match Tracker</h2>
+                <div class="live-grid">
+                    <div class="live-card">
+                        <div class="live-card__header">
+                            <span class="league">Premier League</span>
+                            <span class="badge live">LIVE</span>
+                        </div>
+                        <div class="live-card__teams">
+                            <div class="team">
+                                <span class="name">Man City</span>
+                                <span class="score">2</span>
+                            </div>
+                            <div class="team">
+                                <span class="name">Liverpool</span>
+                                <span class="score">2</span>
+                            </div>
+                        </div>
+                        <div class="live-card__stats">
+                            <div class="time">78'</div>
+                            <div class="xg">xG: 2.15 - 1.84</div>
+                        </div>
+                        <div class="live-card__bar">
+                            <div class="fill" style="width: 53.5%; background: var(--gradient-cyan);"></div>
+                        </div>
+                        <div class="live-card__prediction">Win Probability: Man City 53.5% | Draw 28.1% | Liverpool 18.4%</div>
+                    </div>
+
+                    <div class="live-card">
+                        <div class="live-card__header">
+                            <span class="league">La Liga</span>
+                            <span class="badge live">LIVE</span>
+                        </div>
+                        <div class="live-card__teams">
+                            <div class="team">
+                                <span class="name">Real Madrid</span>
+                                <span class="score">1</span>
+                            </div>
+                            <div class="team">
+                                <span class="name">Barcelona</span>
+                                <span class="score">0</span>
+                            </div>
+                        </div>
+                        <div class="live-card__stats">
+                            <div class="time">62'</div>
+                            <div class="xg">xG: 1.48 - 0.92</div>
+                        </div>
+                        <div class="live-card__bar">
+                            <div class="fill" style="width: 71%; background: var(--gradient-purple);"></div>
+                        </div>
+                        <div class="live-card__prediction">Win Probability: Real Madrid 71.0% | Draw 19.5% | Barcelona 9.5%</div>
+                    </div>
+
+                    <div class="live-card">
+                        <div class="live-card__header">
+                            <span class="league">NBA</span>
+                            <span class="badge live">LIVE</span>
+                        </div>
+                        <div class="live-card__teams">
+                            <div class="team">
+                                <span class="name">LA Lakers</span>
+                                <span class="score">102</span>
+                            </div>
+                            <div class="team">
+                                <span class="name">Boston Celtics</span>
+                                <span class="score">98</span>
+                            </div>
+                        </div>
+                        <div class="live-card__stats">
+                            <div class="time">Q4 2:14</div>
+                            <div class="xg">Pace: 104.2</div>
+                        </div>
+                        <div class="live-card__bar">
+                            <div class="fill" style="width: 64.5%; background: var(--gradient-emerald);"></div>
+                        </div>
+                        <div class="live-card__prediction">Win Probability: LA Lakers 64.5% | Boston Celtics 35.5%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== FOOTBALL TAB ==================== -->
+            <section class="tab-content" id="tab-football">
+                <div class="tab-header">
+                    <h2>⚽ Football Intelligence</h2>
+                    <p>Compare elite players and track real-time Expected Goals (xG) metrics.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Player Comparison Widget -->
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Player X-Ray (Radar comparison)</h3>
+                            <div class="selectors">
+                                <select id="player1Select">
+                                    <option value="haaland">Erling Haaland</option>
+                                    <option value="mbappe" selected>Kylian Mbappé</option>
+                                    <option value="messi">Lionel Messi</option>
+                                </select>
+                                <span class="vs">vs</span>
+                                <select id="player2Select">
+                                    <option value="haaland" selected>Erling Haaland</option>
+                                    <option value="mbappe">Kylian Mbappé</option>
+                                    <option value="ronaldo">Cristiano Ronaldo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-card__body radar-body">
+                            <div class="chart-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- xG Progression Chart -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Expected Goals (xG) Trend</h3>
+                            <span class="badge">Last 10 Games</span>
+                        </div>
+                        <div class="grid-card__body">
+                            <div class="chart-container-sm">
+                                <canvas id="xgLineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passing Network visualizer -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Tactical Passing Network</h3>
+                            <span class="badge">Team Average</span>
+                        </div>
+                        <div class="grid-card__body passing-network-container">
+                            <svg viewBox="0 0 200 150" class="passing-network">
+                                <!-- Pitch outline -->
+                                <rect x="5" y="5" width="190" height="140" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                                <line x1="100" y1="5" x2="100" y2="145" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                                <circle cx="100" cy="75" r="25" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                                
+                                <!-- Connection Lines (Passes) -->
+                                <line x1="30" y1="75" x2="70" y2="35" stroke="rgba(0, 229, 255, 0.4)" stroke-width="2"/>
+                                <line x1="30" y1="75" x2="70" y2="115" stroke="rgba(0, 229, 255, 0.4)" stroke-width="1.5"/>
+                                <line x1="70" y1="35" x2="120" y2="45" stroke="rgba(139, 92, 246, 0.5)" stroke-width="3"/>
+                                <line x1="70" y1="115" x2="120" y2="105" stroke="rgba(139, 92, 246, 0.4)" stroke-width="2.5"/>
+                                <line x1="120" y1="45" x2="120" y2="105" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1"/>
+                                <line x1="120" y1="45" x2="170" y2="75" stroke="rgba(0, 255, 135, 0.6)" stroke-width="4"/>
+                                <line x1="120" y1="105" x2="170" y2="75" stroke="rgba(0, 255, 135, 0.5)" stroke-width="3"/>
+
+                                <!-- Nodes (Players) -->
+                                <circle cx="30" cy="75" r="7" fill="#00e5ff" class="node"/>
+                                <circle cx="70" cy="35" r="7" fill="#8b5cf6" class="node"/>
+                                <circle cx="70" cy="115" r="7" fill="#8b5cf6" class="node"/>
+                                <circle cx="120" cy="45" r="7" fill="#8b5cf6" class="node"/>
+                                <circle cx="120" cy="105" r="7" fill="#8b5cf6" class="node"/>
+                                <circle cx="170" cy="75" r="7" fill="#00ff87" class="node"/>
+
+                                <!-- Text labels -->
+                                <text x="30" y="62" font-size="6" fill="#fff" text-anchor="middle">DM (Rodri)</text>
+                                <text x="70" y="22" font-size="6" fill="#fff" text-anchor="middle">LCM (KDB)</text>
+                                <text x="70" y="130" font-size="6" fill="#fff" text-anchor="middle">RCM (Silva)</text>
+                                <text x="170" y="90" font-size="6" fill="#fff" text-anchor="middle">ST (Haaland)</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== BASKETBALL TAB ==================== -->
+            <section class="tab-content" id="tab-basketball">
+                <div class="tab-header">
+                    <h2>🏀 Basketball Analytics</h2>
+                    <p>Interactive shot tracking and zone analysis. Click court zones to inspect efficiency metrics.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Interactive Half Court -->
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Interactive Court Shot Distribution</h3>
+                            <span class="badge">Click a Zone to Analyze</span>
+                        </div>
+                        <div class="grid-card__body court-body">
+                            <!-- SVG Court Heatmap -->
+                            <svg viewBox="0 0 300 200" class="basketball-court" id="courtSvg">
+                                <!-- Base court lines -->
+                                <rect x="0" y="0" width="300" height="200" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+                                <!-- Key / Paint -->
+                                <rect x="110" y="0" width="80" height="76" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+                                <rect x="126" y="0" width="48" height="76" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+                                <!-- Backboard & Rim -->
+                                <line x1="140" y1="16" x2="160" y2="16" stroke="#fff" stroke-width="2"/>
+                                <circle cx="150" cy="22" r="6" fill="none" stroke="#fff" stroke-width="2"/>
+                                <!-- 3 Point Arc -->
+                                <path d="M 30,0 L 30,56 A 120,120 0 0,0 270,56 L 270,0" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+                                <!-- Center Jump Circle -->
+                                <path d="M 120,200 A 30,30 0 0,1 180,200" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+                                <!-- Zones (Pulsing / glowing hover regions) -->
+                                <!-- Paint Zone -->
+                                <rect x="126" y="2" width="48" height="50" class="court-zone zone-paint" data-zone="paint"/>
+                                <!-- Mid Range Left -->
+                                <path d="M 32,2 A 118,118 0 0,0 125,74 L 125,2 Z" class="court-zone zone-mid-left" data-zone="mid-left"/>
+                                <!-- Mid Range Right -->
+                                <path d="M 175,74 A 118,118 0 0,0 268,2 L 175,2 Z" class="court-zone zone-mid-right" data-zone="mid-right"/>
+                                <!-- 3pt Corner Left -->
+                                <path d="M 0,0 L 28,0 L 28,56 A 120,120 0 0,0 70,120 L 0,120 Z" class="court-zone zone-three-left" data-zone="three-left"/>
+                                <!-- 3pt Corner Right -->
+                                <path d="M 300,0 L 272,0 L 272,56 A 120,120 0 0,1 230,120 L 300,120 Z" class="court-zone zone-three-right" data-zone="three-right"/>
+                                <!-- Deep Three (Top of key) -->
+                                <path d="M 70,120 A 120,120 0 0,0 230,120 L 150,200 Z" class="court-zone zone-three-deep" data-zone="three-deep"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Zone Statistics Card -->
+                    <div class="grid-card" id="zoneStatsCard">
+                        <div class="grid-card__header">
+                            <h3>Zone Performance Data</h3>
+                            <span class="badge" id="activeZoneLabel">Select a Zone</span>
+                        </div>
+                        <div class="grid-card__body zone-stats-body">
+                            <div class="zone-stat">
+                                <span class="label">Field Goal %</span>
+                                <span class="value" id="fgPercent">-</span>
+                            </div>
+                            <div class="zone-stat">
+                                <span class="label">Attempts</span>
+                                <span class="value" id="attempts">-</span>
+                            </div>
+                            <div class="zone-stat">
+                                <span class="label">Points Per Possession</span>
+                                <span class="value" id="ppp">-</span>
+                            </div>
+                            <div class="zone-stat">
+                                <span class="label">League Average</span>
+                                <span class="value" id="leagueAvg">-</span>
+                            </div>
+                            <div class="zone-bar-container">
+                                <div class="zone-bar-label">Efficiency vs League Average</div>
+                                <div class="zone-bar">
+                                    <div class="fill" id="efficiencyFill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== TENNIS TAB ==================== -->
+            <section class="tab-content" id="tab-tennis">
+                <div class="tab-header">
+                    <h2>🎾 Tennis Intelligence</h2>
+                    <p>Serve heatmaps, head-to-head breakdowns, and real-time match momentum tracking across ATP & WTA.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Player Head to Head -->
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Player Head-to-Head Radar</h3>
+                            <div class="selectors">
+                                <select id="tennisPlayer1">
+                                    <option value="djokovic" selected>Novak Djokovic</option>
+                                    <option value="alcaraz">Carlos Alcaraz</option>
+                                    <option value="sinner">Jannik Sinner</option>
+                                    <option value="medvedev">Daniil Medvedev</option>
+                                </select>
+                                <span class="vs">vs</span>
+                                <select id="tennisPlayer2">
+                                    <option value="djokovic">Novak Djokovic</option>
+                                    <option value="alcaraz" selected>Carlos Alcaraz</option>
+                                    <option value="sinner">Jannik Sinner</option>
+                                    <option value="medvedev">Daniil Medvedev</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid-card__body radar-body">
+                            <div class="chart-container">
+                                <canvas id="tennisRadarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Serve Heatmap -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Serve Placement Heatmap</h3>
+                            <span class="badge">First Serve</span>
+                        </div>
+                        <div class="grid-card__body" style="flex-direction:column;gap:12px;">
+                            <svg viewBox="0 0 180 120" class="tennis-court" id="tennisCourt">
+                                <!-- Court outline -->
+                                <rect x="10" y="10" width="160" height="100" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                                <!-- Service boxes -->
+                                <line x1="90" y1="10" x2="90" y2="110" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                                <line x1="10" y1="60" x2="170" y2="60" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                                <!-- Net -->
+                                <line x1="10" y1="60" x2="170" y2="60" stroke="rgba(255,255,255,0.35)" stroke-width="2.5"/>
+                                <!-- Serve zones: T / Body / Wide -->
+                                <!-- Wide Left -->
+                                <rect x="11" y="11" width="39" height="48" class="serve-zone" data-zone="wide-left" fill="rgba(139,92,246,0.25)" stroke="rgba(139,92,246,0.5)" stroke-width="1" rx="2"/>
+                                <!-- T / Center Left -->
+                                <rect x="51" y="11" width="38" height="48" class="serve-zone" data-zone="t-left" fill="rgba(0,229,255,0.35)" stroke="rgba(0,229,255,0.6)" stroke-width="1" rx="2"/>
+                                <!-- T / Center Right -->
+                                <rect x="91" y="11" width="38" height="48" class="serve-zone" data-zone="t-right" fill="rgba(0,229,255,0.35)" stroke="rgba(0,229,255,0.6)" stroke-width="1" rx="2"/>
+                                <!-- Wide Right -->
+                                <rect x="130" y="11" width="39" height="48" class="serve-zone" data-zone="wide-right" fill="rgba(139,92,246,0.25)" stroke="rgba(139,92,246,0.5)" stroke-width="1" rx="2"/>
+                                <!-- Labels -->
+                                <text x="30" y="40" font-size="7" fill="rgba(255,255,255,0.7)" text-anchor="middle">Wide</text>
+                                <text x="70" y="40" font-size="7" fill="rgba(255,255,255,0.9)" text-anchor="middle">T-Zone</text>
+                                <text x="110" y="40" font-size="7" fill="rgba(255,255,255,0.9)" text-anchor="middle">T-Zone</text>
+                                <text x="150" y="40" font-size="7" fill="rgba(255,255,255,0.7)" text-anchor="middle">Wide</text>
+                                <text x="90" y="57" font-size="6" fill="rgba(255,255,255,0.35)" text-anchor="middle">NET</text>
+                            </svg>
+                            <div class="serve-zone-stats" id="serveZoneStats">
+                                <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;">Click a zone to see stats</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Match Score -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Live Match Score</h3>
+                            <span class="badge live" style="background:rgba(0,255,135,0.1);color:#00ff87;animation:livePulse 2s infinite;">● LIVE</span>
+                        </div>
+                        <div class="grid-card__body" style="flex-direction:column;gap:16px;width:100%;">
+                            <div class="tennis-score-board">
+                                <div class="tennis-score-row header-row">
+                                    <span></span><span>Set 1</span><span>Set 2</span><span>Set 3</span><span>Pts</span>
+                                </div>
+                                <div class="tennis-score-row">
+                                    <span class="player-name">Djokovic</span><span>6</span><span>4</span><span>5</span><span class="current-pts" style="color:#00e5ff;">40</span>
+                                </div>
+                                <div class="tennis-score-row">
+                                    <span class="player-name">Alcaraz</span><span>3</span><span>6</span><span>4</span><span class="current-pts" style="color:#a78bfa;">30</span>
+                                </div>
+                            </div>
+                            <div class="tennis-stat-row"><span>Aces</span><span style="color:#00e5ff;">12</span><span style="color:#a78bfa;">8</span></div>
+                            <div class="tennis-stat-row"><span>1st Serve %</span><span style="color:#00e5ff;">72%</span><span style="color:#a78bfa;">68%</span></div>
+                            <div class="tennis-stat-row"><span>Break Points</span><span style="color:#00e5ff;">2/5</span><span style="color:#a78bfa;">3/7</span></div>
+                            <div class="tennis-stat-row"><span>Winners</span><span style="color:#00e5ff;">34</span><span style="color:#a78bfa;">41</span></div>
+                            <div class="tennis-stat-row"><span>Unforced Errors</span><span style="color:#00e5ff;">18</span><span style="color:#a78bfa;">22</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Serve Speed Chart -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Serve Speed Distribution</h3>
+                            <span class="badge">mph</span>
+                        </div>
+                        <div class="grid-card__body">
+                            <div class="chart-container-sm">
+                                <canvas id="serveSpeedChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== BASEBALL TAB ==================== -->
+            <section class="tab-content" id="tab-baseball">
+                <div class="tab-header">
+                    <h2>⚾ Baseball Intelligence</h2>
+                    <p>Pitch type tendencies, interactive strike zone analysis, and batter vs pitcher matchup breakdowns.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Strike Zone Grid -->
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Interactive Strike Zone Analysis</h3>
+                            <div class="selectors">
+                                <select id="baseballBatter">
+                                    <option value="judge" selected>Aaron Judge</option>
+                                    <option value="ohtani">Shohei Ohtani</option>
+                                    <option value="acuna">Ronald Acuña Jr.</option>
+                                    <option value="betts">Mookie Betts</option>
+                                </select>
+                                <span class="vs">vs RHP</span>
+                            </div>
+                        </div>
+                        <div class="grid-card__body" style="gap:24px;flex-wrap:wrap;">
+                            <div>
+                                <p style="color:var(--text-muted);font-size:0.75rem;text-align:center;margin-bottom:8px;text-transform:uppercase;">Click a zone — Batting Average</p>
+                                <svg viewBox="0 0 150 150" class="strike-zone-svg" id="strikeZoneSvg">
+                                    <!-- Outer zone border -->
+                                    <rect x="30" y="15" width="90" height="120" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                    <!-- 9 zone grid (3x3) -->
+                                    <!-- Row 1 (High) -->
+                                    <rect x="31" y="16" width="29" height="39" class="sz-zone" data-zone="sz-hl" fill="rgba(0,229,255,0.15)" stroke="rgba(255,255,255,0.1)"/>
+                                    <rect x="61" y="16" width="29" height="39" class="sz-zone" data-zone="sz-hm" fill="rgba(0,255,135,0.2)" stroke="rgba(255,255,255,0.1)"/>
+                                    <rect x="91" y="16" width="28" height="39" class="sz-zone" data-zone="sz-hr" fill="rgba(0,229,255,0.15)" stroke="rgba(255,255,255,0.1)"/>
+                                    <!-- Row 2 (Middle) -->
+                                    <rect x="31" y="56" width="29" height="39" class="sz-zone" data-zone="sz-ml" fill="rgba(0,255,135,0.2)" stroke="rgba(255,255,255,0.1)"/>
+                                    <rect x="61" y="56" width="29" height="39" class="sz-zone" data-zone="sz-mm" fill="rgba(0,255,135,0.45)" stroke="rgba(0,255,135,0.4)"/>
+                                    <rect x="91" y="56" width="28" height="39" class="sz-zone" data-zone="sz-mr" fill="rgba(0,255,135,0.2)" stroke="rgba(255,255,255,0.1)"/>
+                                    <!-- Row 3 (Low) -->
+                                    <rect x="31" y="96" width="29" height="38" class="sz-zone" data-zone="sz-ll" fill="rgba(236,72,153,0.2)" stroke="rgba(255,255,255,0.1)"/>
+                                    <rect x="61" y="96" width="29" height="38" class="sz-zone" data-zone="sz-lm" fill="rgba(0,229,255,0.15)" stroke="rgba(255,255,255,0.1)"/>
+                                    <rect x="91" y="96" width="28" height="38" class="sz-zone" data-zone="sz-lr" fill="rgba(236,72,153,0.2)" stroke="rgba(255,255,255,0.1)"/>
+                                    <!-- Zone labels -->
+                                    <text x="45" y="40" font-size="9" fill="rgba(255,255,255,0.6)" text-anchor="middle">.241</text>
+                                    <text x="75" y="40" font-size="9" fill="rgba(0,255,135,0.9)" text-anchor="middle">.312</text>
+                                    <text x="105" y="40" font-size="9" fill="rgba(255,255,255,0.6)" text-anchor="middle">.258</text>
+                                    <text x="45" y="80" font-size="9" fill="rgba(0,255,135,0.9)" text-anchor="middle">.289</text>
+                                    <text x="75" y="80" font-size="9" fill="rgba(0,255,135,1)" text-anchor="middle" font-weight="bold">.398</text>
+                                    <text x="105" y="80" font-size="9" fill="rgba(0,255,135,0.9)" text-anchor="middle">.301</text>
+                                    <text x="45" y="119" font-size="9" fill="rgba(236,72,153,0.9)" text-anchor="middle">.198</text>
+                                    <text x="75" y="119" font-size="9" fill="rgba(255,255,255,0.6)" text-anchor="middle">.267</text>
+                                    <text x="105" y="119" font-size="9" fill="rgba(236,72,153,0.9)" text-anchor="middle">.211</text>
+                                </svg>
+                            </div>
+                            <div class="baseball-zone-info" id="baseballZoneInfo" style="flex:1;min-width:200px;">
+                                <div class="zone-stat" style="border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:12px;margin-bottom:12px;">
+                                    <span class="label">Zone</span><span class="value" id="szZoneName">Middle-Middle</span>
+                                </div>
+                                <div class="zone-stat"><span class="label">Batting Average</span><span class="value" id="szBA">.398</span></div>
+                                <div class="zone-stat"><span class="label">OPS</span><span class="value" id="szOPS">1.142</span></div>
+                                <div class="zone-stat"><span class="label">Pitches Seen</span><span class="value" id="szPitches">312</span></div>
+                                <div class="zone-stat"><span class="label">Swing %</span><span class="value" id="szSwing">78%</span></div>
+                                <div class="zone-bar-container" style="margin-top:8px;">
+                                    <div class="zone-bar-label">Contact Rate</div>
+                                    <div class="zone-bar"><div class="fill" id="szContactFill" style="width:88%;background:var(--gradient-emerald);"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pitch Arsenal -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Pitcher Arsenal</h3>
+                            <span class="badge">Gerrit Cole vs Judge</span>
+                        </div>
+                        <div class="grid-card__body">
+                            <div class="chart-container-sm">
+                                <canvas id="pitchArsenalChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Game Box Score -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Live Box Score</h3>
+                            <span class="badge live" style="background:rgba(0,255,135,0.1);color:#00ff87;animation:livePulse 2s infinite;">● LIVE</span>
+                        </div>
+                        <div class="grid-card__body" style="flex-direction:column;gap:12px;width:100%;">
+                            <div class="baseball-score-board">
+                                <div class="baseball-score-row header-row">
+                                    <span></span>
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+                                    <span style="font-weight:800;">R</span><span>H</span><span>E</span>
+                                </div>
+                                <div class="baseball-score-row">
+                                    <span class="player-name">NYY</span>
+                                    <span>0</span><span>2</span><span>0</span><span>1</span><span>0</span><span>3</span><span>0</span>
+                                    <span style="color:#00e5ff;font-weight:800;">6</span><span>9</span><span>1</span>
+                                </div>
+                                <div class="baseball-score-row">
+                                    <span class="player-name">LAD</span>
+                                    <span>1</span><span>0</span><span>2</span><span>0</span><span>0</span><span>1</span><span>0</span>
+                                    <span style="color:#a78bfa;font-weight:800;">4</span><span>7</span><span>0</span>
+                                </div>
+                            </div>
+                            <div class="baseball-meta">
+                                <span>🔵 Bottom 7th • 1 Out</span>
+                                <span>Runners: 1st & 2nd</span>
+                            </div>
+                            <div class="tennis-stat-row"><span>ERA (Cole)</span><span style="color:#00e5ff;">2.88</span></div>
+                            <div class="tennis-stat-row"><span>Strikeouts</span><span style="color:#00e5ff;">9</span></div>
+                            <div class="tennis-stat-row"><span>Pitches Thrown</span><span style="color:#00e5ff;">103</span></div>
+                            <div class="tennis-stat-row"><span>Win Prob (NYY)</span><span style="color:#00ff87;">76.4%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== PREDICTIVE TAB ==================== -->
+            <section class="tab-content" id="tab-predictive">
+                <div class="tab-header">
+                    <h2>🧠 AI Predictive Simulator</h2>
+                    <p>Configure team settings, choose environment parameters, and run real-time machine learning predictions.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Control Settings Panel -->
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Simulator Controls</h3>
+                        </div>
+                        <div class="grid-card__body controls-body">
+                            <div class="control-row">
+                                <label for="homeTeam">Home Team</label>
+                                <select id="homeTeam">
+                                    <option value="Real Madrid" selected>Real Madrid</option>
+                                    <option value="Man City">Man City</option>
+                                    <option value="Bayern Munich">Bayern Munich</option>
+                                    <option value="Barcelona">Barcelona</option>
+                                </select>
+                            </div>
+                            <div class="control-row">
+                                <label for="awayTeam">Away Team</label>
+                                <select id="awayTeam">
+                                    <option value="Real Madrid">Real Madrid</option>
+                                    <option value="Man City" selected>Man City</option>
+                                    <option value="Bayern Munich">Bayern Munich</option>
+                                    <option value="Barcelona">Barcelona</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-row slider-row">
+                                <div class="slider-label">
+                                    <span>Home Attack Strength</span>
+                                    <span id="homeAttackVal">85</span>
+                                </div>
+                                <input type="range" id="homeAttack" min="50" max="100" value="85">
+                            </div>
+
+                            <div class="control-row slider-row">
+                                <div class="slider-label">
+                                    <span>Away Attack Strength</span>
+                                    <span id="awayAttackVal">88</span>
+                                </div>
+                                <input type="range" id="awayAttack" min="50" max="100" value="88">
+                            </div>
+
+                            <div class="control-row">
+                                <label for="weather">Pitch Weather</label>
+                                <select id="weather">
+                                    <option value="sunny">Sunny / Clear</option>
+                                    <option value="rain">Rain / Heavy Pitch</option>
+                                    <option value="snow">Snow / Cold</option>
+                                    <option value="windy">Windy</option>
+                                </select>
+                            </div>
+
+                            <button class="btn-simulate" id="startSimBtn">Run AI Simulation ⚡</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Ticker Feed -->
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Live Simulation Log</h3>
+                            <span class="badge" id="simStatus">Ready</span>
+                        </div>
+                        <div class="grid-card__body sim-body">
+                            <!-- Progress Bar Probability -->
+                            <div class="sim-probability">
+                                <div class="prob-label">Real-time Win Probability</div>
+                                <div class="prob-bar">
+                                    <div class="home-prob" id="homeProbBar" style="width: 35%">Home: 35%</div>
+                                    <div class="draw-prob" id="drawProbBar" style="width: 30%">Draw: 30%</div>
+                                    <div class="away-prob" id="awayProbBar" style="width: 35%">Away: 35%</div>
+                                </div>
+                            </div>
+
+                            <div class="console-wrapper">
+                                <div class="console-header">
+                                    <span>Match Events Feed</span>
+                                    <span class="live-blink" id="liveBlink" style="display:none">● SIMULATING</span>
+                                </div>
+                                <div class="console" id="consoleOutput">
+                                    <div class="system-msg">Press "Run AI Simulation" to evaluate variables...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="lightning.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

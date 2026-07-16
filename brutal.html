@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brutal Analytics — The Math Behind Every Match</title>
+    <meta name="description" content="Africa's first independent sports probability engine. We run 10,000+ Monte Carlo simulations per match to reveal True Odds, Expected Value, and value gaps the bookmakers don't want you to see.">
+    <meta property="og:title" content="Brutal Analytics — We Don't Follow The Market. The Market Follows Us.">
+    <meta property="og:description" content="Proprietary xG models + Monte Carlo simulations. True Odds. Real EV. African-first.">
+    <link rel="stylesheet" href="brutal.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ── LIGHTNING ── -->
+    <script src="lightning.js"></script>
+
+    <!-- ── PRELOADER ── -->
+    <div class="preloader" id="preloader">
+        <canvas id="preloader-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+        <div class="preloader__inner">
+            <div class="preloader__logo">
+                <span class="preloader__logo-brutal">BRUTAL</span>
+                <span class="preloader__logo-analytics">ANALYTICS</span>
+            </div>
+            <div class="preloader__bar-wrap">
+                <div class="preloader__bar"></div>
+            </div>
+            <div class="preloader__tagline">Initialising Simulation Engine...</div>
+        </div>
+    </div>
+
+    <!-- Preloader storm -->
+    <script>
+    !function(){
+      var c=document.getElementById('preloader-canvas');if(!c)return;
+      var x=c.getContext('2d'),W,H;
+      function rsz(){W=c.width=(window.innerWidth||screen.width||1920);H=c.height=(window.innerHeight||screen.height||1080);}
+      rsz();window.addEventListener('resize',rsz);
+      var bolts=[],sky=0,skyX=0.5,fid,next=performance.now();
+      function bolt(cx,cy,ang,rem,dep,al,arr){
+        while(rem>0){
+          ang+=(Math.random()-.5)*1.25;ang+=(Math.random()-.5)*0.3;
+          var l=Math.min(rem,25+Math.random()*60),nx=cx+Math.cos(ang)*l,ny=cy+Math.sin(ang)*l;
+          arr.push({x1:cx,y1:cy,x2:nx,y2:ny,a:al});
+          if(dep>0&&Math.random()<0.40){var ba=ang+(Math.random()>.5?1:-1)*(0.4+Math.random()*0.9);bolt(nx,ny,ba,rem*(0.28+Math.random()*0.42),dep-1,al*0.58,arr);}
+          if(dep>1&&Math.random()<0.12){bolt(nx,ny,ang+(Math.random()-.5)*0.5,rem*(0.12+Math.random()*0.2),dep-2,al*0.38,arr);}
+          cx=nx;cy=ny;rem-=l;
+        }
+      }
+      function pat(now){
+        var f1={s:now,d:38+Math.random()*48},f2=Math.random()<.78?{s:f1.s+f1.d+20+Math.random()*50,d:22+Math.random()*35}:null;
+        var f3=f2&&Math.random()<.5?{s:f2.s+f2.d+15+Math.random()*30,d:14+Math.random()*22}:null;
+        var all=[f1,f2,f3].filter(Boolean),last=all[all.length-1];
+        return{fl:all,fs:last.s+last.d,fd:100+Math.random()*160};
+      }
+      function spawn(xf,lf,al){
+        var arr=[],sx=W*(xf!=null?xf:0.03+Math.random()*0.94);
+        bolt(sx,-10,Math.PI/2+(Math.random()-.5)*0.85,H*(lf||(.65+Math.random()*.38)),6,al||1,arr);
+        var now=performance.now();bolts.push({s:arr,p:pat(now),dead:false});
+        sky=Math.max(sky,.32);skyX=sx/W;
+      }
+      function alpha(b,now){
+        var p=b.p;
+        for(var i=0;i<p.fl.length;i++){var f=p.fl[i];if(now>=f.s&&now<f.s+f.d)return .88+.12*Math.random();}
+        for(var i=0;i<p.fl.length-1;i++){if(now>=p.fl[i].s+p.fl[i].d&&now<p.fl[i+1].s)return .07+.06*Math.random();}
+        if(now>=p.fs){var t=(now-p.fs)/p.fd;if(t>=1){b.dead=true;return 0;}return(1-t)*.05;}
+        return 0;
+      }
+      function draw(b,now){
+        var ma=alpha(b,now);if(ma<.004)return;
+        b.s.forEach(function(sg){
+          var a=ma*sg.a;if(a<.004)return;
+          x.save();x.globalAlpha=a*.12;x.strokeStyle='#3388ff';x.lineWidth=20;x.shadowColor='#0044ff';x.shadowBlur=25;x.lineCap='round';x.beginPath();x.moveTo(sg.x1,sg.y1);x.lineTo(sg.x2,sg.y2);x.stroke();x.restore();
+          x.save();x.globalAlpha=a*.28;x.strokeStyle='#88ccff';x.lineWidth=7;x.shadowColor='#00aaff';x.shadowBlur=12;x.lineCap='round';x.beginPath();x.moveTo(sg.x1,sg.y1);x.lineTo(sg.x2,sg.y2);x.stroke();x.restore();
+          x.save();x.globalAlpha=a*.68;x.strokeStyle='#cce8ff';x.lineWidth=2.0;x.shadowColor='#66bbff';x.shadowBlur=6;x.lineCap='round';x.beginPath();x.moveTo(sg.x1,sg.y1);x.lineTo(sg.x2,sg.y2);x.stroke();x.restore();
+          x.save();x.globalAlpha=a;x.strokeStyle='#ffffff';x.lineWidth=0.8;x.lineCap='round';x.beginPath();x.moveTo(sg.x1,sg.y1);x.lineTo(sg.x2,sg.y2);x.stroke();x.restore();
+        });
+      }
+      function render(now){
+        x.clearRect(0,0,W,H);
+        if(sky>.003){
+          var gx=W*skyX,g=x.createRadialGradient(gx,0,0,gx,H*.08,H*1.0);
+          g.addColorStop(0,'rgba(0,195,255,'+sky.toFixed(3)+')');
+          g.addColorStop(.25,'rgba(0,70,180,'+(sky*.45).toFixed(3)+')');
+          g.addColorStop(.6,'rgba(0,20,70,'+(sky*.12).toFixed(3)+')');
+          g.addColorStop(1,'rgba(0,0,0,0)');
+          x.fillStyle=g;x.fillRect(0,0,W,H);sky*=.74;
+        }
+        if(now>=next&&bolts.length<9){
+          spawn();
+          var extras=Math.random()<.12?3:Math.random()<.3?2:Math.random()<.55?1:0;
+          for(var e=0;e<extras;e++){(function(e){setTimeout(function(){if(bolts.length<9)spawn(null,.35+Math.random()*.45,.82);},55+e*90+Math.random()*80);})(e);}
+          next=now+150+Math.random()*650;
+        }
+        bolts=bolts.filter(function(b){return!b.dead;});
+        if(bolts.length>9)bolts.splice(0,bolts.length-9);
+        bolts.forEach(function(b){draw(b,now);});
+        fid=requestAnimationFrame(render);
+      }
+      fid=requestAnimationFrame(render);
+      new MutationObserver(function(){
+        var p=document.getElementById('preloader');
+        if(p&&p.classList.contains('hidden')){cancelAnimationFrame(fid);}
+      }).observe(document.getElementById('preloader'),{attributes:true,attributeFilter:['class']});
+    }();
+    </script>
+
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <span class="nav-logo__brutal">BRUTAL</span>
+                <span class="nav-logo__a">ANALYTICS</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#engine">Engine</a>
+                <a href="#value">Value Detection</a>
+                <a href="#features">Features</a>
+                <a href="betbuilder.html">Odds Builder</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#" class="nav-cta">Get Early Access</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero" id="hero">
+        <div class="hero__bg-noise"></div>
+
+        <div class="hero__content">
+            <div class="hero__eyebrow">
+                <span class="pulse-dot pulse-dot--red"></span>
+                Africa's First Independent Probability Engine — Live Beta
+            </div>
+
+            <h1 class="hero__title">
+                We Don't Follow<br>
+                <span class="hero__title-accent">The Market.</span><br>
+                <span class="hero__title-dim">The Market Follows Us.</span>
+            </h1>
+
+            <p class="hero__sub">
+                Bookies set odds based on <strong>fear and greed</strong>.<br>
+                We run <strong>10,000+ Monte Carlo simulations</strong> per match to reveal what the odds <em>should</em> actually be.
+            </p>
+
+            <div class="hero__actions">
+                <a href="#pricing" class="btn-brutal">Join Founder's 20 — ₦5,000/mo</a>
+                <a href="#engine" class="btn-ghost">How It Works ↓</a>
+            </div>
+
+            <!-- Live match odds demo -->
+            <div class="hero__live-demo">
+                <div class="live-demo__header">
+                    <span class="live-badge">LIVE</span>
+                    <span class="live-demo__match">Arsenal vs Chelsea · Premier League · 62'</span>
+                    <span class="live-demo__time" id="liveTimer">63:22</span>
+                </div>
+                <div class="live-demo__grid">
+                    <div class="odds-cell odds-cell--value">
+                        <div class="odds-cell__label">Arsenal Win</div>
+                        <div class="odds-cell__true">True: <strong>1.85</strong></div>
+                        <div class="odds-cell__market">Market: 2.30</div>
+                        <div class="odds-cell__badge odds-cell__badge--value">▲ VALUE +24%</div>
+                    </div>
+                    <div class="odds-cell">
+                        <div class="odds-cell__label">Draw</div>
+                        <div class="odds-cell__true">True: <strong>3.40</strong></div>
+                        <div class="odds-cell__market">Market: 3.20</div>
+                        <div class="odds-cell__badge odds-cell__badge--neutral">≈ FAIR</div>
+                    </div>
+                    <div class="odds-cell odds-cell--trap">
+                        <div class="odds-cell__label">Chelsea Win</div>
+                        <div class="odds-cell__true">True: <strong>5.10</strong></div>
+                        <div class="odds-cell__market">Market: 4.00</div>
+                        <div class="odds-cell__badge odds-cell__badge--trap">▼ TRAP −21%</div>
+                    </div>
+                </div>
+                <div class="live-demo__ev">
+                    <div class="ev-stat"><span>EV (Arsenal Win @ 2.30)</span><strong class="ev-pos">+₦245 per ₦1,000</strong></div>
+                    <div class="ev-stat"><span>Model Confidence</span><strong>8.2 / 10</strong></div>
+                    <div class="ev-stat"><span>Simulations Run</span><strong class="mono">10,247</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating stat cards -->
+        <div class="hero__float-cards">
+            <div class="float-card float-card--1" data-float="1">
+                <div class="float-card__icon">📊</div>
+                <div class="float-card__val">94.7%</div>
+                <div class="float-card__label">Model Accuracy</div>
+            </div>
+            <div class="float-card float-card--2" data-float="2">
+                <div class="float-card__icon">🎯</div>
+                <div class="float-card__val">10K+</div>
+                <div class="float-card__label">Sims per Match</div>
+            </div>
+            <div class="float-card float-card--3" data-float="3">
+                <div class="float-card__icon">⚡</div>
+                <div class="float-card__val">147</div>
+                <div class="float-card__label">Leagues Tracked</div>
+            </div>
+        </div>
+
+        <!-- Ticker -->
+        <div class="ticker-wrap">
+            <div class="ticker" id="ticker">
+                <div class="ticker__inner">
+                    <span>⚡ Arsenal vs Chelsea — Value Gap Detected +24%</span>
+                    <span>🔴 TRAP: PSG win @ 1.40 — True Odds 1.72 — Avoid</span>
+                    <span>📊 Man City xG this season: 2.31 per match (League Best)</span>
+                    <span>🎯 EV Alert: Osimhen to score anytime @ 3.20 — True: 2.65</span>
+                    <span>🌍 AFCON Qualifier — Nigeria vs Ghana — Simulation live</span>
+                    <span>📈 10,247 simulations completed in last 60 seconds</span>
+                    <span>⚡ Arsenal vs Chelsea — Value Gap Detected +24%</span>
+                    <span>🔴 TRAP: PSG win @ 1.40 — True Odds 1.72 — Avoid</span>
+                    <span>📊 Man City xG this season: 2.31 per match (League Best)</span>
+                    <span>🎯 EV Alert: Osimhen to score anytime @ 3.20 — True: 2.65</span>
+                    <span>🌍 AFCON Qualifier — Nigeria vs Ghana — Simulation live</span>
+                    <span>📈 10,247 simulations completed in last 60 seconds</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PROBLEM STATEMENT ── -->
+    <section class="problem" id="problem">
+        <div class="section-inner">
+            <div class="section-label section-label--red">THE PROBLEM</div>
+            <h2 class="section-title">Bookmakers Don't Set Odds<br>Based on <em>Reality</em></h2>
+            <p class="section-sub">They set odds based on <strong>risk management, margins, and public sentiment</strong>. That creates gaps. We find them.</p>
+
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-card__num">01</div>
+                    <h3>Blind Following</h3>
+                    <p>Most bettors follow bookie odds blindly. There is no independent analysis. No mathematical basis. Just vibes.</p>
+                    <div class="problem-card__solution">
+                        <span class="solution-tag">Our Answer</span>
+                        <span>True Odds from scratch using proprietary xG + Monte Carlo models.</span>
+                    </div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card__num">02</div>
+                    <h3>No EV Framework</h3>
+                    <p>Users have no way to know which bets are mathematically profitable over the long term. EV is invisible.</p>
+                    <div class="problem-card__solution">
+                        <span class="solution-tag">Our Answer</span>
+                        <span>Every market shows Expected Value. Every time. No exceptions.</span>
+                    </div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card__num">03</div>
+                    <h3>Zero Transparency</h3>
+                    <p>Tipsters hide their track records. You never know their real accuracy. It's all marketing.</p>
+                    <div class="problem-card__solution">
+                        <span class="solution-tag">Our Answer</span>
+                        <span>Public Ledger: every prediction timestamped and publicly visible. Forever.</span>
+                    </div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card__num">04</div>
+                    <h3>African Market Ignored</h3>
+                    <p>Every analytics platform focuses on European leagues. SportyBet and Bet9ja users are treated as an afterthought.</p>
+                    <div class="problem-card__solution">
+                        <span class="solution-tag">Our Answer</span>
+                        <span>African leagues first. AFCON, CAF Champions, Nigerian leagues. Priced in ₦.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── ENGINE ── -->
+    <section class="engine" id="engine">
+        <div class="section-inner">
+            <div class="section-label">THE ENGINE</div>
+            <h2 class="section-title">How We Build<br><span class="accent-red">True Odds</span></h2>
+
+            <div class="engine-flow">
+                <div class="engine-step">
+                    <div class="engine-step__num">01</div>
+                    <div class="engine-step__icon">📡</div>
+                    <h3>Data Ingestion</h3>
+                    <p>Live shots, passes, tackles, player stats, injuries, weather, travel distance, fixture congestion — ingested every 30 seconds.</p>
+                    <div class="engine-step__tags">
+                        <span>xG Data</span><span>Player Form</span><span>Weather API</span><span>Injury Feed</span>
+                    </div>
+                </div>
+                <div class="engine-arrow">→</div>
+                <div class="engine-step">
+                    <div class="engine-step__num">02</div>
+                    <div class="engine-step__icon">🧠</div>
+                    <h3>Brutal xG Model</h3>
+                    <p>Our proprietary Expected Goals model calculates shot quality by location, angle, assist type, and defensive pressure. Not a copy. Built from scratch.</p>
+                    <div class="engine-step__tags">
+                        <span>Attacking Threat Index</span><span>Defensive Efficiency</span><span>Momentum Score</span>
+                    </div>
+                </div>
+                <div class="engine-arrow">→</div>
+                <div class="engine-step engine-step--highlight">
+                    <div class="engine-step__num">03</div>
+                    <div class="engine-step__icon">⚡</div>
+                    <h3>10,000+ Simulations</h3>
+                    <p>Monte Carlo simulation engine runs thousands of match iterations. Each simulation samples from probability distributions. Output: <strong>True Probabilities</strong>.</p>
+                    <div class="engine-step__tags">
+                        <span>Goal Distribution</span><span>Scoreline Probabilities</span><span>Cards &amp; Corners</span>
+                    </div>
+                </div>
+                <div class="engine-arrow">→</div>
+                <div class="engine-step">
+                    <div class="engine-step__num">04</div>
+                    <div class="engine-step__icon">🎯</div>
+                    <h3>True Odds + EV</h3>
+                    <p>Convert probabilities to True Odds. Compare against market odds. Calculate Expected Value. Flag every value gap and every trap.</p>
+                    <div class="engine-step__tags">
+                        <span>Value Gaps</span><span>Trap Alerts</span><span>EV Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live simulation counter -->
+            <div class="sim-counter">
+                <div class="sim-counter__label">Simulations running right now</div>
+                <div class="sim-counter__num mono" id="simCount">0</div>
+                <div class="sim-counter__bar">
+                    <div class="sim-counter__fill" id="simFill"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── VALUE DETECTION ── -->
+    <section class="value-detect" id="value">
+        <div class="section-inner">
+            <div class="section-label section-label--red">VALUE DETECTION</div>
+            <h2 class="section-title">We Find What<br>The Market Gets Wrong</h2>
+
+            <div class="value-split">
+                <div class="value-explain">
+                    <div class="value-type value-type--green">
+                        <div class="value-type__icon">▲</div>
+                        <div>
+                            <h3>Value Gap</h3>
+                            <p>Our True Odds are <strong>higher</strong> than the market. Mathematically profitable over the long run. Green flag.</p>
+                            <div class="value-example">
+                                True Odds: <strong>2.40</strong> · Market: <strong>3.00</strong> · EV: <span class="ev-pos">+₦250 per ₦1k</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="value-type value-type--red">
+                        <div class="value-type__icon">▼</div>
+                        <div>
+                            <h3>Trap</h3>
+                            <p>Our True Odds are <strong>lower</strong> than the market. The bookie is <em>baiting</em> you. Red flag. Avoid.</p>
+                            <div class="value-example">
+                                True Odds: <strong>1.90</strong> · Market: <strong>1.40</strong> · EV: <span class="ev-neg">−₦190 per ₦1k</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="value-type value-type--neutral">
+                        <div class="value-type__icon">≈</div>
+                        <div>
+                            <h3>Fair Odds</h3>
+                            <p>Our model and the market agree within margin. Neutral territory — only bet if you have other conviction.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive EV calculator preview -->
+                <div class="ev-calculator">
+                    <div class="ev-calculator__header">
+                        <span class="ev-calculator__title">⚡ Live EV Calculator</span>
+                        <span class="ev-calculator__sub">Real-time · Updated every 30s</span>
+                    </div>
+                    <div class="ev-rows" id="evRows">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="ev-footer">
+                        <span>Showing 5 of <strong>84 active markets</strong> with positive EV today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FEATURES ── -->
+    <section class="features" id="features">
+        <div class="section-inner">
+            <div class="section-label">FEATURES</div>
+            <h2 class="section-title">Everything You Need<br>To Think Like a Quant</h2>
+
+            <div class="features-grid">
+                <!-- Row 1 — Big cards -->
+                <div class="feat-card feat-card--big feat-card--red">
+                    <div class="feat-card__icon">🎰</div>
+                    <h3 class="feat-card__title">Odds Builder Sandbox</h3>
+                    <p class="feat-card__desc">Drag sliders for injuries, weather, home bias, form weight. See True Odds recalculate in real time. Build custom props. Run "What-If" scenarios.</p>
+                    <a href="betbuilder.html" class="feat-card__link">Open Builder →</a>
+                </div>
+                <div class="feat-card feat-card--big">
+                    <div class="feat-card__icon">🗺️</div>
+                    <h3 class="feat-card__title">xG Shot Map</h3>
+                    <p class="feat-card__desc">Visual pitch overlay showing every shot in the match — location, xG value, angle, outcome. Filter by player or phase of play.</p>
+                </div>
+
+                <!-- Row 2 — Regular grid -->
+                <div class="feat-card">
+                    <div class="feat-card__icon">🔴</div>
+                    <h3 class="feat-card__title">Trap Alerts</h3>
+                    <p class="feat-card__desc">Automatically flags when bookmakers are baiting with inflated odds. Real-time notifications.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">📜</div>
+                    <h3 class="feat-card__title">Public Ledger</h3>
+                    <p class="feat-card__desc">Every single prediction timestamped and publicly visible. Model accuracy live. No hiding, ever.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">🌍</div>
+                    <h3 class="feat-card__title">African Leagues First</h3>
+                    <p class="feat-card__desc">AFCON, CAF Champions League, NPFL, and 20+ African leagues prioritized. Priced in Naira.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">🏆</div>
+                    <h3 class="feat-card__title">Tournament Simulator</h3>
+                    <p class="feat-card__desc">Simulate entire AFCON/World Cup tournaments. Live winner probability updates as results come in.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">🧬</div>
+                    <h3 class="feat-card__title">Player DNA Profile</h3>
+                    <p class="feat-card__desc">360° profiles: goals, assists, key passes, dribbles, press intensity. Player Impact Rating 0–100.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">💬</div>
+                    <h3 class="feat-card__title">Social Agent Bots</h3>
+                    <p class="feat-card__desc">Auto-posts value alerts, trap warnings, and match previews to Telegram, Twitter, and Discord.</p>
+                </div>
+                <div class="feat-card">
+                    <div class="feat-card__icon">📈</div>
+                    <h3 class="feat-card__title">Momentum Oscillator</h3>
+                    <p class="feat-card__desc">Live timeline showing which team has the upper hand. Trend scoring for the last 3 matches.</p>
+                </div>
+
+                <!-- Wide card -->
+                <div class="feat-card feat-card--wide">
+                    <div class="feat-card__icon">💰</div>
+                    <h3 class="feat-card__title">Cash-Out Estimator</h3>
+                    <p class="feat-card__desc">Based on live match data, we suggest the optimal cash-out point relative to True Odds. Know when to lock in profit and when to let it ride — based on math, not gut.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PUBLIC LEDGER ── -->
+    <section class="ledger" id="ledger">
+        <div class="section-inner">
+            <div class="section-label section-label--red">PUBLIC LEDGER</div>
+            <h2 class="section-title">Every Call. Public.<br>No Hiding. Ever.</h2>
+            <p class="section-sub">Unlike tipster sites that delete their losses, we timestamp every prediction on creation. The results are permanent and visible to all users.</p>
+
+            <div class="ledger-stats">
+                <div class="ledger-stat">
+                    <div class="ledger-stat__val">847</div>
+                    <div class="ledger-stat__label">Total Predictions</div>
+                </div>
+                <div class="ledger-stat">
+                    <div class="ledger-stat__val">64.2%</div>
+                    <div class="ledger-stat__label">Value Bet Hit Rate</div>
+                </div>
+                <div class="ledger-stat">
+                    <div class="ledger-stat__val ledger-stat__val--green">+28.4%</div>
+                    <div class="ledger-stat__label">ROI on Value Bets</div>
+                </div>
+                <div class="ledger-stat">
+                    <div class="ledger-stat__val ledger-stat__val--red">91.3%</div>
+                    <div class="ledger-stat__label">Trap Avoidance Rate</div>
+                </div>
+            </div>
+
+            <div class="ledger-table">
+                <div class="ledger-table__head">
+                    <span>Match</span><span>Market</span><span>True Odds</span><span>Market Odds</span><span>EV</span><span>Result</span>
+                </div>
+                <div class="ledger-row ledger-row--win">
+                    <span>Arsenal vs Chelsea</span><span>Arsenal Win</span><span class="mono">1.85</span><span class="mono">2.30</span><span class="ev-pos">+₦245</span><span class="ledger-result ledger-result--win">✓ HIT</span>
+                </div>
+                <div class="ledger-row ledger-row--win">
+                    <span>Nigeria vs Ghana</span><span>Over 2.5 Goals</span><span class="mono">2.10</span><span class="mono">2.80</span><span class="ev-pos">+₦333</span><span class="ledger-result ledger-result--win">✓ HIT</span>
+                </div>
+                <div class="ledger-row ledger-row--trap">
+                    <span>PSG vs Real Madrid</span><span>PSG Win</span><span class="mono">1.72</span><span class="mono">1.40</span><span class="ev-neg">−₦190</span><span class="ledger-result ledger-result--trap">⚠ TRAP</span>
+                </div>
+                <div class="ledger-row ledger-row--win">
+                    <span>Man City vs Liverpool</span><span>BTTS</span><span class="mono">1.75</span><span class="mono">2.10</span><span class="ev-pos">+₦200</span><span class="ledger-result ledger-result--win">✓ HIT</span>
+                </div>
+                <div class="ledger-row ledger-row--loss">
+                    <span>Barcelona vs Atletico</span><span>Barcelona Win</span><span class="mono">1.60</span><span class="mono">2.00</span><span class="ev-pos">+₦250</span><span class="ledger-result ledger-result--loss">✗ MISS</span>
+                </div>
+                <div class="ledger-row ledger-row--win">
+                    <span>Sundowns vs Zamalek</span><span>Sundowns Win</span><span class="mono">2.20</span><span class="mono">3.10</span><span class="ev-pos">+₦409</span><span class="ledger-result ledger-result--win">✓ HIT</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PRICING ── -->
+    <section class="pricing" id="pricing">
+        <div class="section-inner">
+            <div class="section-label">PRICING</div>
+            <h2 class="section-title">Built for Africa.<br>Priced for Africa.</h2>
+            <p class="section-sub">No USD. No excuses. Pay in Naira. Cancel any time. No gambling license needed — we are a <strong>data company</strong>.</p>
+
+            <div class="pricing-grid">
+                <!-- Free -->
+                <div class="plan-card">
+                    <div class="plan-card__tier">Free</div>
+                    <div class="plan-card__price">
+                        <span class="plan-price-currency">₦</span>
+                        <span class="plan-price-amount">0</span>
+                        <span class="plan-price-period">/month</span>
+                    </div>
+                    <p class="plan-card__desc">Get a taste of the truth. Enough to see we're different.</p>
+                    <ul class="plan-features">
+                        <li class="feat-yes">Basic match probabilities (15min delay)</li>
+                        <li class="feat-yes">5 value gaps per day</li>
+                        <li class="feat-yes">Public Ledger access</li>
+                        <li class="feat-no">Real-time True Odds</li>
+                        <li class="feat-no">Full EV calculations</li>
+                        <li class="feat-no">Tournament simulations</li>
+                        <li class="feat-no">African league deep-dives</li>
+                    </ul>
+                    <a href="#" class="plan-cta plan-cta--ghost">Get Started Free</a>
+                </div>
+
+                <!-- Pro — FEATURED -->
+                <div class="plan-card plan-card--featured">
+                    <div class="plan-card__badge">MOST POPULAR</div>
+                    <div class="plan-card__tier">Pro</div>
+                    <div class="plan-card__price">
+                        <span class="plan-price-currency">₦</span>
+                        <span class="plan-price-amount">5,000</span>
+                        <span class="plan-price-period">/month</span>
+                    </div>
+                    <p class="plan-card__desc">Real-time True Odds. Full value gap engine. 10K sims per match.</p>
+                    <ul class="plan-features">
+                        <li class="feat-yes">Real-time True Odds (no delay)</li>
+                        <li class="feat-yes">Full value gap + trap detection</li>
+                        <li class="feat-yes">EV calculator for all markets</li>
+                        <li class="feat-yes">10,000 simulations per match</li>
+                        <li class="feat-yes">African leagues full coverage</li>
+                        <li class="feat-yes">Odds Builder Sandbox</li>
+                        <li class="feat-no">Tournament projections</li>
+                        <li class="feat-no">Exportable reports</li>
+                    </ul>
+                    <a href="#" class="plan-cta plan-cta--featured">Join Founder's 20</a>
+                    <div class="plan-founder-note">First 20 members lock in this price forever</div>
+                </div>
+
+                <!-- Analyst -->
+                <div class="plan-card">
+                    <div class="plan-card__tier">Analyst</div>
+                    <div class="plan-card__price">
+                        <span class="plan-price-currency">₦</span>
+                        <span class="plan-price-amount">15,000</span>
+                        <span class="plan-price-period">/month</span>
+                    </div>
+                    <p class="plan-card__desc">For serious analysts, syndicates, and media houses who need the full picture.</p>
+                    <ul class="plan-features">
+                        <li class="feat-yes">Everything in Pro</li>
+                        <li class="feat-yes">Tournament simulations</li>
+                        <li class="feat-yes">Player DNA profiles</li>
+                        <li class="feat-yes">Passing network graphs</li>
+                        <li class="feat-yes">Exportable PDF/CSV reports</li>
+                        <li class="feat-yes">Live match tracking (in-play)</li>
+                        <li class="feat-yes">Heatmaps + xG shot maps</li>
+                        <li class="feat-yes">Priority model updates</li>
+                    </ul>
+                    <a href="#" class="plan-cta plan-cta--ghost">Get Analyst Access</a>
+                </div>
+
+                <!-- Enterprise -->
+                <div class="plan-card plan-card--enterprise">
+                    <div class="plan-card__tier">Enterprise</div>
+                    <div class="plan-card__price">
+                        <span class="plan-price-amount plan-price-amount--custom">Custom</span>
+                    </div>
+                    <p class="plan-card__desc">API access, white-label widgets, custom models for betting syndicates and media houses.</p>
+                    <ul class="plan-features">
+                        <li class="feat-yes">Full API data feed</li>
+                        <li class="feat-yes">White-label widget embed</li>
+                        <li class="feat-yes">Custom probability models</li>
+                        <li class="feat-yes">Dedicated data pipeline</li>
+                        <li class="feat-yes">SLA + support</li>
+                    </ul>
+                    <a href="mailto:enterprise@brutal.analytics" class="plan-cta plan-cta--ghost">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── USP FINALE ── -->
+    <section class="finale" id="finale">
+        <div class="section-inner">
+            <div class="finale__quote">
+                <div class="finale__quote-mark">"</div>
+                <p>Bookies set odds based on fear and greed.<br>We set odds based on math and reality.<br>We don't follow the market.<br><strong>The market follows us.</strong></p>
+            </div>
+            <div class="finale__cta-group">
+                <a href="#pricing" class="btn-brutal btn-brutal--large">Join the Founder's 20</a>
+                <p class="finale__note">₦5,000/mo · Lock in forever · First 20 only · Cancel any time</p>
+            </div>
+            <div class="finale__disclaimer">
+                Brutal Analytics is a <strong>data company</strong>, not a bookmaker. We sell mathematical analysis, not gambling services. No gambling license required. Bet responsibly.
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="section-inner">
+            <div class="footer__top">
+                <div class="footer__brand">
+                    <div class="footer__logo">BRUTAL<span>ANALYTICS</span></div>
+                    <p>Africa's first independent sports probability engine. We are the truth-tellers of the sports world.</p>
+                </div>
+                <div class="footer__links-col">
+                    <h4>Product</h4>
+                    <a href="#engine">The Engine</a>
+                    <a href="#value">Value Detection</a>
+                    <a href="betbuilder.html">Odds Builder</a>
+                    <a href="#ledger">Public Ledger</a>
+                </div>
+                <div class="footer__links-col">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Careers</a>
+                    <a href="mailto:hello@brutal.analytics">Contact</a>
+                </div>
+                <div class="footer__links-col">
+                    <h4>Community</h4>
+                    <a href="#">Telegram</a>
+                    <a href="#">Twitter / X</a>
+                    <a href="#">Discord</a>
+                    <a href="#">Leaderboard</a>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <span>© 2025 Brutal Analytics. All rights reserved.</span>
+                <span>Not a bookmaker. We sell data, not bets.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="brutal.js"></script>
+</body>
+</html>

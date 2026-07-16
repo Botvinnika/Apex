@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexSports Analytics — Predict Smarter. Bet Sharper.</title>
+  <meta name="description" content="ApexSports Analytics gives you data-driven match predictions, live Expected Value calculations, and AI-powered probability models for football, basketball, tennis, and baseball.">
+  <meta property="og:title" content="ApexSports Analytics — Where Data Meets Sport">
+  <meta property="og:description" content="Independent probability models. Real-time EV. African markets first.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="lightning.js"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     PRELOADER — Sports Edition
+     ============================================================ -->
+<div class="preloader" id="preloader">
+
+  <!-- Top bar -->
+  <div class="pl-topbar">
+    <div class="pl-topbar__logo">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="url(#plBoltGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        <defs>
+          <linearGradient id="plBoltGrad" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stop-color="#ffe44d"/>
+            <stop offset="100%" stop-color="#00c3ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span>APEX<strong>SPORTS</strong></span>
+    </div>
+    <div class="pl-topbar__tag">Analytics Platform v2.4</div>
+  </div>
+
+  <!-- Centre -->
+  <div class="pl-centre">
+
+    <!-- Rotating sports ball -->
+    <div class="pl-ball-wrap">
+      <div class="pl-ball-ring"></div>
+      <div class="pl-ball" id="plBall">⚽</div>
+    </div>
+
+    <!-- Sport name label -->
+    <div class="pl-sport-name" id="plSportName">Football</div>
+
+    <!-- Brand -->
+    <h1 class="pl-brand">ApexSports <span>Analytics</span></h1>
+    <p class="pl-sub">Africa's Independent Sports Intelligence Engine</p>
+
+    <!-- Progress -->
+    <div class="pl-progress">
+      <div class="pl-progress__track">
+        <div class="pl-progress__fill" id="plProgressFill"></div>
+      </div>
+      <div class="pl-progress__meta">
+        <span class="pl-status" id="plStatus">Connecting to data feeds...</span>
+        <span class="pl-pct" id="plPct">0%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom sports strip -->
+  <div class="pl-metrics">
+    <div class="pl-metric">
+      <span class="pl-metric__val">⚽</span>
+      <span class="pl-metric__key">Football</span>
+    </div>
+    <div class="pl-metric__sep"></div>
+    <div class="pl-metric">
+      <span class="pl-metric__val">🏀</span>
+      <span class="pl-metric__key">Basketball</span>
+    </div>
+    <div class="pl-metric__sep"></div>
+    <div class="pl-metric">
+      <span class="pl-metric__val">🎾</span>
+      <span class="pl-metric__key">Tennis</span>
+    </div>
+    <div class="pl-metric__sep"></div>
+    <div class="pl-metric">
+      <span class="pl-metric__val">⚾</span>
+      <span class="pl-metric__key">Baseball</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var sports = [
+    { ball: '⚽', name: 'Football' },
+    { ball: '🏀', name: 'Basketball' },
+    { ball: '🎾', name: 'Tennis' },
+    { ball: '⚾', name: 'Baseball' }
+  ];
+  var statuses = [
+    'Connecting to data feeds...',
+    'Loading xG models...',
+    'Calibrating Monte Carlo engine...',
+    'Fetching live match data...',
+    'Computing True Odds...',
+    'Detecting value gaps...',
+    'Almost ready...'
+  ];
+
+  var ballEl    = document.getElementById('plBall');
+  var nameEl    = document.getElementById('plSportName');
+  var fill      = document.getElementById('plProgressFill');
+  var pctEl     = document.getElementById('plPct');
+  var statusEl  = document.getElementById('plStatus');
+  var si = 0, pct = 0, sportIdx = 0;
+
+  // Cycle sports balls every 1.5s
+  var ballInterval = setInterval(function() {
+    sportIdx = (sportIdx + 1) % sports.length;
+    if (ballEl) {
+      ballEl.classList.add('pl-ball--exit');
+      setTimeout(function() {
+        ballEl.textContent = sports[sportIdx].ball;
+        ballEl.classList.remove('pl-ball--exit');
+        ballEl.classList.add('pl-ball--enter');
+        setTimeout(function(){ ballEl.classList.remove('pl-ball--enter'); }, 400);
+      }, 250);
+    }
+    if (nameEl) {
+      nameEl.style.opacity = '0';
+      setTimeout(function() {
+        nameEl.textContent = sports[sportIdx].name;
+        nameEl.style.opacity = '1';
+      }, 250);
+    }
+  }, 1500);
+
+  // Progress bar
+  var progInterval = setInterval(function() {
+    pct = Math.min(pct + (Math.random() * 4 + 2), 100);
+    if (fill)  fill.style.width    = pct.toFixed(1) + '%';
+    if (pctEl) pctEl.textContent   = Math.floor(pct) + '%';
+
+    var newSi = Math.floor((pct / 100) * (statuses.length - 1));
+    if (newSi !== si) {
+      si = newSi;
+      if (statusEl) {
+        statusEl.style.opacity = '0';
+        setTimeout(function() {
+          statusEl.textContent = statuses[si];
+          statusEl.style.opacity = '1';
+        }, 200);
+      }
+    }
+    if (pct >= 100) { clearInterval(progInterval); clearInterval(ballInterval); }
+  }, 80);
+})();
+</script>
+
+
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar" id="navbar">
+  <div class="container-wide navbar__inner">
+    <a href="#" class="navbar__logo">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="url(#navBoltGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        <defs>
+          <linearGradient id="navBoltGrad" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stop-color="#ffe44d"/>
+            <stop offset="100%" stop-color="#00c3ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span>APEX<strong>Sports</strong></span>
+    </a>
+
+    <div class="navbar__links">
+      <a href="#features">Features</a>
+      <a href="#showcase">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="betbuilder.html">Odds Builder</a>
+      <a href="#" class="navbar__cta"><span>Start Free</span></a>
+    </div>
+
+    <button class="navbar__mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features" onclick="closeMobileMenu()">Features</a>
+    <a href="#showcase" onclick="closeMobileMenu()">How It Works</a>
+    <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
+    <a href="dashboard.html" onclick="closeMobileMenu()">Dashboard</a>
+    <a href="betbuilder.html" onclick="closeMobileMenu()">Odds Builder</a>
+    <a href="#" class="btn-primary" onclick="closeMobileMenu()">Start Free</a>
+  </div>
+</nav>
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="hero">
+  <canvas class="hero__canvas" id="heroCanvas"></canvas>
+  <div class="hero__glow-left"></div>
+  <div class="hero__glow-right"></div>
+
+  <div class="container hero__inner">
+    <div class="hero__content reveal">
+      <div class="hero__badge">
+        <span class="badge-dot"></span>
+        Live · 147 leagues tracked globally
+      </div>
+
+      <h1 class="hero__headline">
+        The Data Behind<br>
+        <span class="gradient-text">Every Smart Bet</span>
+      </h1>
+
+      <p class="hero__sub">
+        Independent probability models. Real-time Expected Value. African markets first.
+        We run 10,000+ Monte Carlo simulations per match so you never bet blind again.
+      </p>
+
+      <div class="hero__actions">
+        <a href="#pricing" class="btn-primary btn--large">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Get Started Free
+        </a>
+        <a href="#showcase" class="btn-ghost btn--large">
+          See How It Works
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="hero__social-proof">
+        <div class="sp-avatars">
+          <span>👤</span><span>👤</span><span>👤</span><span>👤</span>
+        </div>
+        <span>Trusted by <strong>2,400+</strong> analysts across Africa</span>
+      </div>
+    </div>
+
+    <div class="hero__visual reveal">
+      <!-- Live match odds panel -->
+      <div class="hero-card">
+        <div class="hero-card__header">
+          <span class="live-dot"></span>
+          <span class="hero-card__label">Live Match · Premier League</span>
+          <span class="hero-card__time">64'</span>
+        </div>
+        <div class="hero-card__match">Arsenal vs Chelsea</div>
+        <div class="hero-card__odds-grid">
+          <div class="odds-pill odds-pill--value">
+            <span class="odds-pill__name">Arsenal Win</span>
+            <span class="odds-pill__true">True 1.85</span>
+            <span class="odds-pill__market">Mkt 2.30</span>
+            <span class="odds-pill__badge odds-pill__badge--green">▲ VALUE +24%</span>
+          </div>
+          <div class="odds-pill">
+            <span class="odds-pill__name">Draw</span>
+            <span class="odds-pill__true">True 3.40</span>
+            <span class="odds-pill__market">Mkt 3.20</span>
+            <span class="odds-pill__badge odds-pill__badge--neutral">≈ FAIR</span>
+          </div>
+          <div class="odds-pill odds-pill--trap">
+            <span class="odds-pill__name">Chelsea Win</span>
+            <span class="odds-pill__true">True 5.10</span>
+            <span class="odds-pill__market">Mkt 4.00</span>
+            <span class="odds-pill__badge odds-pill__badge--red">▼ TRAP −21%</span>
+          </div>
+        </div>
+        <div class="hero-card__ev">
+          <div class="ev-line">
+            <span>Expected Value (Arsenal @ 2.30)</span>
+            <strong class="ev-pos">+₦245 per ₦1,000</strong>
+          </div>
+          <div class="ev-line">
+            <span>Model Confidence</span>
+            <strong>8.2 / 10</strong>
+          </div>
+          <div class="ev-line">
+            <span>Simulations</span>
+            <strong class="mono">10,247</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     STATS STRIP
+     ============================================================ -->
+<section class="stats" id="stats">
+  <div class="container-wide stats__inner">
+    <div class="stat-item reveal">
+      <span class="stat-item__number" data-target="147" data-suffix="+">0</span>
+      <span class="stat-item__label">Leagues Tracked</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item reveal">
+      <span class="stat-item__number" data-target="10000" data-suffix="+">0</span>
+      <span class="stat-item__label">Sims per Match</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item reveal">
+      <span class="stat-item__number" data-target="94.7" data-suffix="%" data-decimal="true">0</span>
+      <span class="stat-item__label">Model Accuracy</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item reveal">
+      <span class="stat-item__number" data-target="28.4" data-suffix="%" data-decimal="true">0</span>
+      <span class="stat-item__label">Avg ROI on Value Bets</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item reveal">
+      <span class="stat-item__number" data-target="2400" data-suffix="+">0</span>
+      <span class="stat-item__label">Active Users</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FEATURES
+     ============================================================ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Core Features</div>
+      <h2 class="section-title">Everything a sharp bettor needs</h2>
+      <p class="section-sub">Stop guessing. Start calculating. Every tool is powered by real probability models — not opinions.</p>
+    </div>
+
+    <div class="features__grid">
+
+      <!-- Card 1: X-Ray -->
+      <div class="feature-card feature-card--wide reveal" id="featureCard1">
+        <div class="feature-card__content">
+          <div class="feature-card__tag">Player Analysis</div>
+          <h3 class="feature-card__title">Player X-Ray</h3>
+          <p class="feature-card__desc">Six-axis radar covering Goals, Assists, Key Passes, Dribbles, Press Intensity, and Defensive Duels. Compare any two players side-by-side in real time.</p>
+          <ul class="feature-card__list">
+            <li>Live xG contribution tracking</li>
+            <li>Head-to-head matchup history</li>
+            <li>Form index over last 10 matches</li>
+          </ul>
+        </div>
+        <div class="feature-card__visual">
+          <svg viewBox="0 0 100 100" class="radar-svg" xmlns="http://www.w3.org/2000/svg">
+            <!-- Radar grid -->
+            <polygon points="50,10 82,32 78,72 50,90 22,72 18,32" fill="none" stroke="rgba(0,195,255,0.12)" stroke-width="0.8"/>
+            <polygon points="50,22 72,38 70,64 50,76 30,64 28,38" fill="none" stroke="rgba(0,195,255,0.1)" stroke-width="0.8"/>
+            <polygon points="50,34 62,44 62,58 50,65 38,58 38,44" fill="none" stroke="rgba(0,195,255,0.08)" stroke-width="0.8"/>
+            <!-- Spokes -->
+            <line x1="50" y1="10" x2="50" y2="90" stroke="rgba(0,195,255,0.08)" stroke-width="0.6"/>
+            <line x1="82" y1="32" x2="18" y2="72" stroke="rgba(0,195,255,0.08)" stroke-width="0.6"/>
+            <line x1="78" y1="72" x2="22" y2="32" stroke="rgba(0,195,255,0.08)" stroke-width="0.6"/>
+            <!-- Player 1 -->
+            <polygon id="radarPlayer1" points="50,14 80,36 75,70 50,88 22,68 19,34" fill="rgba(0,195,255,0.15)" stroke="#00c3ff" stroke-width="1.5"/>
+            <!-- Player 2 -->
+            <polygon id="radarPlayer2" points="50,20 74,40 82,66 50,78 17,66 24,34" fill="rgba(255,228,77,0.1)" stroke="#ffe44d" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <!-- Labels -->
+            <text x="50" y="7" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="5">Goals</text>
+            <text x="86" y="33" text-anchor="start" fill="rgba(255,255,255,0.4)" font-size="5">Assists</text>
+            <text x="81" y="76" text-anchor="start" fill="rgba(255,255,255,0.4)" font-size="5">Presses</text>
+            <text x="50" y="97" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="5">Duels</text>
+            <text x="13" y="76" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="5">Dribbles</text>
+            <text x="14" y="33" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="5">Key Pass</text>
+          </svg>
+          <div class="radar-legend">
+            <span class="legend-cyan">Player A</span>
+            <span class="legend-gold">Player B</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Prediction Engine -->
+      <div class="feature-card reveal" id="featureCard2">
+        <div class="feature-card__tag">AI Model</div>
+        <h3 class="feature-card__title">Prediction Engine</h3>
+        <p class="feature-card__desc">10,000+ Monte Carlo simulations per match using xG, form, injuries, weather, and fixture congestion.</p>
+        <div class="mini-gauge">
+          <div class="gauge-ring">
+            <svg viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(0,195,255,0.1)" stroke-width="6"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="url(#gaugeGrad)" stroke-width="6"
+                stroke-dasharray="213" stroke-dashoffset="21" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+              <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00c3ff"/>
+                  <stop offset="100%" stop-color="#ffe44d"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="gauge-label">
+              <span id="gaugeValue" class="gauge-number">94.7</span>
+              <span class="gauge-unit">%</span>
+            </div>
+          </div>
+          <span class="gauge-desc">Accuracy on value bets</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Live Pulse -->
+      <div class="feature-card reveal" id="featureCard3">
+        <div class="feature-card__tag">In-Play</div>
+        <h3 class="feature-card__title">Live Match Pulse</h3>
+        <p class="feature-card__desc">Real-time momentum tracking. Know when a team is dominating even when the score doesn't show it yet.</p>
+        <div class="sparkline-wrapper">
+          <svg viewBox="0 0 160 40" class="sparkline-svg">
+            <defs>
+              <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00c3ff" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#00c3ff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <polygon id="sparklineFill" fill="url(#sparkFill)"/>
+            <polyline id="sparklinePath" fill="none" stroke="#00c3ff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="sparkline-labels">
+            <span>Arsenal momentum</span>
+            <span class="text-cyan">↑ Building</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Value Detection -->
+      <div class="feature-card reveal">
+        <div class="feature-card__tag">EV Engine</div>
+        <h3 class="feature-card__title">Value &amp; Trap Detection</h3>
+        <p class="feature-card__desc">Every market flagged as VALUE ▲, FAIR ≈, or TRAP ▼ — with exact Expected Value in Naira per ₦1,000 staked.</p>
+        <div class="ev-preview">
+          <div class="ev-row ev-row--green">
+            <span>Nigeria vs Ghana · Over 2.5</span>
+            <span class="ev-badge green">▲ +₦333</span>
+          </div>
+          <div class="ev-row">
+            <span>Chelsea vs Arsenal · Draw</span>
+            <span class="ev-badge neutral">≈ FAIR</span>
+          </div>
+          <div class="ev-row ev-row--red">
+            <span>PSG vs Real Madrid · PSG Win</span>
+            <span class="ev-badge red">▼ −₦190</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5: African First -->
+      <div class="feature-card reveal">
+        <div class="feature-card__tag">Coverage</div>
+        <h3 class="feature-card__title">African Leagues First</h3>
+        <p class="feature-card__desc">AFCON, CAF Champions League, NPFL, and 20+ African leagues — all priced in Naira and built for local bookmakers.</p>
+        <div class="leagues-list">
+          <span class="league-tag">🇳🇬 NPFL</span>
+          <span class="league-tag">🏆 AFCON</span>
+          <span class="league-tag">🌍 CAF CL</span>
+          <span class="league-tag">⚽ EPL</span>
+          <span class="league-tag">🏀 NBA</span>
+          <span class="league-tag">🎾 ATP</span>
+          <span class="league-tag">⚾ MLB</span>
+          <span class="league-tag">+140 more</span>
+        </div>
+      </div>
+
+      <!-- Card 6: Odds Builder -->
+      <div class="feature-card feature-card--highlight reveal">
+        <div class="feature-card__tag">Builder</div>
+        <h3 class="feature-card__title">Odds Builder Sandbox</h3>
+        <p class="feature-card__desc">Stack custom legs, tune parameters, and see the True Odds of your accumulator in real time. Responsible betting — capped at 20.0.</p>
+        <a href="betbuilder.html" class="btn-primary btn--sm">
+          Open Builder →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SHOWCASE / HOW IT WORKS
+     ============================================================ -->
+<section class="showcase showcase--large" id="showcase">
+  <div class="container-wide showcase__inner">
+    <div class="showcase__copy reveal">
+      <div class="section-tag">How It Works</div>
+      <h2 class="section-title">Four steps from raw data to real edge</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">01</div>
+          <div class="step__body">
+            <h4>Data Ingestion</h4>
+            <p>Live shots, passes, injuries, weather, and travel distance — ingested every 30 seconds across 147 leagues.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">02</div>
+          <div class="step__body">
+            <h4>xG Modelling</h4>
+            <p>Our proprietary Expected Goals model scores every shot by location, angle, assist type, and defensive pressure.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">03</div>
+          <div class="step__body">
+            <h4>Monte Carlo Simulation</h4>
+            <p>10,000+ match simulations sampled from real probability distributions. Output: True Odds per market.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num">04</div>
+          <div class="step__body">
+            <h4>EV Alert</h4>
+            <p>We compare our True Odds to market odds and flag every value gap and trap — with exact EV in your currency.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="showcase__visual showcase__visual--big" id="showcaseVisual">
+      <div class="showcase__img-wrap" id="showcaseImage">
+        <img src="dashboard-mockup.jpg" alt="ApexSports Analytics Dashboard" class="showcase__img" loading="lazy">
+        <div class="showcase__callout callout--tl" data-callout>
+          <span class="callout-dot green"></span>
+          <div>
+            <strong>Value Gap</strong>
+            <span>Arsenal Win · +24%</span>
+          </div>
+        </div>
+        <div class="showcase__callout callout--tr" data-callout>
+          <span class="callout-dot red"></span>
+          <div>
+            <strong>Trap Alert</strong>
+            <span>PSG Win · −21%</span>
+          </div>
+        </div>
+        <div class="showcase__callout callout--br" data-callout>
+          <span class="callout-dot cyan"></span>
+          <div>
+            <strong>10,247 Sims</strong>
+            <span>Completed · 0.4s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PUBLIC LEDGER
+     ============================================================ -->
+<section class="ledger" id="ledger">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Public Ledger</div>
+      <h2 class="section-title">Every call. Timestamped. Forever.</h2>
+      <p class="section-sub">Unlike tipster sites that delete losing picks, every prediction we make is public from the moment it's created. No editing. No deleting.</p>
+    </div>
+
+    <div class="ledger-table reveal">
+      <div class="ledger__head">
+        <span>Match</span><span>Market</span><span>True Odds</span><span>Mkt Odds</span><span>EV</span><span>Result</span>
+      </div>
+      <div class="ledger__row ledger__row--win">
+        <span>Arsenal vs Chelsea</span><span>Arsenal Win</span><span class="mono">1.85</span><span class="mono">2.30</span><span class="text-green">+₦245</span><span class="result-badge win">✓ HIT</span>
+      </div>
+      <div class="ledger__row ledger__row--win">
+        <span>Nigeria vs Ghana</span><span>Over 2.5 Goals</span><span class="mono">2.10</span><span class="mono">2.80</span><span class="text-green">+₦333</span><span class="result-badge win">✓ HIT</span>
+      </div>
+      <div class="ledger__row ledger__row--trap">
+        <span>PSG vs Real Madrid</span><span>PSG Win</span><span class="mono">1.72</span><span class="mono">1.40</span><span class="text-red">−₦190</span><span class="result-badge trap">⚠ TRAP</span>
+      </div>
+      <div class="ledger__row ledger__row--win">
+        <span>Man City vs Liverpool</span><span>BTTS</span><span class="mono">1.75</span><span class="mono">2.10</span><span class="text-green">+₦200</span><span class="result-badge win">✓ HIT</span>
+      </div>
+      <div class="ledger__row ledger__row--miss">
+        <span>Barcelona vs Atletico</span><span>Barcelona Win</span><span class="mono">1.60</span><span class="mono">2.00</span><span class="text-green">+₦250</span><span class="result-badge miss">✗ MISS</span>
+      </div>
+      <div class="ledger__row ledger__row--win">
+        <span>Sundowns vs Zamalek</span><span>Sundowns Win</span><span class="mono">2.20</span><span class="mono">3.10</span><span class="text-green">+₦409</span><span class="result-badge win">✓ HIT</span>
+      </div>
+    </div>
+
+    <div class="ledger-stats reveal">
+      <div class="l-stat"><strong>847</strong><span>Total Predictions</span></div>
+      <div class="l-stat"><strong>64.2%</strong><span>Value Bet Hit Rate</span></div>
+      <div class="l-stat"><strong class="text-green">+28.4%</strong><span>ROI on Value Bets</span></div>
+      <div class="l-stat"><strong class="text-cyan">91.3%</strong><span>Trap Avoidance Rate</span></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PRICING
+     ============================================================ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Pricing</div>
+      <h2 class="section-title">Built for Africa. Priced for Africa.</h2>
+      <p class="section-sub">No USD. No excuses. Pay in Naira. Cancel anytime.</p>
+    </div>
+
+    <div class="pricing-toggle reveal">
+      <span class="pricing-label active" id="monthlyLabel">Monthly</span>
+      <button class="toggle-switch" id="pricingToggle" aria-label="Toggle billing period"></button>
+      <span class="pricing-label" id="annualLabel">Annual</span>
+      <span class="save-badge" id="saveBadge">Save ₦20k/yr</span>
+    </div>
+
+    <div class="pricing-grid reveal">
+
+      <!-- Free -->
+      <div class="pricing-card">
+        <div class="pricing-card__tier">Free</div>
+        <div class="pricing-card__price-wrap">
+          <span class="pricing-card__currency">₦</span>
+          <span class="pricing-card__amount" data-monthly="0" data-annual="0">0</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <p class="pricing-card__desc">Enough to see we're different. No card required.</p>
+        <ul class="pricing-card__features">
+          <li class="feat-yes">Basic match probabilities (15 min delay)</li>
+          <li class="feat-yes">5 value gaps per day</li>
+          <li class="feat-yes">Public Ledger access</li>
+          <li class="feat-no">Real-time True Odds</li>
+          <li class="feat-no">Full EV calculations</li>
+          <li class="feat-no">African league deep-dives</li>
+        </ul>
+        <a href="#" class="btn-ghost btn--full">Get Started</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="pricing-card pricing-card--featured">
+        <div class="pricing-card__badge">Most Popular</div>
+        <div class="pricing-card__tier">Pro</div>
+        <div class="pricing-card__price-wrap">
+          <span class="pricing-card__currency">₦</span>
+          <span class="pricing-card__amount" data-monthly="10,000" data-annual="100,000">10,000</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <p class="pricing-card__desc">Real-time True Odds. Full EV engine. 10K sims per match.</p>
+        <ul class="pricing-card__features">
+          <li class="feat-yes">Real-time True Odds (no delay)</li>
+          <li class="feat-yes">Full value gap + trap detection</li>
+          <li class="feat-yes">EV calculator for all markets</li>
+          <li class="feat-yes">10,000 simulations per match</li>
+          <li class="feat-yes">African leagues full coverage</li>
+          <li class="feat-yes">Odds Builder Sandbox</li>
+        </ul>
+        <a href="#" class="btn-primary btn--full">Join Founder's 20</a>
+        <p class="pricing-card__note">First 20 members lock ₦10,000/mo forever · <strong>Annual: ₦100,000/yr</strong></p>
+      </div>
+
+      <!-- Analyst -->
+      <div class="pricing-card">
+        <div class="pricing-card__tier">Analyst</div>
+        <div class="pricing-card__price-wrap">
+          <span class="pricing-card__currency">₦</span>
+          <span class="pricing-card__amount" data-monthly="25,000" data-annual="250,000">25,000</span>
+          <span class="pricing-card__period">/mo</span>
+        </div>
+        <p class="pricing-card__desc">For syndicates, media houses, and serious analysts.</p>
+        <ul class="pricing-card__features">
+          <li class="feat-yes">Everything in Pro</li>
+          <li class="feat-yes">Tournament simulations</li>
+          <li class="feat-yes">Player DNA profiles</li>
+          <li class="feat-yes">Exportable PDF/CSV reports</li>
+          <li class="feat-yes">Live in-play tracking</li>
+          <li class="feat-yes">Priority model updates</li>
+        </ul>
+        <a href="#" class="btn-ghost btn--full">Get Analyst Access</a>
+        <p class="pricing-card__note">Annual: <strong>₦250,000/yr</strong> · Save ₦50k</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="faq" id="faq">
+  <div class="container faq__inner">
+    <div class="section-header reveal">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Common questions</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item reveal">
+        <button class="faq-item__question">Is this a tipster service?
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item__answer">
+          <p>No. We are a <strong>data company</strong>. We provide probability models and Expected Value analysis. We do not tell you what to bet — we show you what the math says. The decision is always yours.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-item__question">How accurate are the models?
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item__answer">
+          <p>Our value bet hit rate sits at <strong>64.2%</strong> with a verified <strong>+28.4% ROI</strong> over the last 12 months — all visible on the Public Ledger. We track every call transparently.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-item__question">Which bookmakers do you support?
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item__answer">
+          <p>We compare against <strong>SportyBet, Bet9ja, 1xBet, Betway</strong>, and 12 other major operators. Our True Odds are independent — we never take data from bookmakers.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-item__question">Can I cancel at any time?
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item__answer">
+          <p>Yes. No contracts. No hidden fees. Cancel from your account dashboard in seconds. Your access continues until the end of your billing period.</p>
+        </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-item__question">What sports do you cover?
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-item__answer">
+          <p>Football (soccer), Basketball, Tennis, and Baseball — across 147 leagues globally. African leagues are our priority: AFCON, CAF Champions League, and NPFL are covered in full.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CTA BANNER
+     ============================================================ -->
+<section class="cta-banner">
+  <div class="cta-banner__bg"></div>
+  <div class="container cta-banner__inner reveal">
+    <div class="cta-banner__copy">
+      <h2>Stop following the market.<br>Start leading it.</h2>
+      <p>Join 2,400+ analysts who've stopped guessing and started calculating.</p>
+    </div>
+    <div class="cta-banner__actions">
+      <a href="#pricing" class="btn-primary btn--large">Get Started Free</a>
+      <a href="dashboard.html" class="btn-ghost btn--large">View Dashboard Demo</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container-wide footer__inner">
+    <div class="footer__brand">
+      <a href="#" class="navbar__logo footer__logo">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="url(#footerBoltGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          <defs>
+            <linearGradient id="footerBoltGrad" x1="0" y1="0" x2="24" y2="24">
+              <stop offset="0%" stop-color="#ffe44d"/>
+              <stop offset="100%" stop-color="#00c3ff"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>APEX<strong>Sports</strong></span>
+      </a>
+      <p>Africa's first independent sports probability engine. We sell data, not tips.</p>
+    </div>
+
+    <div class="footer__links">
+      <div class="footer__col">
+        <h5>Product</h5>
+        <a href="#features">Features</a>
+        <a href="#showcase">How It Works</a>
+        <a href="betbuilder.html">Odds Builder</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#ledger">Public Ledger</a>
+      </div>
+      <div class="footer__col">
+        <h5>Company</h5>
+        <a href="#">About</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+        <a href="mailto:hello@apexsports.ng">Contact</a>
+      </div>
+      <div class="footer__col">
+        <h5>Community</h5>
+        <a href="#">Telegram</a>
+        <a href="#">Twitter / X</a>
+        <a href="#">Discord</a>
+        <a href="#">Leaderboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <div class="container-wide footer__bottom-inner">
+      <span>© 2025 ApexSports Analytics. All rights reserved.</span>
+      <span>Not a bookmaker. We sell data, not bets. Bet responsibly.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>
