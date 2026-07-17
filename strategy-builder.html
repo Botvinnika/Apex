@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Odds Builder — Brutal Analytics</title>
-    <meta name="description" content="Build your accumulator bets with independent probability models from Brutal Analytics. Responsible betting, capped at 20.0 odds per leg.">
+    <title>Strategy Builder — ApexSports Analytics</title>
+    <meta name="description" content="Build your forecast models with independent probability models from ApexSports Analytics. Responsible analysis, capped at 20.0x per leg.">
     <link rel="stylesheet" href="brutal.css">
-    <link rel="stylesheet" href="betbuilder.css">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="stylesheet" href="strategy-builder.css?v=3">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
 
@@ -18,14 +18,14 @@
     <nav class="navbar scrolled" id="navbar">
         <div class="nav-inner">
             <a href="index.html" class="nav-logo">
-                <span class="nav-logo__brutal">BRUTAL</span>
-                <span class="nav-logo__a">ANALYTICS</span>
+                <span class="nav-logo__brutal">APEX</span>
+                <span class="nav-logo__a">SPORTS</span>
             </a>
             <div class="nav-links" id="navLinks">
-                <a href="index.html#engine">Engine</a>
-                <a href="index.html#value">Value Detection</a>
                 <a href="index.html#features">Features</a>
-                <a href="betbuilder.html" class="active-link">Odds Builder</a>
+                <a href="index.html#showcase">How It Works</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="strategy-builder.html" class="active-link">Strategy Builder</a>
                 <a href="index.html#pricing">Pricing</a>
                 <a href="#" class="nav-cta">Get Early Access</a>
             </div>
@@ -37,13 +37,13 @@
         <div class="bb-hero__content">
             <div class="hero__badge">
                 <span class="dot"></span>
-                Responsible Betting · Odds capped at 20.0
+                Responsible Modeling · Multipliers capped at 20.0x
             </div>
             <h1 class="bb-hero__title">
                 Build Your<br>
-                <span class="gradient-text">Perfect Bet</span>
+                <span class="gradient-text">Perfect Strategy</span>
             </h1>
-            <p class="bb-hero__sub">Stack selections from any sport. Our AI monitors each leg for value and flags risky combinations — keeping you sharp.</p>
+            <p class="bb-hero__sub">Stack metrics from any sport. Our AI monitors each leg for value and flags risky combinations — keeping your strategy sharp.</p>
         </div>
     </section>
 
@@ -54,8 +54,8 @@
             <!-- LEFT — Selections panel -->
             <div class="bb-panel bb-panel--selections">
                 <div class="bb-panel__head">
-                    <h2 class="bb-panel__title">⚡ Bet Slip</h2>
-                    <span class="bb-leg-count" id="legCount">0 Selections</span>
+                    <h2 class="bb-panel__title">📊 Strategy Slip</h2>
+                    <span class="bb-leg-count" id="legCount">0 Legs</span>
                 </div>
 
                 <!-- Add selection form -->
@@ -102,7 +102,7 @@
 
                     <div class="bb-field">
                         <label class="bb-label">
-                            Odds
+                            Weight (Multiplier)
                             <span class="bb-odds-display" id="oddsDisplay">2.00</span>
                         </label>
                         <div class="bb-slider-track">
@@ -132,7 +132,7 @@
 
                     <button class="bb-add-btn" id="addLegBtn">
                         <span class="bb-add-btn__icon">+</span>
-                        Add to Slip
+                        Add to Strategy
                     </button>
                 </div>
 
@@ -140,8 +140,8 @@
                 <div class="bb-selections" id="selectionsList">
                     <!-- Empty state -->
                     <div class="bb-empty" id="emptyState">
-                        <div class="bb-empty__icon">⚡</div>
-                        <p class="bb-empty__text">No selections yet.<br>Add your first leg above.</p>
+                        <div class="bb-empty__icon">📊</div>
+                        <p class="bb-empty__text">No legs yet.<br>Add your first leg above.</p>
                     </div>
                 </div>
 
@@ -156,17 +156,17 @@
 
                 <!-- Stake input -->
                 <div class="bb-stake-section">
-                    <h3 class="bb-section-title">Your Stake</h3>
+                    <h3 class="bb-section-title">Your Baseline / Unit</h3>
                     <div class="bb-stake-field">
-                        <span class="bb-currency">$</span>
-                        <input class="bb-stake-input" id="stakeInput" type="number" min="1" max="10000" step="1" value="10" placeholder="10">
+                        <span class="bb-currency">₦</span>
+                        <input class="bb-stake-input" id="stakeInput" type="number" min="100" max="100000" step="100" value="1000" placeholder="1000">
                     </div>
                     <div class="bb-stake-presets">
-                        <button class="bb-preset" data-val="5">$5</button>
-                        <button class="bb-preset" data-val="10">$10</button>
-                        <button class="bb-preset" data-val="25">$25</button>
-                        <button class="bb-preset" data-val="50">$50</button>
-                        <button class="bb-preset" data-val="100">$100</button>
+                        <button class="bb-preset" data-val="500">₦500</button>
+                        <button class="bb-preset" data-val="1000">₦1000</button>
+                        <button class="bb-preset" data-val="2500">₦2500</button>
+                        <button class="bb-preset" data-val="5000">₦5000</button>
+                        <button class="bb-preset" data-val="10000">₦10000</button>
                     </div>
                 </div>
 
@@ -178,7 +178,7 @@
                     </div>
                     <div class="bb-acca-stats">
                         <div class="bb-stat">
-                            <span class="bb-stat__label">Total Odds</span>
+                            <span class="bb-stat__label">Total Multiplier</span>
                             <span class="bb-stat__value" id="totalOdds">—</span>
                         </div>
                         <div class="bb-stat">
@@ -186,8 +186,8 @@
                             <span class="bb-stat__value" id="totalLegs">0</span>
                         </div>
                         <div class="bb-stat">
-                            <span class="bb-stat__label">Stake</span>
-                            <span class="bb-stat__value" id="stakeDisplay">$10.00</span>
+                            <span class="bb-stat__label">Baseline Unit</span>
+                            <span class="bb-stat__value" id="stakeDisplay">₦1,000</span>
                         </div>
                     </div>
                     <div class="bb-payout-box">
@@ -195,7 +195,7 @@
                         <span class="bb-payout-value" id="potentialReturn">—</span>
                     </div>
                     <div class="bb-profit-box">
-                        <span class="bb-profit-label">Potential Profit</span>
+                        <span class="bb-profit-label">Potential Return Index</span>
                         <span class="bb-profit-value" id="potentialProfit">—</span>
                     </div>
                 </div>
@@ -204,8 +204,8 @@
                 <div class="bb-responsibility">
                     <div class="bb-responsibility__icon">🛡️</div>
                     <div>
-                        <p class="bb-responsibility__title">Responsible Betting</p>
-                        <p class="bb-responsibility__text">Odds are capped at 20.0 per leg. Never bet more than you can afford to lose. Betting should be for entertainment only.</p>
+                        <p class="bb-responsibility__title">Responsible Analysis</p>
+                        <p class="bb-responsibility__text">Multipliers are capped at 20.0x per leg. Always manage your resources responsibly. Analysis is for modeling purposes.</p>
                     </div>
                 </div>
 
@@ -229,10 +229,10 @@
 
                 <!-- Place bet CTA -->
                 <button class="bb-place-btn" id="placeBetBtn" disabled>
-                    <span>Place Bet</span>
+                    <span>Save Strategy</span>
                     <span class="bb-place-btn__odds" id="placeBtnOdds">—</span>
                 </button>
-                <p class="bb-place-disclaimer">Demo only — no real bets are placed.</p>
+                <p class="bb-place-disclaimer">Simulation only — no financial risks are taken.</p>
             </div>
         </div>
     </main>
@@ -240,6 +240,6 @@
     <!-- Toast notification -->
     <div class="bb-toast" id="toast"></div>
 
-    <script src="betbuilder.js"></script>
+    <script src="strategy-builder.js?v=3"></script>
 </body>
 </html>

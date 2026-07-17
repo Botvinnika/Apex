@@ -1,14 +1,14 @@
 /**
- * APEX SPORTS — Bet Builder Logic
- * Frontend only. No real bets placed.
- * Odds range: 1.20 – 20.00 (responsible betting cap)
+ * APEX SPORTS — Strategy Builder Logic
+ * Frontend only. No real transactions.
+ * Odds range: 1.20 – 20.00 (responsible modeling cap)
  */
 (function () {
   'use strict';
 
   // ── STATE ────────────────────────────────────────────────────
+  let stake = 1000;
   let selections = [];
-  let stake = 10;
 
   // ── ELEMENTS ─────────────────────────────────────────────────
   const oddsSlider     = document.getElementById('oddsSlider');
@@ -82,9 +82,9 @@
     const selection = document.getElementById('selectionInput').value.trim();
     const odds      = parseFloat(oddsSlider.value);
 
-    if (!sport)     { showToast('⚡ Please select a sport'); return; }
-    if (!match)     { showToast('⚡ Please enter a match'); return; }
-    if (!selection) { showToast('⚡ Please enter your selection'); return; }
+    if (!sport)     { showToast('📊 Please select a sport'); return; }
+    if (!match)     { showToast('📊 Please enter a match'); return; }
+    if (!selection) { showToast('📊 Please enter your selection'); return; }
 
     const leg = {
       id: Date.now(),
@@ -107,7 +107,7 @@
     oddsSlider.value = '2.0';
     updateOddsUI();
 
-    showToast('✅ Leg added to your slip!');
+    showToast('✅ Leg added to your strategy!');
   }
 
   // ── RENDER SELECTIONS ─────────────────────────────────────────
@@ -117,12 +117,12 @@
     if (selections.length === 0) {
       selectionsList.appendChild(emptyState);
       slipActions.style.display = 'none';
-      legCount.textContent = '0 Selections';
+      legCount.textContent = '0 Legs';
       return;
     }
 
     slipActions.style.display = 'block';
-    legCount.textContent = selections.length + (selections.length === 1 ? ' Selection' : ' Selections');
+    legCount.textContent = selections.length + (selections.length === 1 ? ' Leg' : ' Legs');
 
     selections.forEach((leg, i) => {
       const card = document.createElement('div');
@@ -192,14 +192,14 @@
 
     totalOddsEl.textContent    = totalOdds.toFixed(2);
     totalLegsEl.textContent    = n;
-    stakeDisplay.textContent   = '$' + stake.toFixed(2);
-    potentialReturn.textContent= '$' + ret.toFixed(2);
-    potentialProfit.textContent= '+$' + profit.toFixed(2);
+    stakeDisplay.textContent   = '₦' + Number(stake).toLocaleString();
+    potentialReturn.textContent= '₦' + Number(ret).toLocaleString(undefined, {maximumFractionDigits: 0});
+    potentialProfit.textContent= '₦' + Number(profit).toLocaleString(undefined, {maximumFractionDigits: 0});
     placeBtnOdds.textContent   = totalOdds.toFixed(2) + 'x';
 
-    // Bet type label
+    // Strategy type label
     const types = ['', 'Single', 'Double', 'Treble', '4-Fold', '5-Fold', '6-Fold', '7-Fold', '8-Fold', '9-Fold', '10-Fold'];
-    accaType.textContent = n <= 10 ? (types[n] || n + '-Fold Acca') : n + '-Fold Acca';
+    accaType.textContent = n <= 10 ? (types[n] || n + '-Fold Strategy') : n + '-Fold Strategy';
     accaBadge.textContent = totalOdds < 3 ? 'SAFE' : totalOdds < 8 ? 'VALUE' : totalOdds < 20 ? 'BOLD' : 'EXTREME';
 
     placeBetBtn.disabled = false;
@@ -221,14 +221,14 @@
     aiRiskNeedle.style.left = pct + '%';
 
     const notes = [
-      [0.0, 0.25, '🟢 Low risk accumulator. Conservative selections with good implied probability.'],
+      [0.0, 0.25, '🟢 Low risk strategy. Conservative selections with good implied probability.'],
       [0.25, 0.5,  '🟡 Moderate risk. A solid combination with fair value — keep an eye on form.'],
       [0.5, 0.75,  '🟠 High risk. Multiple uncertain outcomes combined. Proceed with caution.'],
-      [0.75, 1.1,  '🔴 Extreme risk. Very long odds accumulator — treat as entertainment only.'],
+      [0.75, 1.1,  '⚠️ Extreme risk. Very high multiplier combination — treat as simulation only.'],
     ];
 
     if (level === 0) {
-      aiNote.textContent = 'Add selections to see AI risk analysis.';
+      aiNote.textContent = 'Add legs to see AI risk analysis.';
     } else {
       const note = notes.find(([lo, hi]) => level >= lo && level < hi);
       aiNote.textContent = note ? note[2] : '';
@@ -237,7 +237,7 @@
 
   // ── STAKE ─────────────────────────────────────────────────────
   stakeInput.addEventListener('input', () => {
-    stake = Math.max(1, parseFloat(stakeInput.value) || 1);
+    stake = Math.max(100, parseFloat(stakeInput.value) || 100);
     updateSummary();
   });
 
@@ -256,15 +256,15 @@
     selections = [];
     renderSelections();
     updateSummary();
-    showToast('🗑️ Slip cleared');
+    showToast('🗑️ Strategy cleared');
   });
 
   // ── PLACE BET (demo) ──────────────────────────────────────────
   placeBetBtn.addEventListener('click', () => {
     if (selections.length === 0) return;
     const totalOdds = selections.reduce((a, s) => a * s.odds, 1);
-    const ret = (stake * totalOdds).toFixed(2);
-    showToast(`⚡ Bet placed! Potential return: $${ret} (Demo only)`);
+    const ret = (stake * totalOdds).toFixed(0);
+    showToast(`📈 Strategy saved! Potential return: ₦${Number(ret).toLocaleString()} (Simulation only)`);
     // Animate button
     placeBetBtn.style.transform = 'scale(0.96)';
     setTimeout(() => placeBetBtn.style.transform = '', 150);

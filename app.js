@@ -10,12 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   const preloader = document.getElementById('preloader');
   
-  // Keep preloader visible for at least 1.5s to show off the lightning animations
-  setTimeout(() => {
-    preloader.classList.add('hidden');
-    // Start widgets animations once preloader is gone
-    startFeatureVisuals();
-  }, 1600);
+  if (preloader) {
+    // Keep preloader visible for at least 1.5s to show off the lightning animations
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      // Start widgets animations once preloader is gone
+      if (typeof startFeatureVisuals === 'function') startFeatureVisuals();
+      setTimeout(() => {
+        if (typeof window.initScrollAnimations === 'function') window.initScrollAnimations();
+      }, 300);
+    }, 1600);
+  } else {
+    setTimeout(() => {
+      if (typeof startFeatureVisuals === 'function') startFeatureVisuals();
+      if (typeof window.initScrollAnimations === 'function') window.initScrollAnimations();
+    }, 100);
+  }
 
 
   // ============================================================
@@ -153,9 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, { threshold: 0.1 });
 
-  reveals.forEach(reveal => {
-    revealObserver.observe(reveal);
-  });
+  window.initScrollAnimations = function() {
+    reveals.forEach(reveal => {
+      revealObserver.observe(reveal);
+    });
+    if (statsSection) {
+      statsObserver.observe(statsSection);
+    }
+  };
 
   // Stats Counters logic
   const statsObserver = new IntersectionObserver((entries) => {
@@ -170,9 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { threshold: 0.2 });
 
-  if (statsSection) {
-    statsObserver.observe(statsSection);
-  }
+  // Initialization moved to window.initScrollAnimations
 
   function animateCounter(element, target, suffix, isDecimal) {
     let start = 0;

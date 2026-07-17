@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexSports Analytics — Predict Smarter. Bet Sharper.</title>
+  <title>ApexSports Analytics - Predict Smarter. Forecast Sharper.</title>
   <meta name="description" content="ApexSports Analytics gives you data-driven match predictions, live Expected Value calculations, and AI-powered probability models for football, basketball, tennis, and baseball.">
   <meta property="og:title" content="ApexSports Analytics — Where Data Meets Sport">
   <meta property="og:description" content="Independent probability models. Real-time EV. African markets first.">
@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
   <script src="lightning.js"></script>
 </head>
 <body>
@@ -185,7 +185,7 @@
       <a href="#showcase">How It Works</a>
       <a href="#pricing">Pricing</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="betbuilder.html">Odds Builder</a>
+      <a href="strategy-builder.html">Strategy Builder</a>
       <a href="#" class="navbar__cta"><span>Start Free</span></a>
     </div>
 
@@ -199,7 +199,7 @@
     <a href="#showcase" onclick="closeMobileMenu()">How It Works</a>
     <a href="#pricing" onclick="closeMobileMenu()">Pricing</a>
     <a href="dashboard.html" onclick="closeMobileMenu()">Dashboard</a>
-    <a href="betbuilder.html" onclick="closeMobileMenu()">Odds Builder</a>
+    <a href="strategy-builder.html" onclick="closeMobileMenu()">Strategy Builder</a>
     <a href="#" class="btn-primary" onclick="closeMobileMenu()">Start Free</a>
   </div>
 </nav>
@@ -222,12 +222,12 @@
 
       <h1 class="hero__headline">
         The Data Behind<br>
-        <span class="gradient-text">Every Smart Bet</span>
+        <span class="gradient-text">Every Smart Decision</span>
       </h1>
 
       <p class="hero__sub">
         Independent probability models. Real-time Expected Value. African markets first.
-        We run 10,000+ Monte Carlo simulations per match so you never bet blind again.
+        We run 10,000+ Monte Carlo simulations per match so you can always back your strategies with data.
       </p>
 
       <div class="hero__actions">
@@ -320,7 +320,7 @@
     <div class="stat-divider"></div>
     <div class="stat-item reveal">
       <span class="stat-item__number" data-target="28.4" data-suffix="%" data-decimal="true">0</span>
-      <span class="stat-item__label">Avg ROI on Value Bets</span>
+      <span class="stat-item__label">Avg ROI on Value Models</span>
     </div>
     <div class="stat-divider"></div>
     <div class="stat-item reveal">
@@ -338,7 +338,7 @@
   <div class="container">
     <div class="section-header reveal">
       <div class="section-tag">Core Features</div>
-      <h2 class="section-title">Everything a sharp bettor needs</h2>
+      <h2 class="section-title">Everything a sharp analyst needs</h2>
       <p class="section-sub">Stop guessing. Start calculating. Every tool is powered by real probability models — not opinions.</p>
     </div>
 
@@ -408,7 +408,7 @@
               <span class="gauge-unit">%</span>
             </div>
           </div>
-          <span class="gauge-desc">Accuracy on value bets</span>
+          <span class="gauge-desc">Accuracy on value predictions</span>
         </div>
       </div>
 
@@ -439,7 +439,7 @@
       <div class="feature-card reveal">
         <div class="feature-card__tag">EV Engine</div>
         <h3 class="feature-card__title">Value &amp; Trap Detection</h3>
-        <p class="feature-card__desc">Every market flagged as VALUE ▲, FAIR ≈, or TRAP ▼ — with exact Expected Value in Naira per ₦1,000 staked.</p>
+        <p class="feature-card__desc">Every market flagged as VALUE 🟢, FAIR 🟡, or TRAP 🔴 - with exact Expected Value in Naira per ₦1,000 allocated.</p>
         <div class="ev-preview">
           <div class="ev-row ev-row--green">
             <span>Nigeria vs Ghana · Over 2.5</span>
@@ -460,7 +460,7 @@
       <div class="feature-card reveal">
         <div class="feature-card__tag">Coverage</div>
         <h3 class="feature-card__title">African Leagues First</h3>
-        <p class="feature-card__desc">AFCON, CAF Champions League, NPFL, and 20+ African leagues — all priced in Naira and built for local bookmakers.</p>
+        <p class="feature-card__desc">AFCON, CAF Champions League, NPFL, and 20+ African leagues - all priced in Naira and built for local platforms.</p>
         <div class="leagues-list">
           <span class="league-tag">🇳🇬 NPFL</span>
           <span class="league-tag">🏆 AFCON</span>
@@ -476,9 +476,9 @@
       <!-- Card 6: Odds Builder -->
       <div class="feature-card feature-card--highlight reveal">
         <div class="feature-card__tag">Builder</div>
-        <h3 class="feature-card__title">Odds Builder Sandbox</h3>
-        <p class="feature-card__desc">Stack custom legs, tune parameters, and see the True Odds of your accumulator in real time. Responsible betting — capped at 20.0.</p>
-        <a href="betbuilder.html" class="btn-primary btn--sm">
+        <h3 class="feature-card__title">Strategy Builder Sandbox</h3>
+        <p class="feature-card__desc">Stack custom legs, tune parameters, and see the True Probability of your combination in real time. Responsible simulation — capped at 20.0x.</p>
+        <a href="strategy-builder.html" class="btn-primary btn--sm">
           Open Builder →
         </a>
       </div>
@@ -566,7 +566,7 @@
     <div class="section-header reveal">
       <div class="section-tag">Public Ledger</div>
       <h2 class="section-title">Every call. Timestamped. Forever.</h2>
-      <p class="section-sub">Unlike tipster sites that delete losing picks, every prediction we make is public from the moment it's created. No editing. No deleting.</p>
+      <p class="section-sub">Unlike other sites that delete history, every prediction we make is public from the moment it's created. No editing. No deleting.</p>
     </div>
 
     <div class="ledger-table reveal">
@@ -595,8 +595,8 @@
 
     <div class="ledger-stats reveal">
       <div class="l-stat"><strong>847</strong><span>Total Predictions</span></div>
-      <div class="l-stat"><strong>64.2%</strong><span>Value Bet Hit Rate</span></div>
-      <div class="l-stat"><strong class="text-green">+28.4%</strong><span>ROI on Value Bets</span></div>
+      <div class="l-stat"><strong>64.2%</strong><span>Value Pick Hit Rate</span></div>
+      <div class="l-stat"><strong class="text-green">+28.4%</strong><span>ROI on Value Picks</span></div>
       <div class="l-stat"><strong class="text-cyan">91.3%</strong><span>Trap Avoidance Rate</span></div>
     </div>
   </div>
@@ -659,7 +659,7 @@
           <li class="feat-yes">EV calculator for all markets</li>
           <li class="feat-yes">10,000 simulations per match</li>
           <li class="feat-yes">African leagues full coverage</li>
-          <li class="feat-yes">Odds Builder Sandbox</li>
+          <li class="feat-yes">Strategy Builder Sandbox</li>
         </ul>
         <a href="#" class="btn-primary btn--full">Join Founder's 20</a>
         <p class="pricing-card__note">First 20 members lock ₦10,000/mo forever · <strong>Annual: ₦100,000/yr</strong></p>
@@ -706,7 +706,7 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="faq-item__answer">
-          <p>No. We are a <strong>data company</strong>. We provide probability models and Expected Value analysis. We do not tell you what to bet — we show you what the math says. The decision is always yours.</p>
+          <p>No. We are a <strong>data company</strong>. We provide probability models and Expected Value analysis. We do not tell you what decisions to make — we show you what the math says. The decision is always yours.</p>
         </div>
       </div>
       <div class="faq-item reveal">
@@ -714,15 +714,15 @@
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="faq-item__answer">
-          <p>Our value bet hit rate sits at <strong>64.2%</strong> with a verified <strong>+28.4% ROI</strong> over the last 12 months — all visible on the Public Ledger. We track every call transparently.</p>
+          <p>Our value pick hit rate sits at <strong>64.2%</strong> with a verified <strong>+28.4% ROI</strong> over the last 12 months — all visible on the Public Ledger. We track every call transparently.</p>
         </div>
       </div>
       <div class="faq-item reveal">
-        <button class="faq-item__question">Which bookmakers do you support?
+        <button class="faq-item__question">Which sports books do you support?
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="faq-item__answer">
-          <p>We compare against <strong>SportyBet, Bet9ja, 1xBet, Betway</strong>, and 12 other major operators. Our True Odds are independent — we never take data from bookmakers.</p>
+          <p>We compare against <strong>SportyBet, Bet9ja, 1xBet, Betway</strong>, and 12 other major operators. Our True Odds are independent — we never take data from sports books.</p>
         </div>
       </div>
       <div class="faq-item reveal">
@@ -790,7 +790,7 @@
         <h5>Product</h5>
         <a href="#features">Features</a>
         <a href="#showcase">How It Works</a>
-        <a href="betbuilder.html">Odds Builder</a>
+        <a href="strategy-builder.html">Strategy Builder</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="#ledger">Public Ledger</a>
       </div>
@@ -814,12 +814,12 @@
   <div class="footer__bottom">
     <div class="container-wide footer__bottom-inner">
       <span>© 2025 ApexSports Analytics. All rights reserved.</span>
-      <span>Not a bookmaker. We sell data, not bets. Bet responsibly.</span>
+      <span>Not a sports book. We sell data, not forecasts. Play responsibly.</span>
     </div>
   </div>
 </footer>
 
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 
 </body>
 </html>
