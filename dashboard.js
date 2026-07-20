@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ============================================================
+  // 1b. THEME TOGGLE (light / dark)
+  // ============================================================
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle && window.ApexTheme) {
+    themeToggle.addEventListener('click', () => window.ApexTheme.toggle());
+  }
+
+
+  // ============================================================
   // 2. DASHBOARD TAB NAVIGATION
   // ============================================================
   const navItems = document.querySelectorAll('.sidebar__nav-item');

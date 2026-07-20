@@ -2107,6 +2107,29 @@ body::before {
   color: var(--text-muted);
 }
 .hero__social-proof strong { color: var(--text-primary); }
+.hero__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 228, 77, 0.08);
+  border: 1px solid rgba(255, 228, 77, 0.18);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+}
+.hero__rating-stars {
+  color: #ffe44d;
+  letter-spacing: 1px;
+  font-size: 0.82rem;
+  text-shadow: 0 0 8px rgba(255, 228, 77, 0.35);
+}
+.hero__rating strong {
+  color: var(--bolt-white);
+}
 .sp-avatars {
   display: flex;
   gap: -4px;

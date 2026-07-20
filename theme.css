@@ -1,0 +1,1001 @@
+/* ============================================================
+   APEX SPORTS ANALYTICS — Theme Tokens
+   Light & dark mode. Dark is default; toggled by setting
+   <body data-theme="light">. The choice persists in localStorage
+   under the key "apex-theme".
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   DARK THEME — base tokens (matches the current site)
+   ------------------------------------------------------------ */
+:root,
+:root[data-theme="dark"] {
+  /* Surfaces */
+  --bg-primary:        #03040a;
+  --bg-secondary:      #07091a;
+  --bg-card:           rgba(255, 255, 255, 0.025);
+  --bg-card-hover:     rgba(255, 255, 255, 0.05);
+  --bg-glass:          rgba(255, 255, 255, 0.03);
+  --bg-glass-strong:   rgba(255, 255, 255, 0.07);
+  --bg-elevated:       rgba(7, 9, 26, 0.9);
+  --bg-overlay:        rgba(3, 4, 10, 0.85);
+
+  /* Text */
+  --text-primary:      #f0f8ff;
+  --text-secondary:    #90aac4;
+  --text-muted:        #6b7d97;
+  --text-inverse:      #0a1020;
+
+  /* Brand accents */
+  --accent:            #00c3ff;
+  --accent-hover:      #4fd6ff;
+  --accent-soft:       rgba(0, 195, 255, 0.08);
+  --accent-softer:     rgba(0, 195, 255, 0.04);
+  --accent-border:     rgba(0, 195, 255, 0.20);
+  --accent-faint:      rgba(0, 195, 255, 0.10);
+
+  /* Semantic — value / fair / trap */
+  --positive:          #00d68f;
+  --positive-bg:       rgba(0, 255, 135, 0.06);
+  --positive-border:   rgba(0, 255, 135, 0.22);
+  --positive-strong:   rgba(0, 255, 135, 0.12);
+  --warning:           #f5a524;
+  --warning-bg:        rgba(255, 228, 77, 0.10);
+  --warning-border:    rgba(255, 228, 77, 0.22);
+  --negative:          #f04141;
+  --negative-bg:       rgba(255, 75, 75, 0.08);
+  --negative-border:   rgba(255, 75, 75, 0.22);
+  --neutral-bg:        rgba(255, 255, 255, 0.05);
+  --neutral-border:    rgba(255, 255, 255, 0.06);
+
+  /* Borders & dividers */
+  --border-subtle:     rgba(0, 195, 255, 0.08);
+  --border-default:    rgba(255, 255, 255, 0.08);
+  --divider:           rgba(0, 195, 255, 0.06);
+  --shadow-card:       0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-elevated:   0 20px 60px rgba(0, 0, 0, 0.7);
+
+  /* Scrollbar */
+  --scrollbar-thumb:   linear-gradient(to bottom, #00c3ff, #9b59f5);
+
+  /* Theme-specific helpers */
+  --hero-glow:         radial-gradient(ellipse at 30% 50%, rgba(0, 195, 255, 0.10) 0%, transparent 55%),
+                       radial-gradient(ellipse at 70% 30%, rgba(155, 89, 245, 0.08) 0%, transparent 50%),
+                       radial-gradient(ellipse at 50% 100%, rgba(255, 228, 77, 0.04) 0%, transparent 40%);
+  --hero-grid:         linear-gradient(rgba(0, 195, 255, 0.025) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(0, 195, 255, 0.025) 1px, transparent 1px);
+  --code-bg:           rgba(0, 0, 0, 0.2);
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------
+   LIGHT THEME — overrides the same tokens
+   ------------------------------------------------------------ */
+:root[data-theme="light"] {
+  /* Surfaces */
+  --bg-primary:        #f6f8fb;
+  --bg-secondary:      #ffffff;
+  --bg-card:           #ffffff;
+  --bg-card-hover:     #f1f5fa;
+  --bg-glass:          rgba(15, 23, 42, 0.02);
+  --bg-glass-strong:   rgba(15, 23, 42, 0.04);
+  --bg-elevated:       #ffffff;
+  --bg-overlay:        rgba(255, 255, 255, 0.92);
+
+  /* Text */
+  --text-primary:      #0a1020;
+  --text-secondary:    #475569;
+  --text-muted:        #94a3b8;
+  --text-inverse:      #ffffff;
+
+  /* Brand accents — slightly darker so they hold on white */
+  --accent:            #0066d4;
+  --accent-hover:      #0052ad;
+  --accent-soft:       rgba(0, 102, 212, 0.08);
+  --accent-softer:     rgba(0, 102, 212, 0.04);
+  --accent-border:     rgba(0, 102, 212, 0.22);
+  --accent-faint:      rgba(0, 102, 212, 0.12);
+
+  /* Semantic */
+  --positive:          #047857;
+  --positive-bg:       rgba(4, 120, 87, 0.08);
+  --positive-border:   rgba(4, 120, 87, 0.28);
+  --positive-strong:   rgba(4, 120, 87, 0.14);
+  --warning:           #b45309;
+  --warning-bg:        rgba(180, 83, 9, 0.08);
+  --warning-border:    rgba(180, 83, 9, 0.28);
+  --negative:          #b91c1c;
+  --negative-bg:       rgba(185, 28, 28, 0.08);
+  --negative-border:   rgba(185, 28, 28, 0.28);
+  --neutral-bg:        rgba(15, 23, 42, 0.04);
+  --neutral-border:    rgba(15, 23, 42, 0.08);
+
+  /* Borders & dividers */
+  --border-subtle:     rgba(15, 23, 42, 0.08);
+  --border-default:    rgba(15, 23, 42, 0.10);
+  --divider:           rgba(15, 23, 42, 0.08);
+  --shadow-card:       0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-elevated:   0 4px 8px rgba(15, 23, 42, 0.06), 0 20px 40px rgba(15, 23, 42, 0.08);
+
+  --scrollbar-thumb:   linear-gradient(to bottom, #0066d4, #6d28d9);
+
+  --hero-glow:         radial-gradient(ellipse at 30% 50%, rgba(0, 102, 212, 0.05) 0%, transparent 55%),
+                       radial-gradient(ellipse at 70% 30%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+  --hero-grid:         linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  --code-bg:           #f1f5fa;
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------
+   THEME TOGGLE BUTTON
+   ------------------------------------------------------------ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9999px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out, ease);
+  position: relative;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--bg-card-hover);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.4s var(--ease-out, ease), opacity 0.2s ease;
+}
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-sun  { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+/* ------------------------------------------------------------
+   SMOOTH THEME SWITCH
+   A single 500ms cross-fade is applied via a class on <html>
+   (added by theme.js during a toggle and removed on completion).
+   This avoids a hard cut and gives every element a chance to
+   retint together. Reduced-motion users get a near-instant
+   snap (50ms) so we don't trigger vestibular issues.
+   ------------------------------------------------------------ */
+html { color-scheme: light dark; }
+
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.45s ease,
+    background-image 0.45s ease,
+    color            0.45s ease,
+    border-color     0.45s ease,
+    box-shadow       0.45s ease,
+    fill             0.45s ease,
+    stroke           0.45s ease,
+    opacity          0.45s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition-duration: 0.05s !important;
+  }
+}
+
+/* Per-element default transitions (when not in a theme switch
+   window). Kept short so they don't lag normal interactions. */
+body, .navbar, .feature-card, .pricing-card, .faq-item,
+.ledger-table, .ledger-stats, .hero-card, .stats,
+.mobile-menu, .modal, .dropdown, .popover {
+  transition: background-color 0.3s ease, color 0.3s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ============================================================
+   THEME-SPECIFIC AMBIENT OVERLAYS
+   - Dark mode: lightning crack overlay (the existing one in
+     styles.css body::before) is shown.
+   - Light mode: a warm sun-rays / soft sky glow overlay is
+     shown instead. Lightning is hidden in light mode.
+   The selectors below target the same `body::before` element
+   that the dark theme styles.css defines.
+   ============================================================ */
+
+/* Hide the lightning overlay in light mode */
+:root[data-theme="light"] body::before {
+  display: none !important;
+}
+
+/* Sun-rays overlay for light mode — uses body::after so we
+   don't collide with the existing body::before. */
+:root[data-theme="light"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    /* warm radial sun */
+    radial-gradient(circle at 88% 8%, rgba(255, 196, 102, 0.45) 0%, rgba(255, 196, 102, 0) 28%),
+    /* conic sun rays */
+    conic-gradient(from 215deg at 88% 8%,
+      rgba(255, 184, 80, 0.18) 0deg,
+      rgba(255, 220, 140, 0.06) 18deg,
+      rgba(255, 184, 80, 0.18) 36deg,
+      rgba(255, 220, 140, 0.06) 54deg,
+      rgba(255, 184, 80, 0.18) 72deg,
+      rgba(255, 220, 140, 0.06) 90deg,
+      rgba(255, 184, 80, 0.18) 108deg,
+      rgba(255, 220, 140, 0.06) 126deg,
+      rgba(255, 184, 80, 0.18) 144deg,
+      rgba(255, 220, 140, 0.06) 162deg,
+      rgba(255, 184, 80, 0.18) 180deg,
+      rgba(255, 220, 140, 0.06) 198deg,
+      rgba(255, 184, 80, 0.18) 216deg,
+      rgba(255, 220, 140, 0.06) 234deg,
+      rgba(255, 184, 80, 0.18) 252deg,
+      rgba(255, 220, 140, 0.06) 270deg,
+      rgba(255, 184, 80, 0.18) 288deg,
+      rgba(255, 220, 140, 0.06) 306deg,
+      rgba(255, 184, 80, 0.18) 324deg,
+      rgba(255, 220, 140, 0.06) 342deg,
+      rgba(255, 184, 80, 0.18) 360deg);
+  mask-image: radial-gradient(ellipse 90% 80% at 88% 8%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 88% 8%, #000 30%, transparent 75%);
+  animation: sunRaysDrift 28s linear infinite;
+  opacity: 0.9;
+}
+@keyframes sunRaysDrift {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(8deg); }
+}
+
+/* Floating dust/light particles in light mode for extra polish */
+:root[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(255, 220, 150, 0.20) 0%, transparent 35%),
+    radial-gradient(circle at 85% 70%, rgba(255, 200, 120, 0.12) 0%, transparent 40%);
+}
+
+/* ============================================================
+   GLASSMORPHISM UTILITIES
+   These work in both themes. The surface color comes from the
+   theme tokens so the glass tints correctly per mode.
+   ============================================================ */
+.glass {
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.18);
+}
+.glass-strong {
+  background: var(--bg-glass-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.22);
+}
+.glass-tinted {
+  background: linear-gradient(135deg,
+    rgba(0, 195, 255, 0.10),
+    rgba(155, 89, 245, 0.08));
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--accent-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 12px 40px rgba(0, 195, 255, 0.10);
+}
+:root[data-theme="light"] .glass,
+:root[data-theme="light"] .glass-strong {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(15, 23, 42, 0.06),
+    0 1px 2px rgba(15, 23, 42, 0.04);
+}
+:root[data-theme="light"] .glass-tinted {
+  background: linear-gradient(135deg,
+    rgba(0, 102, 212, 0.08),
+    rgba(124, 58, 237, 0.06));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 8px 24px rgba(0, 102, 212, 0.10);
+}
+
+/* ============================================================
+   SCROLL PROGRESS BAR
+   ============================================================ */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  z-index: 9999;
+  background: linear-gradient(90deg, #00c3ff 0%, #9b59f5 50%, #ffe44d 100%);
+  box-shadow: 0 0 12px rgba(0, 195, 255, 0.6), 0 0 4px rgba(155, 89, 245, 0.4);
+  transition: width 0.08s linear;
+  pointer-events: none;
+}
+:root[data-theme="light"] .scroll-progress {
+  background: linear-gradient(90deg, #0066d4 0%, #6d28d9 60%, #b45309 100%);
+  box-shadow: 0 0 10px rgba(0, 102, 212, 0.35);
+}
+
+/* ============================================================
+   BACK TO TOP BUTTON
+   ============================================================ */
+.back-to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 900;
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-glass-strong);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+  opacity: 0;
+  transform: translateY(12px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.3s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  cursor: pointer;
+}
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 22px rgba(0, 195, 255, 0.35), 0 8px 24px rgba(0, 0, 0, 0.22);
+  transform: translateY(-2px) scale(1.04);
+}
+.back-to-top svg { width: 18px; height: 18px; }
+:root[data-theme="light"] .back-to-top {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+:root[data-theme="light"] .back-to-top:hover {
+  box-shadow: 0 0 22px rgba(0, 102, 212, 0.30), 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+/* ============================================================
+   COMMAND PALETTE (Cmd+K / Ctrl+K)
+   ============================================================ */
+.cmdk-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.cmdk-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+:root[data-theme="light"] .cmdk-backdrop { background: rgba(15, 23, 42, 0.30); }
+
+.cmdk {
+  position: fixed;
+  top: 14vh;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px) scale(0.98);
+  width: min(620px, 92vw);
+  z-index: 1110;
+  background: var(--bg-elevated);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  box-shadow: var(--shadow-elevated);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.25s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  overflow: hidden;
+}
+.cmdk.open {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+  pointer-events: auto;
+}
+.cmdk__input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: 500 1rem var(--font-body, 'Plus Jakarta Sans', sans-serif);
+  padding: 18px 20px 18px 52px;
+  outline: none;
+  border-bottom: 1px solid var(--divider);
+}
+.cmdk__input::placeholder { color: var(--text-muted); }
+.cmdk__icon {
+  position: absolute;
+  left: 18px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.cmdk__icon svg { width: 18px; height: 18px; }
+.cmdk__list {
+  max-height: 56vh;
+  overflow-y: auto;
+  padding: 8px;
+}
+.cmdk__group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 12px 6px;
+}
+.cmdk__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.cmdk__item:hover, .cmdk__item.active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+.cmdk__item.active { border-left: 2px solid var(--accent); }
+.cmdk__item-ico {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  font-size: 0.95rem;
+}
+.cmdk__item-title { font-weight: 600; color: var(--text-primary); }
+.cmdk__item-sub { font-size: 0.78rem; color: var(--text-muted); }
+.cmdk__item-kbd {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  background: var(--bg-glass);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cmdk__empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.cmdk__footer {
+  border-top: 1px solid var(--divider);
+  padding: 8px 14px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-glass);
+}
+.cmdk__footer kbd {
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid var(--border-default);
+  background: var(--bg-glass-strong);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+/* ============================================================
+   (Custom cursor and magnetic buttons removed — they made the
+   page feel "sticky" and fought the new theme cross-fade.)
+   ============================================================ */
+
+/* ============================================================
+   GLASS FEATURE CARDS — premium overlay treatment
+   ============================================================ */
+.feature-card.glass-card,
+.pricing-card.glass-card,
+.hero-card.glass-card {
+  background: var(--bg-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--border-default);
+  position: relative;
+  overflow: hidden;
+}
+.feature-card.glass-card::before,
+.pricing-card.glass-card::before,
+.hero-card.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+:root[data-theme="light"] .feature-card.glass-card::before,
+:root[data-theme="light"] .pricing-card.glass-card::before,
+:root[data-theme="light"] .hero-card.glass-card::before {
+  background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, transparent 50%);
+}
+
+/* ============================================================
+   KBD HINT (small floating hint for Cmd+K)
+   ============================================================ */
+.kbd-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+  background: var(--bg-glass);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: 6px;
+}
+
+/* ============================================================
+   REDUCED MOTION — respect user preference
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress,
+  .back-to-top,
+  .cmdk,
+  .cmdk-backdrop,
+  .glass,
+  .glass-strong,
+  .glass-tinted,
+  .glass-card { transition: none !important; }
+}
+
+/* ============================================================
+   LIGHT-MODE PER-COMPONENT OVERRIDES
+   The base styles.css still hard-codes many rgba() values.
+   Override the most visible ones here so the page reads cleanly
+   on a white background.
+   ============================================================ */
+:root[data-theme="light"] {
+  /* Page background — drop the hue-shift animation, just a clean surface */
+  animation: none;
+  background: var(--bg-primary);
+  background-image: none;
+}
+
+:root[data-theme="light"] body {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  animation: none;
+}
+
+/* (lightning body::before is hidden by the more specific rule above) */
+
+/* Navbar */
+:root[data-theme="light"] .navbar.scrolled {
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+:root[data-theme="light"] .navbar__links a:hover { color: var(--accent); }
+:root[data-theme="light"] .navbar__cta {
+  border-color: var(--accent-border);
+  color: var(--accent) !important;
+  background: var(--accent-soft);
+}
+:root[data-theme="light"] .navbar__cta::before { background: var(--accent); }
+:root[data-theme="light"] .navbar__cta:hover {
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 102, 212, 0.25);
+}
+:root[data-theme="light"] .navbar__logo strong { color: var(--accent); }
+/* Hide the lightning bolt ::before and re-color the SVG to a
+   warm sun palette so the brand mark feels right in light mode. */
+:root[data-theme="light"] .navbar__logo::before { display: none; }
+:root[data-theme="light"] .navbar__logo svg { stroke: var(--accent); }
+
+/* Strengthen the dark-mode navbar glass treatment */
+:root[data-theme="dark"] .navbar.scrolled,
+:root:not([data-theme]) .navbar.scrolled {
+  background: rgba(3, 4, 10, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border-default);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Hero */
+:root[data-theme="light"] .hero {
+  background: var(--bg-secondary);
+}
+:root[data-theme="light"] .hero::after {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse at 50% 50%, black 40%, transparent 80%);
+}
+:root[data-theme="light"] .hero__glow-left {
+  background: radial-gradient(circle, rgba(0, 102, 212, 0.06) 0%, transparent 70%);
+}
+:root[data-theme="light"] .hero__glow-right {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.05) 0%, transparent 70%);
+}
+:root[data-theme="light"] .hero__headline { color: var(--text-primary); }
+:root[data-theme="light"] .hero__sub { color: var(--text-secondary); }
+:root[data-theme="light"] .hero__badge {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+:root[data-theme="light"] .hero__social-proof { color: var(--text-muted); }
+:root[data-theme="light"] .hero__social-proof strong { color: var(--text-primary); }
+:root[data-theme="light"] .sp-avatars span {
+  border-color: var(--bg-primary);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Hero card */
+:root[data-theme="light"] .hero-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-elevated);
+}
+:root[data-theme="light"] .hero-card__match { color: var(--text-primary); }
+:root[data-theme="light"] .hero-card__ev {
+  border-top-color: var(--divider);
+}
+:root[data-theme="light"] .odds-pill {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+}
+:root[data-theme="light"] .odds-pill--value {
+  background: var(--positive-bg);
+  border-color: var(--positive-border);
+}
+:root[data-theme="light"] .odds-pill--trap {
+  background: var(--negative-bg);
+  border-color: var(--negative-border);
+}
+:root[data-theme="light"] .odds-pill__badge--green  { background: var(--positive-bg); color: var(--positive); }
+:root[data-theme="light"] .odds-pill__badge--neutral{ background: var(--neutral-bg); color: var(--text-muted); }
+:root[data-theme="light"] .odds-pill__badge--red    { background: var(--negative-bg); color: var(--negative); }
+:root[data-theme="light"] .ev-line { color: var(--text-muted); }
+:root[data-theme="light"] .ev-line strong { color: var(--text-primary); }
+:root[data-theme="light"] .ev-pos { color: var(--positive) !important; }
+
+/* Stats */
+:root[data-theme="light"] .stats {
+  background: var(--bg-secondary);
+  border-color: var(--divider);
+}
+:root[data-theme="light"] .stat-divider { background: var(--divider); }
+:root[data-theme="light"] .stat-item__label { color: var(--text-muted); }
+:root[data-theme="light"] .stat-item__number {
+  color: var(--text-primary);
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+
+/* Section labels */
+:root[data-theme="light"] .section-title { color: var(--text-primary); }
+:root[data-theme="light"] .section-tag {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+:root[data-theme="light"] .section-sub { color: var(--text-secondary); }
+
+/* Feature cards */
+:root[data-theme="light"] .feature-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+:root[data-theme="light"] .feature-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.06), 0 20px 40px rgba(0, 102, 212, 0.08);
+}
+:root[data-theme="light"] .feature-card__title { color: var(--text-primary); }
+:root[data-theme="light"] .feature-card__desc  { color: var(--text-secondary); }
+:root[data-theme="light"] .feature-card__tag {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+:root[data-theme="light"] .feature-card__list li { color: var(--text-secondary); }
+:root[data-theme="light"] .feature-card__list li::before { color: var(--accent); }
+:root[data-theme="light"] .feature-card--highlight {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+:root[data-theme="light"] .mini-gauge {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .sparkline-wrapper {
+  background: var(--code-bg);
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .ev-row {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+}
+:root[data-theme="light"] .ev-row--green { border-color: var(--positive-border); }
+:root[data-theme="light"] .ev-row--red   { border-color: var(--negative-border); }
+:root[data-theme="light"] .ev-badge.green   { color: var(--positive); background: var(--positive-bg); }
+:root[data-theme="light"] .ev-badge.neutral { color: var(--text-muted); background: var(--neutral-bg); }
+:root[data-theme="light"] .ev-badge.red     { color: var(--negative); background: var(--negative-bg); }
+:root[data-theme="light"] .league-tag {
+  color: var(--text-secondary);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+}
+:root[data-theme="light"] .league-tag:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+/* Showcase */
+:root[data-theme="light"] .showcase__img-wrap {
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-elevated);
+}
+:root[data-theme="light"] .showcase__callout {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+:root[data-theme="light"] .showcase__callout strong { color: var(--text-primary); }
+:root[data-theme="light"] .showcase__callout span   { color: var(--text-muted); }
+:root[data-theme="light"] .step__body h4 { color: var(--text-primary); }
+:root[data-theme="light"] .step__body p  { color: var(--text-secondary); }
+:root[data-theme="light"] .step__num {
+  color: var(--accent);
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+
+/* Ledger */
+:root[data-theme="light"] .ledger-table {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .ledger__head {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--divider);
+}
+:root[data-theme="light"] .ledger__row {
+  border-bottom: 1px solid var(--divider);
+  color: var(--text-secondary);
+}
+:root[data-theme="light"] .ledger__row:hover { background: var(--bg-card-hover); }
+:root[data-theme="light"] .ledger__row--win  { border-left-color: var(--positive); }
+:root[data-theme="light"] .ledger__row--trap { border-left-color: var(--warning); }
+:root[data-theme="light"] .ledger__row--miss { border-left-color: var(--negative); }
+:root[data-theme="light"] .text-green { color: var(--positive); }
+:root[data-theme="light"] .text-red   { color: var(--negative); }
+:root[data-theme="light"] .result-badge.win  { color: var(--positive); background: var(--positive-bg); border-color: var(--positive-border); }
+:root[data-theme="light"] .result-badge.trap { color: var(--warning);  background: var(--warning-bg);  border-color: var(--warning-border); }
+:root[data-theme="light"] .result-badge.miss { color: var(--negative); background: var(--negative-bg); border-color: var(--negative-border); }
+:root[data-theme="light"] .ledger-stats {
+  background: var(--divider);
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .l-stat { background: #fff; }
+:root[data-theme="light"] .l-stat strong { color: var(--text-primary); }
+:root[data-theme="light"] .l-stat span   { color: var(--text-muted); }
+
+/* Pricing */
+:root[data-theme="light"] .pricing-label.active { color: var(--accent); }
+:root[data-theme="light"] .toggle-switch {
+  background: var(--bg-glass);
+  border-color: var(--border-default);
+}
+:root[data-theme="light"] .save-badge {
+  color: var(--warning);
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+}
+:root[data-theme="light"] .pricing-card {
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .pricing-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-card);
+}
+:root[data-theme="light"] .pricing-card--featured {
+  background: var(--bg-secondary);
+  border-color: var(--accent-border);
+  box-shadow: 0 4px 16px rgba(0, 102, 212, 0.10);
+}
+:root[data-theme="light"] .pricing-card__tier { color: var(--accent); }
+:root[data-theme="light"] .pricing-card__amount { color: var(--text-primary); }
+:root[data-theme="light"] .pricing-card__period { color: var(--text-muted); }
+:root[data-theme="light"] .feat-yes::before { color: var(--positive); }
+:root[data-theme="light"] .feat-no::before  { color: var(--text-muted); }
+:root[data-theme="light"] .pricing-card__note { color: var(--text-muted); }
+
+/* FAQ */
+:root[data-theme="light"] .faq-item {
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+}
+:root[data-theme="light"] .faq-item.active { border-color: var(--accent-border); }
+:root[data-theme="light"] .faq-item__question {
+  background: #fff;
+  color: var(--text-primary);
+}
+:root[data-theme="light"] .faq-item__question:hover {
+  background: var(--bg-card-hover);
+  color: var(--accent);
+}
+:root[data-theme="light"] .faq-item.active .faq-item__question { color: var(--accent); }
+:root[data-theme="light"] .faq-item__icon { color: var(--accent); }
+:root[data-theme="light"] .faq-item__answer p { color: var(--text-secondary); }
+
+/* CTA banner */
+:root[data-theme="light"] .cta-banner__bg {
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 102, 212, 0.06) 0%, transparent 80%);
+  animation: none;
+}
+:root[data-theme="light"] .cta-banner__copy p { color: var(--text-secondary); }
+
+/* Footer */
+:root[data-theme="light"] .footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .footer__inner {
+  border-bottom: 1px solid var(--divider);
+}
+:root[data-theme="light"] .footer__brand p { color: var(--text-muted); }
+:root[data-theme="light"] .footer__col a  { color: var(--text-muted); }
+:root[data-theme="light"] .footer__col a:hover { color: var(--accent); }
+:root[data-theme="light"] .footer__bottom-inner { color: var(--text-muted); }
+
+/* Buttons */
+:root[data-theme="light"] .btn-ghost {
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+  background: #fff;
+}
+:root[data-theme="light"] .btn-ghost:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 102, 212, 0.10);
+}
+:root[data-theme="light"] .btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 102, 212, 0.20);
+}
+:root[data-theme="light"] .btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 102, 212, 0.30);
+}
+
+/* Mobile menu */
+:root[data-theme="light"] .mobile-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .mobile-menu a {
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* Preloader (if it ever shows) */
+:root[data-theme="light"] .preloader {
+  background: #f6f8fb;
+  color: var(--text-primary);
+}
+:root[data-theme="light"] .preloader::before { display: none; }
+
+/* Gradient text — disable on light, the bright cyan/gold gradient
+   doesn't read on white. Fall back to a solid accent. */
+:root[data-theme="light"] .gradient-text,
+:root[data-theme="light"] .navbar__logo span:first-child {
+  color: var(--text-primary);
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+:root[data-theme="light"] .gradient-text::after { display: none; }
+:root[data-theme="light"] .cta-banner__copy h2,
+:root[data-theme="light"] .final-cta__title {
+  color: var(--text-primary);
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+
+/* Gauge number gradient in feature card */
+:root[data-theme="light"] .gauge-number {
+  color: var(--accent);
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  background-clip: initial;
+}
+:root[data-theme="light"] .gauge-unit { color: var(--text-muted); }
+
+/* ============================================================
+   HERO AMBIENCE — light mode
+   The dark-mode hero glows are subtle neon (cyan / purple). In
+   light mode the canvas-based lightning is hidden, so we
+   re-tune the static glow blobs to feel like a soft sunrise.
+   ============================================================ */
+:root[data-theme="light"] .hero__glow-left {
+  background: radial-gradient(circle,
+    rgba(255, 196, 102, 0.22) 0%,
+    rgba(255, 196, 102, 0.06) 35%,
+    transparent 70%);
+}
+:root[data-theme="light"] .hero__glow-right {
+  background: radial-gradient(circle,
+    rgba(0, 102, 212, 0.10) 0%,
+    rgba(124, 58, 237, 0.06) 35%,
+    transparent 70%);
+}
+/* Add a third soft sun-flavoured glow at the top center so the
+   hero feels bright without being loud. */
+:root[data-theme="light"] .hero { position: relative; }
+:root[data-theme="light"] .hero::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70vw;
+  max-width: 900px;
+  height: 360px;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 232, 168, 0.30) 0%,
+    rgba(255, 232, 168, 0.10) 35%,
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(8px);
+}

@@ -147,6 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ============================================================
+  // 4b. THEME TOGGLE (light / dark)
+  // ============================================================
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle && window.ApexTheme) {
+    themeToggle.addEventListener('click', () => {
+      window.ApexTheme.toggle();
+    });
+  }
+
+
+  // ============================================================
   // 5. SCROLL REVEAL & STATS COUNTERS
   // ============================================================
   const reveals = document.querySelectorAll('.reveal');

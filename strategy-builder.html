@@ -7,6 +7,8 @@
     <meta name="description" content="Build your forecast models with independent probability models from ApexSports Analytics. Responsible analysis, capped at 20.0x per leg.">
     <link rel="stylesheet" href="brutal.css">
     <link rel="stylesheet" href="strategy-builder.css?v=3">
+    <link rel="stylesheet" href="theme.css?v=2">
+    <script src="theme.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 </head>
 <body>
@@ -27,6 +29,15 @@
                 <a href="dashboard.html">Dashboard</a>
                 <a href="strategy-builder.html" class="active-link">Strategy Builder</a>
                 <a href="index.html#pricing">Pricing</a>
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                    </svg>
+                </button>
                 <a href="#" class="nav-cta">Get Early Access</a>
             </div>
         </div>
@@ -241,5 +252,6 @@
     <div class="bb-toast" id="toast"></div>
 
     <script src="strategy-builder.js?v=3"></script>
+    <script src="apex-extras.js?v=1"></script>
 </body>
 </html>

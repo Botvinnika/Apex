@@ -39,6 +39,12 @@
   const aiRiskNeedle   = document.getElementById('aiRiskNeedle');
   const aiNote         = document.getElementById('aiNote');
 
+  // ── THEME TOGGLE ──────────────────────────────────────────────
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle && window.ApexTheme) {
+    themeToggle.addEventListener('click', () => window.ApexTheme.toggle());
+  }
+
   // ── ODDS SLIDER ───────────────────────────────────────────────
   oddsSlider.addEventListener('input', updateOddsUI);
   updateOddsUI();
