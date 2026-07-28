@@ -1,0 +1,481 @@
+/* ============================================================
+   APEX UI — shared interaction & data-visualisation layer
+
+   Portable by design. This file is dropped into BOTH sites
+   unchanged, so it never references a site-specific token
+   directly — every value resolves through a fallback chain that
+   understands both naming schemes and then a hard default:
+
+     Apex/       --bg-elevated  --border-default  --text-primary
+     apex-site/  --bg-raised    --line            --text
+
+   Everything degrades to plain, usable markup with no JS, and
+   every animation is silenced under prefers-reduced-motion.
+   ============================================================ */
+
+:root {
+  --ui-accent:  var(--accent, #38BDF8);
+  --ui-bg:      var(--bg-elevated, var(--bg-raised, #11161F));
+  --ui-bg-2:    var(--bg-surface, #0C1018);
+  --ui-sunken:  var(--bg-inset, var(--bg-sunken, #080B12));
+  --ui-line:    var(--border-default, var(--line, rgba(255,255,255,.10)));
+  --ui-line-2:  var(--border-subtle, var(--line-subtle, rgba(255,255,255,.06)));
+  --ui-text:    var(--text-primary, var(--text, #F4F6FA));
+  --ui-text-2:  var(--text-secondary, var(--text-2, #9AA4B5));
+  --ui-text-3:  var(--text-muted, var(--text-3, #5C6677));
+  --ui-pos:     var(--positive, var(--pos, #10B981));
+  --ui-neg:     var(--negative, var(--neg, #EF4444));
+  --ui-mono:    var(--font-mono, ui-monospace, monospace);
+  --ui-r:       var(--radius-lg, var(--r-md, 14px));
+  --ui-r-sm:    var(--radius-sm, var(--r-sm, 6px));
+  --ui-ease:    var(--ease-out, cubic-bezier(.16,1,.3,1));
+  --ui-shadow:  var(--shadow-lg, 0 24px 48px rgba(0,0,0,.55));
+}
+
+/* ============================================================
+   1 · SCROLL PROGRESS
+   Driven by animation-timeline where supported (zero JS, runs on
+   the compositor); JS sets --ui-progress as the fallback.
+   ============================================================ */
+.ui-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 9998;
+  background: transparent;
+  pointer-events: none;
+}
+.ui-progress__bar {
+  height: 100%;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--ui-progress, 0));
+  background: linear-gradient(90deg, #9945FF, var(--ui-accent) 55%, #14F195);
+  box-shadow: 0 0 12px rgba(56,189,248,.55);
+}
+@supports (animation-timeline: scroll()) {
+  .ui-progress__bar {
+    transform: scaleX(0);
+    animation: uiProgress linear both;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes uiProgress { to { transform: scaleX(1); } }
+}
+
+/* ============================================================
+   2 · COMMAND PALETTE
+   ============================================================ */
+.ui-cmdk {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: start center;
+  padding: clamp(56px, 12vh, 140px) var(--space-4, 16px) var(--space-4, 16px);
+  background: rgba(4,6,10,.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms var(--ui-ease), visibility 0s linear 180ms;
+}
+.ui-cmdk.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 180ms var(--ui-ease);
+}
+.ui-cmdk__panel {
+  width: min(640px, 100%);
+  max-height: min(60vh, 520px);
+  display: flex;
+  flex-direction: column;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-r);
+  box-shadow: var(--ui-shadow);
+  overflow: hidden;
+  transform: translateY(-10px) scale(.985);
+  opacity: 0;
+  transition: transform 220ms var(--ui-ease), opacity 180ms var(--ui-ease);
+}
+.ui-cmdk.is-open .ui-cmdk__panel { transform: none; opacity: 1; }
+
+.ui-cmdk__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--ui-line-2);
+  flex: none;
+}
+.ui-cmdk__search svg { width: 17px; height: 17px; color: var(--ui-text-3); flex: none; }
+.ui-cmdk__input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--ui-text);
+  font-size: 15px;
+}
+.ui-cmdk__input::placeholder { color: var(--ui-text-3); }
+.ui-cmdk__esc {
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--ui-text-3);
+  border: 1px solid var(--ui-line);
+  border-radius: 5px;
+  padding: 3px 6px;
+  flex: none;
+}
+
+.ui-cmdk__list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.ui-cmdk__group {
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ui-text-3);
+  padding: 10px 10px 6px;
+}
+.ui-cmdk__item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--ui-r-sm);
+  color: var(--ui-text-2);
+  font-size: 14px;
+  cursor: pointer;
+  scroll-margin: 8px;
+}
+.ui-cmdk__item[aria-selected="true"] {
+  background: var(--accent-soft, var(--accent-wash, rgba(56,189,248,.10)));
+  color: var(--ui-text);
+}
+.ui-cmdk__item[aria-selected="true"] .ui-cmdk__go { opacity: 1; }
+.ui-cmdk__icon {
+  display: grid;
+  place-items: center;
+  width: 26px; height: 26px;
+  flex: none;
+  border-radius: 6px;
+  border: 1px solid var(--ui-line-2);
+  color: var(--ui-accent);
+}
+.ui-cmdk__icon svg { width: 14px; height: 14px; }
+.ui-cmdk__label { flex: 1; min-width: 0; }
+.ui-cmdk__label b { color: var(--ui-accent); font-weight: 600; }
+.ui-cmdk__sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ui-text-3);
+  margin-top: 1px;
+}
+.ui-cmdk__go { opacity: 0; font-size: 15px; color: var(--ui-text-3); }
+.ui-cmdk__empty { padding: 28px 14px; text-align: center; color: var(--ui-text-3); font-size: 14px; }
+
+.ui-cmdk__foot {
+  display: flex;
+  gap: 14px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--ui-line-2);
+  background: var(--ui-sunken);
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  color: var(--ui-text-3);
+  flex: none;
+}
+.ui-cmdk__foot kbd {
+  font-family: inherit;
+  border: 1px solid var(--ui-line);
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin-right: 3px;
+}
+
+/* Nav trigger button */
+.ui-cmdk-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-r-sm);
+  background: transparent;
+  color: var(--ui-text-3);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: color 140ms var(--ui-ease), border-color 140ms var(--ui-ease);
+}
+.ui-cmdk-trigger:hover { color: var(--ui-text); border-color: var(--ui-accent); }
+.ui-cmdk-trigger svg { width: 14px; height: 14px; }
+.ui-cmdk-trigger kbd {
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+@media (max-width: 900px) { .ui-cmdk-trigger span { display: none; } }
+
+/* ============================================================
+   3 · SPOTLIGHT — cursor-tracked highlight on cards
+   JS writes --mx/--my; the layer is inert until then.
+   ============================================================ */
+.ui-spot { position: relative; isolation: isolate; }
+.ui-spot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 260ms var(--ui-ease);
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    var(--accent-soft, rgba(56,189,248,.13)),
+    transparent 62%);
+}
+.ui-spot:hover::before { opacity: 1; }
+
+/* ============================================================
+   4 · TILT — subtle 3D response, pointer devices only
+   ============================================================ */
+.ui-tilt {
+  transform: perspective(900px)
+             rotateX(var(--rx, 0deg))
+             rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 320ms var(--ui-ease);
+  will-change: transform;
+}
+
+/* ============================================================
+   5 · MAGNETIC — control drifts toward the cursor
+   ============================================================ */
+.ui-magnet {
+  transform: translate3d(var(--tx, 0), var(--ty, 0), 0);
+  transition: transform 280ms var(--ui-ease);
+}
+
+/* ============================================================
+   6 · ANIMATED GRADIENT BORDER
+   Painted into the padding box so it reads as a border without
+   costing an extra wrapper element.
+   ============================================================ */
+.ui-glow-border {
+  position: relative;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+.ui-glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from var(--ang, 0deg),
+    transparent 0deg, var(--ui-accent) 60deg,
+    #9945FF 120deg, transparent 200deg, transparent 360deg);
+  animation: uiSpin 6s linear infinite;
+  opacity: .55;
+}
+@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes uiSpin { to { --ang: 360deg; } }
+
+/* ============================================================
+   7 · BACK TO TOP — scroll-progress ring
+   ============================================================ */
+.ui-top {
+  position: fixed;
+  right: clamp(16px, 3vw, 28px);
+  bottom: clamp(16px, 3vw, 28px);
+  z-index: 9990;
+  width: 46px; height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--ui-line);
+  background: var(--ui-bg);
+  color: var(--ui-text-2);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 220ms var(--ui-ease), transform 220ms var(--ui-ease),
+              visibility 0s linear 220ms, color 140ms var(--ui-ease);
+}
+.ui-top.is-on {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity 220ms var(--ui-ease), transform 220ms var(--ui-ease), color 140ms var(--ui-ease);
+}
+.ui-top:hover { color: var(--ui-text); }
+.ui-top svg.ui-top__ring { position: absolute; inset: -1px; transform: rotate(-90deg); }
+.ui-top__ring circle { fill: none; stroke-width: 2; }
+.ui-top__track { stroke: var(--ui-line-2); }
+.ui-top__bar {
+  stroke: var(--ui-accent);
+  stroke-linecap: round;
+  stroke-dasharray: var(--circ, 138);
+  stroke-dashoffset: calc(var(--circ, 138) * (1 - var(--ui-progress, 0)));
+  transition: stroke-dashoffset 120ms linear;
+}
+.ui-top__arrow { width: 16px; height: 16px; }
+
+/* ============================================================
+   8 · PAGE TRANSITIONS
+   Uses the View Transitions API where available. The fallback is
+   a plain fade driven by a class, so unsupported browsers still
+   get a soft handoff instead of a hard flash.
+   ============================================================ */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: uiFadeOut 180ms var(--ui-ease) both; }
+::view-transition-new(root) { animation: uiFadeIn 260ms var(--ui-ease) both; }
+@keyframes uiFadeOut { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes uiFadeIn { from { opacity: 0; transform: translateY(8px); } }
+
+html.ui-leaving body {
+  opacity: 0;
+  transition: opacity 160ms var(--ui-ease);
+}
+
+/* ============================================================
+   9 · DATA VISUALISATION
+   ============================================================ */
+
+/* Probability bar */
+.ui-prob { display: flex; flex-direction: column; gap: 7px; }
+.ui-prob__head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  font-size: 13px;
+}
+.ui-prob__name { color: var(--ui-text-2); }
+.ui-prob__val {
+  font-family: var(--ui-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text);
+  font-weight: 600;
+}
+.ui-prob__track {
+  height: 7px;
+  border-radius: 99px;
+  background: var(--ui-sunken);
+  border: 1px solid var(--ui-line-2);
+  overflow: hidden;
+}
+.ui-prob__fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ui-accent), #14F195);
+  transition: width 900ms var(--ui-ease);
+}
+.ui-prob--muted .ui-prob__fill { background: var(--ui-line); }
+
+/* Sparkline — geometry generated by JS from data-spark points */
+.ui-spark { display: block; width: 100%; height: 40px; overflow: visible; }
+.ui-spark__line {
+  fill: none;
+  stroke: var(--ui-accent);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--len, 0);
+  stroke-dashoffset: var(--len, 0);
+}
+.ui-spark.is-in .ui-spark__line {
+  transition: stroke-dashoffset 1.1s var(--ui-ease);
+  stroke-dashoffset: 0;
+}
+.ui-spark__area { fill: url(#uiSparkFade); opacity: 0; transition: opacity .6s var(--ui-ease) .3s; }
+.ui-spark.is-in .ui-spark__area { opacity: .55; }
+.ui-spark__dot { fill: var(--ui-accent); opacity: 0; transition: opacity .3s var(--ui-ease) .9s; }
+.ui-spark.is-in .ui-spark__dot { opacity: 1; }
+
+/* Simulator */
+.ui-sim__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: var(--space-6, 24px);
+  align-items: start;
+}
+.ui-sim__field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.ui-sim__label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13px; color: var(--ui-text-2);
+}
+.ui-sim__label b {
+  font-family: var(--ui-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-accent);
+}
+.ui-sim__range {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px;
+  border-radius: 99px;
+  background: var(--ui-sunken);
+  border: 1px solid var(--ui-line-2);
+  outline: none;
+  cursor: pointer;
+}
+.ui-sim__range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--ui-accent);
+  border: 2px solid var(--ui-bg);
+  box-shadow: 0 0 0 1px var(--ui-accent);
+  cursor: grab;
+}
+.ui-sim__range::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ui-accent);
+  border: 2px solid var(--ui-bg);
+  cursor: grab;
+}
+.ui-sim__range:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft, rgba(56,189,248,.25)); }
+
+.ui-sim__scores { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.ui-sim__score {
+  font-family: var(--ui-mono);
+  font-size: 11px;
+  padding: 4px 7px;
+  border-radius: var(--ui-r-sm);
+  border: 1px solid var(--ui-line-2);
+  background: var(--ui-sunken);
+  color: var(--ui-text-2);
+}
+.ui-sim__score b { color: var(--ui-accent); }
+
+/* Calibration plot */
+.ui-cal { width: 100%; height: auto; overflow: visible; }
+.ui-cal__grid { stroke: var(--ui-line-2); stroke-width: 1; }
+.ui-cal__ideal { stroke: var(--ui-text-3); stroke-width: 1; stroke-dasharray: 4 4; opacity: .7; }
+.ui-cal__pt { fill: var(--ui-accent); opacity: 0; transition: opacity .4s var(--ui-ease); }
+.ui-cal.is-in .ui-cal__pt { opacity: 1; }
+.ui-cal__lbl { fill: var(--ui-text-3); font-family: var(--ui-mono); font-size: 9px; }
+
+/* ============================================================
+   10 · REDUCED MOTION
+   Nothing here is load-bearing, so all of it simply stops.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .ui-progress__bar { animation: none; }
+  .ui-glow-border::after { animation: none; }
+  .ui-tilt, .ui-magnet { transform: none !important; transition: none; }
+  .ui-spot::before { display: none; }
+  .ui-prob__fill, .ui-spark__line, .ui-spark__area,
+  .ui-spark__dot, .ui-cal__pt, .ui-top__bar { transition: none; }
+  .ui-cmdk, .ui-cmdk__panel { transition: none; }
+  html.ui-leaving body { transition: none; opacity: 1; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}

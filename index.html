@@ -70,6 +70,7 @@
   <link rel="stylesheet" href="components.css?v=6">
   <link rel="stylesheet" href="styles.css?v=6">
   <link rel="stylesheet" href="theme.css?v=6">
+  <link rel="stylesheet" href="apex-ui.css?v=7">
   <script src="theme.js?v=6"></script>
   <script src="lightning.js?v=6"></script>
 </head>
@@ -240,6 +241,7 @@
       <a href="dashboard.html" class="nav__link">Dashboard</a>
       <a href="strategy-builder.html" class="nav__link">Strategy Builder</a>
       <div class="nav__cta">
+        <button class="ui-cmdk-trigger" type="button" data-cmdk-open aria-label="Open command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>⌘K</kbd></button>
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
           <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -1092,6 +1094,98 @@
   </div>
 </section>
 
+
+<!-- Interactive match simulator — real Poisson maths, computed in-browser -->
+<section class="section" id="simulator">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Interactive · no account needed</span>
+      <h2 class="section-header__title">Simulate a match yourself.</h2>
+      <p class="section-header__sub">Move the goal expectancies and watch every probability recompute. This is the same Poisson model that sits under our published numbers &mdash; the maths runs entirely in your browser.</p>
+    </div>
+
+    <div class="card reveal" data-simulator data-tilt="3" style="padding:var(--space-8)">
+      <div class="ui-sim__grid">
+
+        <div>
+          <div class="ui-sim__field">
+            <label class="ui-sim__label" for="simHome">
+              Home goal expectancy <b data-sim-val="home">1.62</b>
+            </label>
+            <input class="ui-sim__range" id="simHome" type="range"
+                   min="0.2" max="4" step="0.01" value="1.62" data-sim-home
+                   aria-describedby="simHomeHint">
+            <span class="field__hint dim" id="simHomeHint" style="font-size:var(--fs-12)">Average goals we expect the home side to score.</span>
+          </div>
+
+          <div class="ui-sim__field">
+            <label class="ui-sim__label" for="simAway">
+              Away goal expectancy <b data-sim-val="away">1.18</b>
+            </label>
+            <input class="ui-sim__range" id="simAway" type="range"
+                   min="0.2" max="4" step="0.01" value="1.18" data-sim-away
+                   aria-describedby="simAwayHint">
+            <span class="field__hint dim" id="simAwayHint" style="font-size:var(--fs-12)">Average goals we expect the away side to score.</span>
+          </div>
+
+          <div style="margin-top:var(--space-6)">
+            <span class="label" style="font-family:var(--font-mono);font-size:var(--fs-12);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)">Most likely scorelines</span>
+            <div class="ui-sim__scores" data-sim-scores></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="ui-prob" data-sim-out="home" style="margin-bottom:var(--space-5)">
+            <div class="ui-prob__head">
+              <span class="ui-prob__name">Home win &middot; fair <span data-sim-fair class="mono">&mdash;</span></span>
+              <span class="ui-prob__val">&mdash;</span>
+            </div>
+            <div class="ui-prob__track"><div class="ui-prob__fill"></div></div>
+          </div>
+
+          <div class="ui-prob ui-prob--muted" data-sim-out="draw" style="margin-bottom:var(--space-5)">
+            <div class="ui-prob__head">
+              <span class="ui-prob__name">Draw &middot; fair <span data-sim-fair class="mono">&mdash;</span></span>
+              <span class="ui-prob__val">&mdash;</span>
+            </div>
+            <div class="ui-prob__track"><div class="ui-prob__fill"></div></div>
+          </div>
+
+          <div class="ui-prob ui-prob--muted" data-sim-out="away" style="margin-bottom:var(--space-8)">
+            <div class="ui-prob__head">
+              <span class="ui-prob__name">Away win &middot; fair <span data-sim-fair class="mono">&mdash;</span></span>
+              <span class="ui-prob__val">&mdash;</span>
+            </div>
+            <div class="ui-prob__track"><div class="ui-prob__fill"></div></div>
+          </div>
+
+          <div class="ui-prob" data-sim-out="over" style="margin-bottom:var(--space-5)">
+            <div class="ui-prob__head">
+              <span class="ui-prob__name">Over 2.5 goals</span>
+              <span class="ui-prob__val">&mdash;</span>
+            </div>
+            <div class="ui-prob__track"><div class="ui-prob__fill"></div></div>
+          </div>
+
+          <div class="ui-prob" data-sim-out="btts">
+            <div class="ui-prob__head">
+              <span class="ui-prob__name">Both teams to score</span>
+              <span class="ui-prob__val">&mdash;</span>
+            </div>
+            <div class="ui-prob__track"><div class="ui-prob__fill"></div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="dim" style="margin-top:var(--space-8);padding-top:var(--space-5);border-top:1px solid var(--border-subtle);font-size:var(--fs-14);color:var(--text-muted);max-width:70ch">
+        Fair price is simply 1 &divide; probability. A price longer than fair carries positive expected value <em>if the probability is right</em> &mdash; which is the whole difficulty. This model assumes goals follow a Poisson process and ignores red cards, team news, and game state.
+      </p>
+    </div>
+  </div>
+</section>
+
+
 <!-- Pricing -->
 <section class="section pricing" id="pricing">
   <div class="container">
@@ -1380,5 +1474,6 @@
 <!-- Toast stack — populated by apex-extras.js / app.js -->
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
+  <script src="apex-ui.js?v=7" defer></script>
 </body>
 </html>

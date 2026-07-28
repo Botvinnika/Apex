@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="components.css?v=6">
     <link rel="stylesheet" href="strategy-builder.css?v=6">
     <link rel="stylesheet" href="theme.css?v=6">
+  <link rel="stylesheet" href="apex-ui.css?v=7">
     <script src="theme.js?v=6"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
 </head>
@@ -31,7 +32,8 @@
           <a href="strategy-builder.html" class="nav__link" aria-current="page">Strategy Builder</a>
           <a href="index.html#pricing" class="nav__link">Pricing</a>
           <div class="nav__cta">
-            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+            <button class="ui-cmdk-trigger" type="button" data-cmdk-open aria-label="Open command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
               <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
               </svg>
@@ -301,5 +303,6 @@
     <script src="apex-icons.js?v=6" defer></script>
     <script src="strategy-builder.js?v=6"></script>
     <script src="apex-extras.js?v=6"></script>
+  <script src="apex-ui.js?v=7" defer></script>
 </body>
 </html>
