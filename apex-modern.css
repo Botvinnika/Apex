@@ -1,0 +1,436 @@
+/* ============================================================
+   APEX MODERN — editorial layout & data-native components
+
+   Deliberately avoids the SaaS-template vocabulary (centred hero,
+   three equal feature cards, logo wall). The organising idea is a
+   data publication: asymmetric bento, a real probability matrix as
+   the centrepiece, a scroll-driven explainer, and a horizontal rail.
+
+   Portable across both sites via the same var() fallback chains
+   used by apex-ui.css.
+   ============================================================ */
+
+:root {
+  --m-accent: var(--accent, #38BDF8);
+  --m-bg:     var(--bg-elevated, var(--bg-raised, #11161F));
+  --m-bg-2:   var(--bg-surface, #0C1018);
+  --m-sunken: var(--bg-inset, var(--bg-sunken, #080B12));
+  --m-line:   var(--border-default, var(--line, rgba(255,255,255,.10)));
+  --m-line-2: var(--border-subtle, var(--line-subtle, rgba(255,255,255,.06)));
+  --m-text:   var(--text-primary, var(--text, #F4F6FA));
+  --m-text-2: var(--text-secondary, var(--text-2, #9AA4B5));
+  --m-text-3: var(--text-muted, var(--text-3, #5C6677));
+  --m-mono:   var(--font-mono, ui-monospace, monospace);
+  --m-ease:   var(--ease-out, cubic-bezier(.16,1,.3,1));
+  --m-r:      var(--radius-lg, var(--r-md, 14px));
+
+  /* ---- Sequential ramp · validated with the dataviz validator ----
+     One hue (10° spread), monotone lightness, all adjacent ΔL ≥ 0.06.
+     Dark mode is its own set of steps chosen for the dark surface, not
+     a flip of the light set. The near-zero end deliberately recedes
+     toward the surface — that is correct for a continuous heatmap
+     (the 2:1 floor applies to ordinal ramps, not sequential). */
+  --seq-1: #ECF8FF;
+  --seq-2: #ADE2FD;
+  --seq-3: #7DCFFB;
+  --seq-4: #38BDF8;
+  --seq-5: #0E86C4;
+  --seq-6: #0A5E8C;
+  --seq-7: #073E5C;
+}
+
+/* Dark: near-surface → bright. Validated against surface #0C1018. */
+:root:not([data-theme="light"]) {
+  --seq-1: #0B1B28;
+  --seq-2: #10334A;
+  --seq-3: #17557D;
+  --seq-4: #1D82B8;
+  --seq-5: #38BDF8;
+  --seq-6: #85D6FB;
+  --seq-7: #C8ECFE;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --seq-1: #ECF8FF; --seq-2: #ADE2FD; --seq-3: #7DCFFB; --seq-4: #38BDF8;
+    --seq-5: #0E86C4; --seq-6: #0A5E8C; --seq-7: #073E5C;
+  }
+}
+:root[data-theme="dark"] {
+  --seq-1: #0B1B28; --seq-2: #10334A; --seq-3: #17557D; --seq-4: #1D82B8;
+  --seq-5: #38BDF8; --seq-6: #85D6FB; --seq-7: #C8ECFE;
+}
+
+/* ============================================================
+   EDITORIAL TYPE
+   Large, tight, and asymmetric — set like a publication masthead
+   rather than a centred marketing headline.
+   ============================================================ */
+.m-display {
+  font-size: clamp(2.6rem, 7.2vw, 6.4rem);
+  line-height: .95;
+  letter-spacing: -.045em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.m-display em {
+  font-style: normal;
+  color: var(--m-text-3);
+}
+.m-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--m-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--m-text-3);
+}
+.m-kicker::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: currentColor;
+  opacity: .5;
+}
+
+/* Section header that sits left, not centred. */
+.m-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: end;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  padding-bottom: clamp(1.2rem, 2.5vw, 2rem);
+  border-bottom: 1px solid var(--m-line-2);
+}
+.m-head h2 {
+  font-size: clamp(1.9rem, 4.2vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -.035em;
+  margin: 14px 0 0;
+}
+.m-head p { color: var(--m-text-2); max-width: 46ch; margin: 0; }
+@media (max-width: 860px) {
+  .m-head { grid-template-columns: 1fr; align-items: start; gap: 1rem; }
+}
+
+/* ============================================================
+   BENTO — asymmetric feature grid
+   Replaces the three-equal-cards cliché. Cells carry real content
+   at different weights, so the eye has somewhere to go.
+   ============================================================ */
+.m-bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: clamp(10px, 1vw, 16px);
+}
+.m-cell {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 2.4vw, 30px);
+  border: 1px solid var(--m-line-2);
+  border-radius: var(--m-r);
+  background: var(--m-bg-2);
+  display: flex;
+  flex-direction: column;
+  min-height: 190px;
+  transition: border-color 240ms var(--m-ease), transform 240ms var(--m-ease);
+}
+.m-cell:hover { border-color: var(--m-line); }
+.m-cell--wide { grid-column: span 4; }
+.m-cell--half { grid-column: span 3; }
+.m-cell--third { grid-column: span 2; }
+.m-cell--tall { grid-row: span 2; }
+.m-cell--feature {
+  grid-column: span 4;
+  grid-row: span 2;
+  min-height: 400px;
+  background:
+    radial-gradient(120% 90% at 15% 0%, var(--accent-soft, rgba(56,189,248,.12)), transparent 60%),
+    var(--m-bg-2);
+}
+@media (max-width: 1000px) {
+  .m-bento { grid-template-columns: repeat(4, 1fr); }
+  .m-cell--wide, .m-cell--feature { grid-column: span 4; }
+  .m-cell--half { grid-column: span 2; }
+  .m-cell--third { grid-column: span 2; }
+  .m-cell--feature { grid-row: auto; min-height: 320px; }
+}
+@media (max-width: 620px) {
+  .m-bento { grid-template-columns: 1fr; }
+  .m-cell, .m-cell--wide, .m-cell--half,
+  .m-cell--third, .m-cell--feature { grid-column: span 1; grid-row: auto; }
+}
+
+.m-cell__n {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  color: var(--m-text-3);
+  margin-bottom: auto;
+}
+.m-cell__t {
+  font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  font-weight: 600;
+  margin: 22px 0 8px;
+  color: var(--m-text);
+}
+.m-cell__d { font-size: 14px; line-height: 1.6; color: var(--m-text-2); margin: 0; }
+.m-cell__fig {
+  margin-top: 18px;
+  font-family: var(--m-mono);
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  color: var(--m-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* ============================================================
+   SCORELINE MATRIX
+   The centrepiece: a real joint distribution, not a decoration.
+   Sequential fill = magnitude; hover per cell; legend + table view
+   so the encoding is never colour-alone.
+   ============================================================ */
+.m-matrix {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: start;
+}
+@media (max-width: 900px) { .m-matrix { grid-template-columns: 1fr; } }
+
+.m-matrix__wrap {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+/* The cells are square, so an unconstrained grid grows to fill any
+   width and swamps the section. Cap it and let the side panel take
+   the remaining space. */
+.m-matrix__side { display: grid; gap: 20px; align-content: start; }
+.m-matrix__ylab, .m-matrix__xlab {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--m-text-3);
+  white-space: nowrap;
+}
+.m-matrix__ylab { writing-mode: vertical-rl; transform: rotate(180deg); justify-self: center; }
+.m-matrix__xlab { grid-column: 2; text-align: center; }
+
+.m-grid {
+  display: grid;
+  grid-template-columns: auto repeat(7, minmax(0, 1fr));
+  gap: 2px;                    /* 2px surface gap between fills */
+  font-family: var(--m-mono);
+}
+.m-grid__hd {
+  font-size: 10px;
+  color: var(--m-text-3);
+  text-align: center;
+  padding: 3px 0;
+  font-variant-numeric: tabular-nums;
+}
+.m-cellbox {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--seq-1);
+  cursor: default;
+  transition: background 420ms var(--m-ease), outline-color 120ms;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+.m-cellbox:hover, .m-cellbox:focus-visible {
+  outline-color: var(--m-text);   /* surface ring on the hovered mark */
+  z-index: 2;
+}
+/* The draw diagonal is the one structural feature worth marking. */
+.m-cellbox[data-draw] { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+
+.m-matrix__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.m-legend { display: flex; align-items: center; gap: 9px; }
+.m-legend__bar {
+  width: 132px; height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg,
+    var(--seq-1), var(--seq-2), var(--seq-3), var(--seq-4),
+    var(--seq-5), var(--seq-6), var(--seq-7));
+  border: 1px solid var(--m-line-2);
+}
+.m-legend__t {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  color: var(--m-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.m-tip {
+  position: fixed;
+  z-index: 60;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--m-bg);
+  border: 1px solid var(--m-line);
+  box-shadow: var(--shadow-lg, 0 16px 40px rgba(0,0,0,.5));
+  font-family: var(--m-mono);
+  font-size: 11.5px;
+  color: var(--m-text);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -130%);
+  transition: opacity 110ms var(--m-ease);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.m-tip.is-on { opacity: 1; }
+.m-tip b { color: var(--m-accent); }
+
+.m-toggle {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--m-text-3);
+  background: none;
+  border: 1px solid var(--m-line);
+  border-radius: 99px;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: color 140ms var(--m-ease), border-color 140ms var(--m-ease);
+}
+.m-toggle:hover { color: var(--m-text); border-color: var(--m-accent); }
+
+.m-table { width: 100%; border-collapse: collapse; font-family: var(--m-mono); font-size: 11.5px; }
+.m-table th, .m-table td {
+  padding: 5px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--m-line-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--m-text-2);
+}
+.m-table th { color: var(--m-text-3); font-weight: 500; }
+.m-table td:first-child, .m-table th:first-child { text-align: left; color: var(--m-text); }
+.m-tablewrap { max-height: 300px; overflow: auto; border: 1px solid var(--m-line-2); border-radius: 8px; }
+
+/* ============================================================
+   HORIZONTAL RAIL — leagues
+   Scroll-snap, keyboard reachable, with an edge fade that does not
+   swallow the first or last card.
+   ============================================================ */
+.m-rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding: 4px 4px 18px;
+  scrollbar-width: thin;
+}
+.m-rail::-webkit-scrollbar { height: 6px; }
+.m-rail::-webkit-scrollbar-thumb { background: var(--m-line); border-radius: 99px; }
+.m-railcard {
+  flex: 0 0 clamp(230px, 26vw, 300px);
+  scroll-snap-align: start;
+  padding: 20px;
+  border: 1px solid var(--m-line-2);
+  border-radius: var(--m-r);
+  background: var(--m-bg-2);
+  transition: border-color 200ms var(--m-ease), background 200ms var(--m-ease);
+}
+.m-railcard:hover { border-color: var(--m-line); background: var(--m-bg); }
+.m-railcard__c {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--m-text-3);
+}
+.m-railcard__n {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  margin: 10px 0 4px;
+  color: var(--m-text);
+}
+.m-railcard__m { font-size: 12.5px; color: var(--m-text-2); }
+.m-railcard__bar {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--m-sunken);
+  margin-top: 14px;
+  overflow: hidden;
+}
+.m-railcard__fill { height: 100%; border-radius: inherit; background: var(--m-accent); }
+
+/* ============================================================
+   SCROLL EXPLAINER — sticky visual, stepped narrative
+   ============================================================ */
+.m-explain {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .m-explain { grid-template-columns: 1fr; } }
+
+.m-explain__sticky {
+  position: sticky;
+  top: 96px;
+  border: 1px solid var(--m-line-2);
+  border-radius: var(--m-r);
+  background: var(--m-bg-2);
+  padding: clamp(20px, 3vw, 32px);
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+}
+@media (max-width: 900px) { .m-explain__sticky { position: static; } }
+
+.m-step {
+  padding: clamp(28px, 6vh, 64px) 0;
+  border-bottom: 1px solid var(--m-line-2);
+  opacity: .38;
+  transition: opacity 400ms var(--m-ease);
+}
+.m-step.is-active { opacity: 1; }
+.m-step:last-child { border-bottom: 0; }
+.m-step__n {
+  font-family: var(--m-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--m-accent);
+}
+.m-step h3 {
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  letter-spacing: -.02em;
+  margin: 12px 0 10px;
+  color: var(--m-text);
+}
+.m-step p { color: var(--m-text-2); margin: 0; max-width: 52ch; line-height: 1.65; }
+
+/* Panels swapped by the explainer; only the active one is shown. */
+.m-panel { display: none; width: 100%; }
+.m-panel.is-on { display: block; }
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .m-cell, .m-cellbox, .m-step, .m-railcard { transition: none; }
+  .m-step { opacity: 1; }
+}

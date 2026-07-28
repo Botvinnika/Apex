@@ -71,6 +71,7 @@
   <link rel="stylesheet" href="styles.css?v=6">
   <link rel="stylesheet" href="theme.css?v=6">
   <link rel="stylesheet" href="apex-ui.css?v=7">
+  <link rel="stylesheet" href="apex-modern.css?v=1">
   <script src="theme.js?v=6"></script>
   <script src="lightning.js?v=6"></script>
 </head>
@@ -1185,6 +1186,106 @@
   </div>
 </section>
 
+<!-- ============================================================ SCORELINE MATRIX -->
+<section class="section" id="matrix">
+  <div class="container">
+    <div class="m-head">
+      <div>
+        <span class="m-kicker">The joint distribution</span>
+        <h2>Every scoreline, priced at once.</h2>
+      </div>
+      <p>A match model does not output a result &mdash; it outputs a probability for all 49 plausible scorelines. Stronger colour means more likely, per the scale below. Drag the sliders above and watch the mass move.</p>
+    </div>
+
+    <div class="m-matrix" data-matrix>
+      <div class="m-matrix__wrap">
+        <span class="m-matrix__ylab">Home goals</span>
+        <div class="m-grid" data-matrix-grid role="group" aria-label="Scoreline probability matrix"></div>
+        <span></span>
+        <span class="m-matrix__xlab">Away goals</span>
+      </div>
+
+      <div class="m-matrix__side">
+      <div class="m-matrix__foot">
+        <div class="m-legend">
+          <span class="m-legend__t">less likely</span>
+          <span class="m-legend__bar" role="img" aria-label="Colour scale from less likely to more likely"></span>
+          <span class="m-legend__t">more likely</span>
+        </div>
+        <div class="m-legend">
+          <span class="m-legend__t">Most likely scoreline &middot;</span>
+          <span class="m-legend__t" data-matrix-max style="color:var(--m-text)">&mdash;</span>
+        </div>
+        <button class="m-toggle" type="button" data-matrix-toggle aria-expanded="false">Show table</button>
+      </div>
+
+      <div class="m-tablewrap" data-matrix-table hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ EXPLAINER -->
+<section class="section" id="explain">
+  <div class="container">
+    <div class="m-head">
+      <div>
+        <span class="m-kicker">How the model thinks</span>
+        <h2>From past results to a fair price.</h2>
+      </div>
+      <p>Four moves. No black box &mdash; each one is written up in full on the methodology page.</p>
+    </div>
+
+    <div class="m-explain" data-explain>
+      <div class="m-explain__sticky">
+        <div class="m-panel is-on" data-panel>
+          <div class="m-cell__n">01 &middot; INGEST</div>
+          <div class="m-cell__fig">1,284</div>
+          <p class="m-cell__d">completed matches reconciled against a second source this season. Disagreements are flagged, never averaged.</p>
+        </div>
+        <div class="m-panel" data-panel>
+          <div class="m-cell__n">02 &middot; RATE</div>
+          <div class="m-cell__fig">2 &times; 147</div>
+          <p class="m-cell__d">attack and defence ratings, fitted per competition with a ~180-day half-life so old form fades.</p>
+        </div>
+        <div class="m-panel" data-panel>
+          <div class="m-cell__n">03 &middot; SIMULATE</div>
+          <div class="m-cell__fig">50,000</div>
+          <p class="m-cell__d">runs per fixture. Counting outcomes gives every result, scoreline and total-goals probability.</p>
+        </div>
+        <div class="m-panel" data-panel>
+          <div class="m-cell__n">04 &middot; SCORE</div>
+          <div class="m-cell__fig">Brier</div>
+          <p class="m-cell__d">and log loss, published monthly against a naive baseline &mdash; including the months we lose.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="m-step is-active" data-step>
+          <div class="m-step__n">01</div>
+          <h3>Ingest and reconcile</h3>
+          <p>Results, lineups and shot data arrive per competition and are checked against an independent second source. Where the two disagree, the fixture is pulled from training until a human resolves it. We would rather drop a match than learn from a wrong one.</p>
+        </div>
+        <div class="m-step" data-step>
+          <div class="m-step__n">02</div>
+          <h3>Rate every team</h3>
+          <p>Each side carries an attack and a defence rating relative to its competition average, fitted by maximum likelihood. Recent matches count for more via exponential decay, and home advantage is fitted per competition rather than assumed to be one global constant.</p>
+        </div>
+        <div class="m-step" data-step>
+          <div class="m-step__n">03</div>
+          <h3>Simulate the fixture</h3>
+          <p>Ratings become goal expectancies, which define a scoring model with a correlation term &mdash; because a side chasing the game concedes differently from one protecting a lead. The match is then played out 50,000 times.</p>
+        </div>
+        <div class="m-step" data-step>
+          <div class="m-step__n">04</div>
+          <h3>Score ourselves honestly</h3>
+          <p>Hit rate flatters a model that only ever backs favourites, so we use Brier score and log loss instead. Both are published monthly beside a naive baseline. A model that cannot beat the baseline is not adding value, and if ours fails to, the report says so.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <!-- Pricing -->
 <section class="section pricing" id="pricing">
@@ -1475,5 +1576,6 @@
 <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
 
   <script src="apex-ui.js?v=7" defer></script>
+  <script src="apex-modern.js?v=1" defer></script>
 </body>
 </html>
