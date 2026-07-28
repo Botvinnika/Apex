@@ -5,57 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategy Builder — ApexSports Analytics</title>
     <meta name="description" content="Build your forecast models with independent probability models from ApexSports Analytics. Responsible analysis, capped at 20.0x per leg.">
-    <link rel="stylesheet" href="brutal.css">
-    <link rel="stylesheet" href="strategy-builder.css?v=3">
-    <link rel="stylesheet" href="theme.css?v=2">
-    <script src="theme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-tokens.css?v=6">
+    <link rel="stylesheet" href="components.css?v=6">
+    <link rel="stylesheet" href="strategy-builder.css?v=6">
+    <link rel="stylesheet" href="theme.css?v=6">
+    <script src="theme.js?v=6"></script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
 </head>
 <body>
 
     <!-- Lightning background -->
-    <script src="lightning.js"></script>
+    <script src="lightning.js?v=6"></script>
 
-    <!-- ── NAVBAR ── -->
-    <nav class="navbar scrolled" id="navbar">
-        <div class="nav-inner">
-            <a href="index.html" class="nav-logo">
-                <span class="nav-logo__brutal">APEX</span>
-                <span class="nav-logo__a">SPORTS</span>
-            </a>
-            <div class="nav-links" id="navLinks">
-                <a href="index.html#features">Features</a>
-                <a href="index.html#showcase">How It Works</a>
-                <a href="dashboard.html">Dashboard</a>
-                <a href="strategy-builder.html" class="active-link">Strategy Builder</a>
-                <a href="index.html#pricing">Pricing</a>
-                <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
-                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="4"/>
-                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-                    </svg>
-                </button>
-                <a href="#" class="nav-cta">Get Early Access</a>
-            </div>
+    <!-- ── TOP NAV ── -->
+    <nav class="nav" id="navbar">
+      <div class="container nav__inner">
+        <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+        <div class="nav__links" id="navLinks">
+          <a href="index.html#features" class="nav__link">Features</a>
+          <a href="index.html#showcase" class="nav__link">How it works</a>
+          <a href="dashboard.html" class="nav__link">Dashboard</a>
+          <a href="strategy-builder.html" class="nav__link" aria-current="page">Strategy Builder</a>
+          <a href="index.html#pricing" class="nav__link">Pricing</a>
+          <div class="nav__cta">
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+              <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+              </svg>
+            </button>
+            <a href="index.html#pricing" class="btn btn--primary btn--sm">Get Started</a>
+          </div>
         </div>
+      </div>
     </nav>
 
     <!-- ── HERO ── -->
     <section class="bb-hero">
-        <div class="bb-hero__content">
-            <div class="hero__badge">
-                <span class="dot"></span>
-                Responsible Modeling · Multipliers capped at 20.0x
-            </div>
-            <h1 class="bb-hero__title">
-                Build Your<br>
-                <span class="gradient-text">Perfect Strategy</span>
-            </h1>
-            <p class="bb-hero__sub">Stack metrics from any sport. Our AI monitors each leg for value and flags risky combinations — keeping your strategy sharp.</p>
-        </div>
+      <div class="bb-hero__inner">
+        <span class="eyebrow" data-pulse>Responsible Modeling · Multipliers capped at 20.0×</span>
+        <h1 class="bb-hero__title">Build your<br><span class="title-flair">perfect strategy.</span></h1>
+        <p class="bb-hero__sub">Stack metrics from any sport. The model monitors each leg for value and flags risky combinations — keeping your strategy sharp.</p>
+      </div>
     </section>
 
     <!-- ── MAIN BUILDER ── -->
@@ -65,7 +62,7 @@
             <!-- LEFT — Selections panel -->
             <div class="bb-panel bb-panel--selections">
                 <div class="bb-panel__head">
-                    <h2 class="bb-panel__title">📊 Strategy Slip</h2>
+                    <h2 class="bb-panel__title"><svg class="icon"><use href="#i-bookmark"/></svg> Strategy Slip</h2>
                     <span class="bb-leg-count" id="legCount">0 Legs</span>
                 </div>
 
@@ -76,13 +73,13 @@
                             <label class="bb-label">Sport</label>
                             <select class="bb-select" id="sportSelect">
                                 <option value="">Select sport...</option>
-                                <option value="football">⚽ Football</option>
-                                <option value="basketball">🏀 Basketball</option>
-                                <option value="tennis">🎾 Tennis</option>
-                                <option value="baseball">⚾ Baseball</option>
-                                <option value="mma">🥊 MMA / UFC</option>
-                                <option value="rugby">🏉 Rugby</option>
-                                <option value="cricket">🏏 Cricket</option>
+                                <option value="football">Football</option>
+                                <option value="basketball">Basketball</option>
+                                <option value="tennis">Tennis</option>
+                                <option value="baseball">Baseball</option>
+                                <option value="mma">MMA / UFC</option>
+                                <option value="rugby">Rugby</option>
+                                <option value="cricket">Cricket</option>
                             </select>
                         </div>
                         <div class="bb-field">
@@ -113,7 +110,7 @@
 
                     <div class="bb-field">
                         <label class="bb-label">
-                            Weight (Multiplier)
+                            Implied Odds
                             <span class="bb-odds-display" id="oddsDisplay">2.00</span>
                         </label>
                         <div class="bb-slider-track">
@@ -151,7 +148,7 @@
                 <div class="bb-selections" id="selectionsList">
                     <!-- Empty state -->
                     <div class="bb-empty" id="emptyState">
-                        <div class="bb-empty__icon">📊</div>
+                        <div class="bb-empty__icon"><svg class="icon"><use href="#i-bookmark"/></svg></div>
                         <p class="bb-empty__text">No legs yet.<br>Add your first leg above.</p>
                     </div>
                 </div>
@@ -167,7 +164,7 @@
 
                 <!-- Stake input -->
                 <div class="bb-stake-section">
-                    <h3 class="bb-section-title">Your Baseline / Unit</h3>
+                    <h3 class="bb-section-title">Your Unit Stake</h3>
                     <div class="bb-stake-field">
                         <span class="bb-currency">₦</span>
                         <input class="bb-stake-input" id="stakeInput" type="number" min="100" max="100000" step="100" value="1000" placeholder="1000">
@@ -197,7 +194,7 @@
                             <span class="bb-stat__value" id="totalLegs">0</span>
                         </div>
                         <div class="bb-stat">
-                            <span class="bb-stat__label">Baseline Unit</span>
+                            <span class="bb-stat__label">Unit Stake</span>
                             <span class="bb-stat__value" id="stakeDisplay">₦1,000</span>
                         </div>
                     </div>
@@ -206,23 +203,23 @@
                         <span class="bb-payout-value" id="potentialReturn">—</span>
                     </div>
                     <div class="bb-profit-box">
-                        <span class="bb-profit-label">Potential Return Index</span>
+                        <span class="bb-profit-label">Potential Profit</span>
                         <span class="bb-profit-value" id="potentialProfit">—</span>
                     </div>
                 </div>
 
                 <!-- Responsibility warning -->
                 <div class="bb-responsibility">
-                    <div class="bb-responsibility__icon">🛡️</div>
+                    <div class="bb-responsibility__icon"><svg class="icon"><use href="#i-shield"/></svg></div>
                     <div>
                         <p class="bb-responsibility__title">Responsible Analysis</p>
                         <p class="bb-responsibility__text">Multipliers are capped at 20.0x per leg. Always manage your resources responsibly. Analysis is for modeling purposes.</p>
                     </div>
                 </div>
 
-                <!-- AI Risk Meter -->
+                <!-- Risk Meter -->
                 <div class="bb-ai-risk">
-                    <h3 class="bb-section-title">AI Risk Assessment</h3>
+                    <h3 class="bb-section-title">Risk Assessment</h3>
                     <div class="bb-risk-meter">
                         <div class="bb-risk-meter__track">
                             <div class="bb-risk-meter__fill" id="aiRiskFill" style="width:0%"></div>
@@ -235,7 +232,7 @@
                             <span>Extreme</span>
                         </div>
                     </div>
-                    <p class="bb-ai-note" id="aiNote">Add selections to see AI risk analysis.</p>
+                    <p class="bb-ai-note" id="aiNote">Add selections to see model risk analysis.</p>
                 </div>
 
                 <!-- Place bet CTA -->
@@ -251,7 +248,58 @@
     <!-- Toast notification -->
     <div class="bb-toast" id="toast"></div>
 
-    <script src="strategy-builder.js?v=3"></script>
-    <script src="apex-extras.js?v=1"></script>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer__grid">
+          <div>
+            <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+            <p class="footer__brand-desc">Africa's first independent sports probability engine. We sell data, not tips.</p>
+          </div>
+          <div>
+            <h6 class="footer__col-title">Product</h6>
+            <div class="footer__links">
+              <a href="index.html#features">Features</a>
+              <a href="index.html#showcase">How it works</a>
+              <a href="methodology.html">Methodology</a>
+              <a href="league-hub.html">League Hub</a>
+              <a href="strategy-builder.html">Strategy Builder</a>
+              <a href="dashboard.html">Dashboard</a>
+            </div>
+          </div>
+          <div>
+            <h6 class="footer__col-title">Company</h6>
+            <div class="footer__links">
+              <a href="team.html">Team</a>
+              <a href="methodology.html">Methodology</a>
+              <a href="mailto:hello@apexsports.ng">Contact</a>
+            </div>
+          </div>
+          <div>
+            <h6 class="footer__col-title">Community</h6>
+            <div class="footer__links">
+              <a href="#">Telegram</a>
+              <a href="#">Twitter / X</a>
+              <a href="#">Discord</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <span>© 2026 ApexSports Analytics. All rights reserved.</span>
+          <span class="footer__legal">
+            <a href="#">Terms</a>
+            <span aria-hidden="true">·</span>
+            <a href="#">Privacy</a>
+            <span aria-hidden="true">·</span>
+            <a href="#">Responsible gambling</a>
+          </span>
+          <span>Not a sports book. We sell data, not forecasts. 18+ · Play responsibly.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="apex-icons.js?v=6" defer></script>
+    <script src="strategy-builder.js?v=6"></script>
+    <script src="apex-extras.js?v=6"></script>
 </body>
 </html>

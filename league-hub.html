@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>African League Hub — ApexSports Analytics</title>
+  <meta name="description" content="Deep-dive into African football leagues: NPFL, AFCON, CAF Champions League, Kenya PL, Egypt PL, Ghana PL, and PSL. Model leaders, ROI, fixtures.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-tokens.css?v=6">
+  <link rel="stylesheet" href="components.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="theme.css?v=6">
+  <script src="theme.js?v=6"></script>
+</head>
+<body>
+
+<!-- Preloader — wordmark headline + live boot-log ticker + typed status -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<div class="pl" id="preloader" role="status" aria-live="polite" aria-label="Loading">
+
+  <div class="pl__fx" aria-hidden="true">
+    <div class="pl__blob pl__blob--1"></div>
+    <div class="pl__blob pl__blob--2"></div>
+    <div class="pl__blob pl__blob--3"></div>
+    <div class="pl__blob pl__blob--4"></div>
+    <div class="pl__blob pl__blob--5"></div>
+    <div class="pl__floor"></div>
+    <div class="pl__ring" style="--r:0"></div>
+    <div class="pl__ring" style="--r:1"></div>
+    <div class="pl__ring" style="--r:2"></div>
+    <canvas class="pl__net" data-pl-net></canvas>
+    <div class="pl__streaks">
+      <i class="pl__streak" style="--s:0"></i>
+      <i class="pl__streak" style="--s:1"></i>
+      <i class="pl__streak" style="--s:2"></i>
+      <i class="pl__streak" style="--s:3"></i>
+      <i class="pl__streak" style="--s:4"></i>
+      <i class="pl__streak" style="--s:5"></i>
+      <i class="pl__streak" style="--s:6"></i>
+    </div>
+    <div class="pl__scan"></div>
+    <div class="pl__glitch"></div>
+    <div class="pl__grain"></div>
+    <div class="pl__vig"></div>
+    <div class="pl__frame"></div>
+  </div>
+
+  <div class="pl__row">
+    <span class="pl__tag"><span class="pl__led"></span>Boot sequence</span>
+    <span class="pl__row-right">
+      <span class="pl__tag pl__tag--right">Node · af-south-1</span>
+      <button class="pl__skip" type="button" data-pl-skip>Skip</button>
+    </span>
+  </div>
+
+  <div class="pl__centre">
+    <h1 class="pl__mark">
+      <span class="pl__sleeve"><span class="pl__word" style="--i:0">Apex</span></span>
+      <span class="pl__sleeve"><span class="pl__word pl__word--grad" style="--i:1">Sports</span></span>
+    </h1>
+    <p class="pl__tagline">League Coverage · v4.7.2</p>
+    <p class="pl__status">
+      <span class="pl__status-dot" aria-hidden="true"></span>
+      <span data-pl-status>Booting model runtime</span>
+    </p>
+  </div>
+
+  <div class="pl__row pl__row--bottom">
+    <div class="pl__count" aria-hidden="true">
+      <span data-pl-num>00</span><span class="pl__count-pct">%</span>
+    </div>
+
+    <div class="pl__stats" aria-hidden="true">
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="sims" data-to="10247">0</span>
+        <span class="pl__stat-label">Simulations</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="leagues" data-to="147">0</span>
+        <span class="pl__stat-label">Leagues</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="models" data-to="12">0</span>
+        <span class="pl__stat-label">Models</span>
+      </div>
+    </div>
+
+    <div class="pl__log" data-pl-log aria-hidden="true"></div>
+  </div>
+
+  <div class="pl__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress">
+    <div class="pl__bar-fill" data-pl-fill></div>
+  </div>
+</div>
+
+<!-- Top nav -->
+<nav class="nav" id="navbar">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+    <div class="nav__links" id="navLinks">
+      <a href="index.html#features" class="nav__link">Features</a>
+      <a href="index.html#showcase" class="nav__link">How it works</a>
+      <a href="methodology.html" class="nav__link">Methodology</a>
+      <a href="league-hub.html" class="nav__link" aria-current="page">Leagues</a>
+      <a href="index.html#pricing" class="nav__link">Pricing</a>
+      <a href="dashboard.html" class="nav__link">Dashboard</a>
+      <a href="strategy-builder.html" class="nav__link">Strategy Builder</a>
+      <div class="nav__cta">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <a href="index.html#pricing" class="btn btn--primary btn--sm">Get Started</a>
+      </div>
+    </div>
+    <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero section--tight" style="min-height:60vh;padding-block:var(--space-20) var(--space-12);">
+  <div class="gradient-mesh" aria-hidden="true"></div>
+  <div class="container hero__inner" style="grid-template-columns:1fr;">
+    <div class="hero__content reveal" style="max-width:780px;margin-inline:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);">
+      <span class="eyebrow" data-pulse>African Leagues · 24 covered · 380+ fixtures / week</span>
+      <h1 class="hero__title">
+        The <span class="title-flair">African football</span><br>
+        probability hub.
+      </h1>
+      <p class="hero__sub" style="max-width:640px;">
+        From the NPFL to AFCON, we model the African game deeper than anyone. Model leaders, fixtures this week,
+        historical ROI per league, and the squads driving every number.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Filter chips -->
+<section class="section--tight" style="padding-block:var(--space-8) var(--space-4);">
+  <div class="container">
+    <div class="reveal" style="display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:center;">
+      <button type="button" class="tab-pill is-active" data-filter="all">All leagues · 24</button>
+      <button type="button" class="tab-pill" data-filter="continental">Continental · 3</button>
+      <button type="button" class="tab-pill" data-filter="domestic">Domestic · 21</button>
+      <button type="button" class="tab-pill" data-filter="high-roi">High ROI · 8</button>
+    </div>
+  </div>
+</section>
+
+<!-- League grid -->
+<section class="section--tight" style="padding-block:var(--space-4) var(--space-16);">
+  <div class="container">
+    <div class="league-hub-grid reveal" id="leagueGrid">
+
+      <a href="#npfl" class="league-card" data-region="domestic" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-ng"/></svg></span>
+          <div>
+            <div class="league-card__name">NPFL</div>
+            <div class="league-card__sub">Nigeria · Premier League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Rivers United</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">20/20 teams</span></div>
+        <div class="league-card__row"><span class="k">Avg odds tracked</span><span class="v">4 books</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+34.1%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#afcon" class="league-card" data-region="continental" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon"><use href="#i-trophy"/></svg></span>
+          <div>
+            <div class="league-card__name">AFCON 2025</div>
+            <div class="league-card__sub">Africa Cup of Nations</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model favourite</span><span class="v">Morocco · 18.2%</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">24 nations</span></div>
+        <div class="league-card__row"><span class="k">Stage</span><span class="v">Group stages</span></div>
+        <div class="league-card__row"><span class="k">ROI last edition</span><span class="v text-pos">+22.7%</span></div>
+        <span class="league-card__link">View bracket →</span>
+      </a>
+
+      <a href="#caf" class="league-card" data-region="continental" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon"><use href="#i-globe"/></svg></span>
+          <div>
+            <div class="league-card__name">CAF Champions League</div>
+            <div class="league-card__sub">Continental club comp</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Mamelodi Sundowns</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16 clubs in group</span></div>
+        <div class="league-card__row"><span class="k">Stage</span><span class="v">Group stage</span></div>
+        <div class="league-card__row"><span class="k">ROI this campaign</span><span class="v text-pos">+19.4%</span></div>
+        <span class="league-card__link">View group →</span>
+      </a>
+
+      <a href="#cafcc" class="league-card" data-region="continental" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon"><use href="#i-globe"/></svg></span>
+          <div>
+            <div class="league-card__name">CAF Confederation Cup</div>
+            <div class="league-card__sub">Continental 2nd-tier</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">RS Berkane</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16 clubs</span></div>
+        <div class="league-card__row"><span class="k">ROI last 6 mo</span><span class="v text-pos">+17.2%</span></div>
+        <span class="league-card__link">View group →</span>
+      </a>
+
+      <a href="#kpl" class="league-card" data-region="domestic" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-ke"/></svg></span>
+          <div>
+            <div class="league-card__name">Kenya PL</div>
+            <div class="league-card__sub">FKF Premier League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Gor Mahia</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">18/18 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+27.8%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#epl" class="league-card" data-region="domestic" data-roi="high">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-eg"/></svg></span>
+          <div>
+            <div class="league-card__name">Egyptian PL</div>
+            <div class="league-card__sub">Egyptian Premier League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Al Ahly</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">18/18 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+16.2%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#gpl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-gh"/></svg></span>
+          <div>
+            <div class="league-card__name">Ghana PL</div>
+            <div class="league-card__sub">Ghana Premier League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Asante Kotoko</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">18/18 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+21.5%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#psl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-za"/></svg></span>
+          <div>
+            <div class="league-card__name">South Africa PSL</div>
+            <div class="league-card__sub">DStv Premiership</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Mamelodi Sundowns</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16/16 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+18.9%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#tpl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-tz"/></svg></span>
+          <div>
+            <div class="league-card__name">Tanzania PL</div>
+            <div class="league-card__sub">Ligi Kuu Bara</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">Simba SC</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16/16 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+13.4%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#upl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-ug"/></svg></span>
+          <div>
+            <div class="league-card__name">Uganda PL</div>
+            <div class="league-card__sub">StarTimes Uganda PL</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">KCCA FC</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16/16 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+11.7%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#rpl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-rw"/></svg></span>
+          <div>
+            <div class="league-card__name">Rwanda PL</div>
+            <div class="league-card__sub">Rwanda Premier League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">APR FC</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">16/16 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+14.8%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#lpl" class="league-card" data-region="domestic" data-roi="">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon icon-flag" viewBox="0 0 24 24"><use href="#i-flag-zm"/></svg></span>
+          <div>
+            <div class="league-card__name">Zambia SL</div>
+            <div class="league-card__sub">MTN Super League</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Model leader</span><span class="v">ZESCO United</span></div>
+        <div class="league-card__row"><span class="k">Coverage</span><span class="v">18/18 teams</span></div>
+        <div class="league-card__row"><span class="k">ROI this season</span><span class="v text-pos">+12.5%</span></div>
+        <span class="league-card__link">View fixtures →</span>
+      </a>
+
+      <a href="#more" class="league-card" style="background:var(--bg-inset);">
+        <div class="league-card__head">
+          <span class="league-card__flag"><svg class="icon"><use href="#i-plus"/></svg></span>
+          <div>
+            <div class="league-card__name">+12 more leagues</div>
+            <div class="league-card__sub">Tunisia, Morocco, Angola, Mozambique, Sudan, Ethiopia, Libya, Algeria, Senegal, Cameroon, Congo DR, Ivory Coast</div>
+          </div>
+        </div>
+        <div class="league-card__row"><span class="k">Total African leagues</span><span class="v">24</span></div>
+        <div class="league-card__row"><span class="k">Fixtures tracked weekly</span><span class="v">380+</span></div>
+        <div class="league-card__row"><span class="k">Avg ROI across all</span><span class="v text-pos">+22.4%</span></div>
+        <span class="league-card__link">View the full list →</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- Featured league deep dive -->
+<section class="section" id="npfl" style="background:var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Deep dive · NPFL</span>
+      <h2 class="section-header__title">Nigerian Premier League · model leaderboard</h2>
+      <p class="section-header__sub">The league we know best. 20/20 teams, every market, every match.</p>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th class="num">Model win %</th>
+            <th class="num">xG / 90</th>
+            <th class="num">xGA / 90</th>
+            <th class="num">Form (W-D-L)</th>
+            <th class="num">Value flag</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Rivers United</td><td class="num">68%</td><td class="num">1.82</td><td class="num">0.71</td><td class="num">7-2-1</td><td><span class="badge badge--positive">VALUE</span></td></tr>
+          <tr><td>2</td><td>Remo Stars</td><td class="num">61%</td><td class="num">1.65</td><td class="num">0.82</td><td class="num">6-3-1</td><td><span class="badge badge--positive">VALUE</span></td></tr>
+          <tr><td>3</td><td>Enyimba</td><td class="num">58%</td><td class="num">1.51</td><td class="num">0.88</td><td class="num">6-2-2</td><td><span class="badge badge--accent">FAIR</span></td></tr>
+          <tr><td>4</td><td>Plateau United</td><td class="num">54%</td><td class="num">1.42</td><td class="num">0.95</td><td class="num">5-3-2</td><td><span class="badge badge--accent">FAIR</span></td></tr>
+          <tr><td>5</td><td>Heartland FC</td><td class="num">49%</td><td class="num">1.28</td><td class="num">1.12</td><td class="num">4-4-2</td><td><span class="badge badge--accent">FAIR</span></td></tr>
+          <tr><td>6</td><td>Kano Pillars</td><td class="num">44%</td><td class="num">1.21</td><td class="num">1.28</td><td class="num">4-2-4</td><td><span class="badge badge--negative">TRAP</span></td></tr>
+          <tr><td>7</td><td>Shooting Stars</td><td class="num">42%</td><td class="num">1.18</td><td class="num">1.32</td><td class="num">3-4-3</td><td><span class="badge badge--negative">TRAP</span></td></tr>
+          <tr><td>8</td><td>Akwa United</td><td class="num">38%</td><td class="num">1.05</td><td class="num">1.41</td><td class="num">3-3-4</td><td><span class="badge badge--negative">TRAP</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-muted" style="text-align:center;margin-top:var(--space-5);font-size:var(--fs-12);">
+      Showing top 8 of 20 · full leaderboard inside the <a href="dashboard.html" style="color:var(--accent);">Pro Dashboard</a>.
+    </p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container container-narrow">
+    <div class="reveal" style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-5);">
+      <h2 class="section-header__title"><span class="title-flair">African</span> leagues deserve a sharper model.</h2>
+      <p style="color:var(--text-secondary);max-width:520px;">See every market, every fixture, every flag in real time. Pro members get the full hub unlocked.</p>
+      <div class="btn-group btn-group--center">
+        <a href="index.html#pricing" class="btn btn--primary btn--md">Unlock the full hub</a>
+        <a href="dashboard.html" class="btn btn--ghost btn--md">View live demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+        <p class="footer__brand-desc">Africa's first independent sports probability engine. We sell data, not tips.</p>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Product</h6>
+        <div class="footer__links">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#showcase">How it works</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="league-hub.html">League Hub</a>
+          <a href="strategy-builder.html">Strategy Builder</a>
+          <a href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Company</h6>
+        <div class="footer__links">
+          <a href="team.html">Team</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="mailto:hello@apexsports.ng">Contact</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Community</h6>
+        <div class="footer__links">
+          <a href="#">Telegram</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">Discord</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 ApexSports Analytics. All rights reserved.</span>
+      <span class="footer__legal">
+        <a href="#">Terms</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Responsible gambling</a>
+      </span>
+      <span>Not a sports book. We sell data, not forecasts. 18+ · Play responsibly.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast stack -->
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+<script src="app.js?v=6"></script>
+<script src="apex-icons.js?v=6" defer></script>
+<script src="apex-extras.js?v=6"></script>
+</body>
+</html>

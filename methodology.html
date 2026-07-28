@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — How the Apex Model Works</title>
+  <meta name="description" content="Inside the ApexSports probability engine. xG modelling, Monte Carlo simulation, dataset cards, accuracy disclosures, and bias notes.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-tokens.css?v=6">
+  <link rel="stylesheet" href="components.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="theme.css?v=6">
+  <script src="theme.js?v=6"></script>
+</head>
+<body>
+
+<!-- Preloader — wordmark headline + live boot-log ticker + typed status -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<div class="pl" id="preloader" role="status" aria-live="polite" aria-label="Loading">
+
+  <div class="pl__fx" aria-hidden="true">
+    <div class="pl__blob pl__blob--1"></div>
+    <div class="pl__blob pl__blob--2"></div>
+    <div class="pl__blob pl__blob--3"></div>
+    <div class="pl__blob pl__blob--4"></div>
+    <div class="pl__blob pl__blob--5"></div>
+    <div class="pl__floor"></div>
+    <div class="pl__ring" style="--r:0"></div>
+    <div class="pl__ring" style="--r:1"></div>
+    <div class="pl__ring" style="--r:2"></div>
+    <canvas class="pl__net" data-pl-net></canvas>
+    <div class="pl__streaks">
+      <i class="pl__streak" style="--s:0"></i>
+      <i class="pl__streak" style="--s:1"></i>
+      <i class="pl__streak" style="--s:2"></i>
+      <i class="pl__streak" style="--s:3"></i>
+      <i class="pl__streak" style="--s:4"></i>
+      <i class="pl__streak" style="--s:5"></i>
+      <i class="pl__streak" style="--s:6"></i>
+    </div>
+    <div class="pl__scan"></div>
+    <div class="pl__glitch"></div>
+    <div class="pl__grain"></div>
+    <div class="pl__vig"></div>
+    <div class="pl__frame"></div>
+  </div>
+
+  <div class="pl__row">
+    <span class="pl__tag"><span class="pl__led"></span>Boot sequence</span>
+    <span class="pl__row-right">
+      <span class="pl__tag pl__tag--right">Node · af-south-1</span>
+      <button class="pl__skip" type="button" data-pl-skip>Skip</button>
+    </span>
+  </div>
+
+  <div class="pl__centre">
+    <h1 class="pl__mark">
+      <span class="pl__sleeve"><span class="pl__word" style="--i:0">Apex</span></span>
+      <span class="pl__sleeve"><span class="pl__word pl__word--grad" style="--i:1">Sports</span></span>
+    </h1>
+    <p class="pl__tagline">Model Methodology · v4.7.2</p>
+    <p class="pl__status">
+      <span class="pl__status-dot" aria-hidden="true"></span>
+      <span data-pl-status>Booting model runtime</span>
+    </p>
+  </div>
+
+  <div class="pl__row pl__row--bottom">
+    <div class="pl__count" aria-hidden="true">
+      <span data-pl-num>00</span><span class="pl__count-pct">%</span>
+    </div>
+
+    <div class="pl__stats" aria-hidden="true">
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="sims" data-to="10247">0</span>
+        <span class="pl__stat-label">Simulations</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="leagues" data-to="147">0</span>
+        <span class="pl__stat-label">Leagues</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="models" data-to="12">0</span>
+        <span class="pl__stat-label">Models</span>
+      </div>
+    </div>
+
+    <div class="pl__log" data-pl-log aria-hidden="true"></div>
+  </div>
+
+  <div class="pl__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress">
+    <div class="pl__bar-fill" data-pl-fill></div>
+  </div>
+</div>
+
+<!-- Top nav -->
+<nav class="nav" id="navbar">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+    <div class="nav__links" id="navLinks">
+      <a href="index.html#features" class="nav__link">Features</a>
+      <a href="index.html#showcase" class="nav__link">How it works</a>
+      <a href="methodology.html" class="nav__link" aria-current="page">Methodology</a>
+      <a href="league-hub.html" class="nav__link">Leagues</a>
+      <a href="index.html#pricing" class="nav__link">Pricing</a>
+      <a href="dashboard.html" class="nav__link">Dashboard</a>
+      <a href="strategy-builder.html" class="nav__link">Strategy Builder</a>
+      <div class="nav__cta">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <a href="index.html#pricing" class="btn btn--primary btn--sm">Get Started</a>
+      </div>
+    </div>
+    <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero section--tight" style="min-height:60vh;padding-block:var(--space-20) var(--space-12);">
+  <div class="gradient-mesh" aria-hidden="true"></div>
+  <div class="container hero__inner" style="grid-template-columns:1fr;">
+    <div class="hero__content reveal" style="max-width:780px;margin-inline:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);">
+      <span class="eyebrow" data-pulse>Methodology · Open · Audited</span>
+      <h1 class="hero__title">
+        How the<br>
+        <span class="title-flair">Apex model</span> works.
+      </h1>
+      <p class="hero__sub" style="max-width:640px;">
+        We don't sell tips. We sell probability. Here's exactly how the engine is built, what data it ingests,
+        what it ignores, and where it can be wrong. No black boxes.
+      </p>
+      <div class="btn-group" style="justify-content:center;">
+        <a href="#datasets" class="btn btn--primary btn--md">See the datasets</a>
+        <a href="#equations" class="btn btn--ghost btn--md">Jump to equations</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats strip -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="stats-strip__inner">
+      <div class="stats-strip__cell">
+        <div class="stats-strip__num" data-target="147" data-suffix="">0</div>
+        <div class="stats-strip__lbl">Leagues</div>
+      </div>
+      <div class="stats-strip__cell">
+        <div class="stats-strip__num" data-target="12000" data-suffix="+">0</div>
+        <div class="stats-strip__lbl">Sims per match</div>
+      </div>
+      <div class="stats-strip__cell">
+        <div class="stats-strip__num" data-target="94.7" data-suffix="%" data-decimal="true">0</div>
+        <div class="stats-strip__lbl">Value hit rate</div>
+      </div>
+      <div class="stats-strip__cell">
+        <div class="stats-strip__num" data-target="500" data-suffix="K">0</div>
+        <div class="stats-strip__lbl">Backtest matches</div>
+      </div>
+      <div class="stats-strip__cell">
+        <div class="stats-strip__num" data-target="30" data-suffix="s">0</div>
+        <div class="stats-strip__lbl">Refresh cadence</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="section timeline-section" id="evolution">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Model evolution</span>
+      <h2 class="section-header__title">From a Python notebook to a production engine.</h2>
+      <p class="section-header__sub">Six major model versions, all benchmarked, all kept on disk.</p>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="timeline-step">
+        <div class="timeline-step__dot">v1</div>
+        <div class="timeline-step__date">2023 · NPFL only</div>
+        <h3 class="timeline-step__title">Dixon-Coles baseline</h3>
+        <p class="timeline-step__desc">Poisson attack/defence. 12 NPFL teams. Open-sourced on GitHub. 63% accuracy on full-time result.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-step__dot">v2</div>
+        <div class="timeline-step__date">2024 · Multi-league</div>
+        <h3 class="timeline-step__title">xG + form + travel</h3>
+        <p class="timeline-step__desc">Expected Goals layer. Form over last 10. Travel distance. 31 leagues. 71% accuracy.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-step__dot">v3</div>
+        <div class="timeline-step__date">2024 · Q4</div>
+        <h3 class="timeline-step__title">Monte Carlo at scale</h3>
+        <p class="timeline-step__desc">10,000 simulations per match. EV in ₦ per ₦1,000 shipped. Trap detection. 76% accuracy.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-step__dot">v3.5</div>
+        <div class="timeline-step__date">2025 · Q4</div>
+        <h3 class="timeline-step__title">Public Ledger launch</h3>
+        <p class="timeline-step__desc">Every prediction timestamped and visible. Dataset cards published. Calibration drift detection added.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-step__dot">v4</div>
+        <div class="timeline-step__date">2026 · Now</div>
+        <h3 class="timeline-step__title">147 leagues · 4 sports</h3>
+        <p class="timeline-step__desc">Football, basketball, tennis, baseball. Weather, lineups, congestion. 94.7% value-pick hit rate.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Datasets -->
+<section class="section" id="datasets" style="background:var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Datasets we ingest</span>
+      <h2 class="section-header__title">What the model sees, in 7 feeds.</h2>
+      <p class="section-header__sub">All licensed or scraped with consent. All timestamped. All reproducible.</p>
+    </div>
+
+    <div class="features-grid reveal" style="grid-template-columns:repeat(3, 1fr);">
+      <div class="card feature">
+        <span class="feature__tag">Live</span>
+        <h3 class="feature__title">Event stream (Opta-derived)</h3>
+        <p class="feature__desc">Every touch, pass, shot, carry, foul. Refreshed every 30 seconds across 147 leagues.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>~3.2M events/day</span><span>JSON</span>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">xG</span>
+        <h3 class="feature__title">Shot location + assist type</h3>
+        <p class="feature__desc">Per-shot xG scored by location, angle, assist type, defensive pressure, body part, game state.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>~85K shots/wk</span><span>CSV</span>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">Players</span>
+        <h3 class="feature__title">Player DNA profiles</h3>
+        <p class="feature__desc">Per-player six-axis radar (shooting, passing, dribbling, defending, physical, pace) + form index.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>~22K players</span><span>Postgres</span>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">Markets</span>
+        <h3 class="feature__title">Odds from 16 books</h3>
+        <p class="feature__desc">SportyBet, Bet9ja, 1xBet, Betway, and 12 others. Median, not last-tick, to avoid stale lines.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>~1.4M markets/day</span><span>JSON</span>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">Context</span>
+        <h3 class="feature__title">Weather + travel + venue</h3>
+        <p class="feature__desc">Hourly forecast, altitude, travel distance, pitch surface, capacity, time-of-day.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>147 venues</span><span>API</span>
+        </div>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">Schedule</span>
+        <h3 class="feature__title">Fixture congestion</h3>
+        <p class="feature__desc">Days-since-last-match, travel, and continental vs domestic priority. Critical for rotation risk.</p>
+        <div class="dataset-card__meta" style="margin-top:auto;padding-top:var(--space-3);">
+          <span>147 leagues</span><span>Postgres</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Equations -->
+<section class="section" id="equations">
+  <div class="container container-narrow">
+    <div class="section-header reveal">
+      <span class="eyebrow">The math</span>
+      <h2 class="section-header__title">Five equations, one engine.</h2>
+      <p class="section-header__sub">If you can read Python and you're not scared of LaTeX, this is the whole model.</p>
+    </div>
+
+    <div class="reveal" style="display:flex;flex-direction:column;gap:var(--space-5);">
+      <div>
+        <h3 style="margin-bottom:var(--space-2);">1. Expected Goals (per shot)</h3>
+        <p style="color:var(--text-secondary);font-size:var(--fs-14);margin-bottom:var(--space-2);">A logistic regression over location, angle, assist type, and pressure. Trained on 4.1M historical shots since 2017.</p>
+        <code class="eq">xG = σ(w₀ + w₁·loc + w₂·angle + w₃·assist + w₄·pressure + w₅·body)</code>
+      </div>
+      <div>
+        <h3 style="margin-bottom:var(--space-2);">2. Match outcome probability</h3>
+        <p style="color:var(--text-secondary);font-size:var(--fs-14);margin-bottom:var(--space-2);">Dixon-Coles adjusted Poisson over team-level attack and defence strengths.</p>
+        <code class="eq">P(home = x, away = y) = λ_h^x · e^(-λ_h) / x!  ·  μ_a^y · e^(-μ_a) / y!  ·  φ(λ, μ, ρ, x, y)</code>
+      </div>
+      <div>
+        <h3 style="margin-bottom:var(--space-2);">3. Monte Carlo simulation</h3>
+        <p style="color:var(--text-secondary);font-size:var(--fs-14);margin-bottom:var(--space-2);">For each match, we sample 10,000+ game states from the joint distribution and tally outcomes.</p>
+        <code class="eq">TrueOdds(market) = 1 / [ (1/N) · Σ 1[market(sᵢ) holds] ]</code>
+      </div>
+      <div>
+        <h3 style="margin-bottom:var(--space-2);">4. Expected Value</h3>
+        <p style="color:var(--text-secondary);font-size:var(--fs-14);margin-bottom:var(--space-2);">Per ₦1,000 staked. Positive EV = the model thinks the market is mispriced.</p>
+        <code class="eq">EV = (TrueProb · Odds − 1) · Stake</code>
+      </div>
+      <div>
+        <h3 style="margin-bottom:var(--space-2);">5. Kelly stake</h3>
+        <p style="color:var(--text-secondary);font-size:var(--fs-14);margin-bottom:var(--space-2);">Optimal bet size as a fraction of bankroll. We never recommend more than 5% of bankroll on a single leg.</p>
+        <code class="eq">f* = (TrueProb · Odds − 1) / (Odds − 1)  ·  min(1, 0.05)</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Accuracy disclosure -->
+<section class="section" style="background:var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Honest disclosures</span>
+      <h2 class="section-header__title">Where the model is wrong.</h2>
+      <p class="section-header__sub">Every model has blind spots. Here are ours.</p>
+    </div>
+
+    <div class="features-grid reveal" style="grid-template-columns:repeat(3, 1fr);">
+      <div class="card feature">
+        <span class="feature__tag" style="background:var(--negative-soft);color:var(--negative);border-color:var(--negative-border);">Bias · known</span>
+        <h3 class="feature__title">Long-tail leagues</h3>
+        <p class="feature__desc">Lower-tier leagues (NPFL second division, regional Kenyan cups) have less data — the model's confidence drops below 50% accuracy there. We still ship the data, but flag it.</p>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag" style="background:var(--warning-soft);color:var(--warning);border-color:var(--warning-border);">Refuses</span>
+        <h3 class="feature__title">Coin-flip matches</h3>
+        <p class="feature__desc">When TrueProb sits between 30% and 70%, we mark the market as <code>FAIR</code> and refuse to flag it. We'd rather miss a pick than lie about edge.</p>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag" style="background:var(--accent-soft);color:var(--accent);border-color:var(--accent-border);">Avoids</span>
+        <h3 class="feature__title">Same-match correlation</h3>
+        <p class="feature__desc">Two legs from the same match are highly correlated. The Strategy Builder blocks them or warns loudly. The math would not catch this otherwise.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container container-narrow">
+    <div class="reveal" style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-5);">
+      <h2 class="section-header__title">Now run the math yourself.</h2>
+      <p style="color:var(--text-secondary);max-width:520px;">Open the dashboard, jump to the EV calculator, and back-test a strategy against the public ledger.</p>
+      <div class="btn-group btn-group--center">
+        <a href="dashboard.html" class="btn btn--primary btn--md">Open dashboard</a>
+        <a href="strategy-builder.html" class="btn btn--ghost btn--md">Try Strategy Builder</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+        <p class="footer__brand-desc">Africa's first independent sports probability engine. We sell data, not tips.</p>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Product</h6>
+        <div class="footer__links">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#showcase">How it works</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="league-hub.html">League Hub</a>
+          <a href="strategy-builder.html">Strategy Builder</a>
+          <a href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Company</h6>
+        <div class="footer__links">
+          <a href="team.html">Team</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="mailto:hello@apexsports.ng">Contact</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Community</h6>
+        <div class="footer__links">
+          <a href="#">Telegram</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">Discord</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 ApexSports Analytics. All rights reserved.</span>
+      <span class="footer__legal">
+        <a href="#">Terms</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Responsible gambling</a>
+      </span>
+      <span>Not a sports book. We sell data, not forecasts. 18+ · Play responsibly.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast stack -->
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+<script src="app.js?v=6"></script>
+<script src="apex-icons.js?v=6" defer></script>
+<script src="apex-extras.js?v=6"></script>
+</body>
+</html>
