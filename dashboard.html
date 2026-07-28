@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ApexSports — Analytics Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css?v=3">
-    <link rel="stylesheet" href="theme.css?v=2">
-    <script src="theme.js"></script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <meta name="description" content="ApexSports pro analytics dashboard: live True Odds, EV calculator, Value/Trap detection across 147 leagues. African markets first.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-tokens.css?v=6">
+    <link rel="stylesheet" href="components.css?v=6">
+    <link rel="stylesheet" href="dashboard.css?v=6">
+    <link rel="stylesheet" href="theme.css?v=6">
+  <link rel="stylesheet" href="apex-ui.css?v=7">
+  <link rel="stylesheet" href="apex-modern.css?v=1">
+    <script src="theme.js?v=6"></script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
     <!-- Chart.js CDN for premium charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Pinned: the unversioned jsdelivr URL follows Chart.js latest, so a
+     major release upstream could break the dashboard without any change
+     on our side. crossorigin+SRI-ready pinned build instead. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -26,22 +37,28 @@
             
             <nav class="sidebar__nav">
                 <button class="sidebar__nav-item active" data-tab="overview">
-                    <span class="icon">📊</span> Overview
+                    <svg class="icon"><use href="#i-monitor"/></svg> Overview
                 </button>
                 <button class="sidebar__nav-item" data-tab="football">
-                    <span class="icon">⚽</span> Football Analytics
+                    <svg class="icon"><use href="#i-football"/></svg> Football Analytics
                 </button>
                 <button class="sidebar__nav-item" data-tab="basketball">
-                    <span class="icon">🏀</span> Basketball Analytics
+                    <svg class="icon"><use href="#i-basketball"/></svg> Basketball Analytics
                 </button>
                 <button class="sidebar__nav-item" data-tab="tennis">
-                    <span class="icon">🎾</span> Tennis Analytics
+                    <svg class="icon"><use href="#i-tennis"/></svg> Tennis Analytics
                 </button>
                 <button class="sidebar__nav-item" data-tab="baseball">
-                    <span class="icon">⚾</span> Baseball Analytics
+                    <svg class="icon"><use href="#i-baseball"/></svg> Baseball Analytics
                 </button>
                 <button class="sidebar__nav-item" data-tab="predictive">
-                    <span class="icon">🧠</span> AI Predictor
+                    <svg class="icon"><use href="#i-brain"/></svg> Predictive Model
+                </button>
+                <button class="sidebar__nav-item" data-tab="compare">
+                    <svg class="icon"><use href="#i-scale"/></svg> Compare
+                </button>
+                <button class="sidebar__nav-item" data-tab="alerts">
+                    <svg class="icon"><use href="#i-bell"/></svg> Alerts
                 </button>
             </nav>
 
@@ -50,7 +67,7 @@
                     <div class="avatar">PRO</div>
                     <div class="info">
                         <span class="name">Premium Member</span>
-                        <span class="status">⚡ Unlimited Access</span>
+                        <span class="status"><svg class="icon"><use href="#i-zap"/></svg> Unlimited Access</span>
                     </div>
                 </div>
                 <a href="index.html" class="sidebar__logout">Back to Home →</a>
@@ -59,23 +76,24 @@
 
         <!-- Main Dashboard View -->
         <main class="main-content">
-            
+
             <!-- Top Header -->
             <header class="header">
                 <div class="header__search">
-                    <span class="icon">🔍</span>
+                    <svg class="icon"><use href="#i-search"/></svg>
                     <input type="text" placeholder="Search leagues, players, matches...">
                 </div>
                 <div class="header__actions">
                     <div class="live-indicator">
                         <span class="dot"></span>
-                        <span class="text">AI Prediction Engine Active</span>
+                        <span class="text">Probability Engine · v4.7.2 · live</span>
                     </div>
                     <div class="notification-bell">
-                        <span class="icon">🔔</span>
+                        <svg class="icon"><use href="#i-bell"/></svg>
                         <span class="badge">3</span>
                     </div>
-                    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+                    <button class="ui-cmdk-trigger" type="button" data-cmdk-open aria-label="Open command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
                         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                         </svg>
@@ -93,10 +111,64 @@
             <section class="tab-content active" id="tab-overview">
                 <div class="welcome-banner">
                     <div class="welcome-banner__text">
-                        <h1>Welcome to Apex Analytics</h1>
-                        <p>Real-time machine learning predictions, advanced metrics, and custom visualizations across 147 leagues.</p>
+                        <h1>Welcome back to <span class="title-flair">Apex</span> Analytics</h1>
+                        <p>Real-time probability predictions, advanced metrics, and custom visualizations across 147 leagues.</p>
+                        <div class="welcome-banner__row">
+                            <div class="stat-row__cell">
+                                <span class="k">Today's accuracy</span>
+                                <span class="v">96.2%</span>
+                                <span class="d">7 of 7 value picks</span>
+                            </div>
+                            <div class="stat-row__cell">
+                                <span class="k">Picks this month</span>
+                                <span class="v">142 <span class="text-muted" style="font-size:12px;font-weight:400;">/ 500</span></span>
+                                <span class="d">358 remaining</span>
+                            </div>
+                            <div class="stat-row__cell">
+                                <span class="k">Bankroll Δ (MTD)</span>
+                                <span class="v text-pos">+₦38,420</span>
+                                <span class="d">from ₦200,000</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="welcome-banner__badge">Premium Pro Account</div>
+                    <span class="welcome-banner__badge"><svg class="icon"><use href="#i-zap"/></svg> Premium Pro</span>
+                </div>
+
+                <!-- Top Value Picks strip -->
+                <h2 class="section-title">Today's top value picks</h2>
+                <div class="picks-strip">
+                    <div class="pick-card is-pos">
+                        <div class="pick-card__head">
+                            <span class="pick-card__name">Top value</span>
+                            <span class="badge badge--positive">VALUE</span>
+                        </div>
+                        <div class="pick-card__val">+₦412</div>
+                        <div class="pick-card__meta">Arsenal vs Chelsea · Arsenal Win @ 2.30 · True 1.85</div>
+                    </div>
+                    <div class="pick-card is-neg">
+                        <div class="pick-card__head">
+                            <span class="pick-card__name">Top trap</span>
+                            <span class="badge badge--negative">TRAP</span>
+                        </div>
+                        <div class="pick-card__val">−₦198</div>
+                        <div class="pick-card__meta">PSG vs Real Madrid · PSG Win @ 1.40 · True 1.72</div>
+                    </div>
+                    <div class="pick-card">
+                        <div class="pick-card__head">
+                            <span class="pick-card__name">Top confidence</span>
+                            <span class="badge badge--accent">9.4 / 10</span>
+                        </div>
+                        <div class="pick-card__val">Man City</div>
+                        <div class="pick-card__meta">vs Liverpool · Win · True 1.60 · Mkt 1.95</div>
+                    </div>
+                    <div class="pick-card is-pos">
+                        <div class="pick-card__head">
+                            <span class="pick-card__name">Top ROI</span>
+                            <span class="badge badge--positive">+47%</span>
+                        </div>
+                        <div class="pick-card__val">Osimhen</div>
+                        <div class="pick-card__meta">vs Ghana · Anytime @ 3.20 · True 2.65</div>
+                    </div>
                 </div>
 
                 <!-- KPI Grid -->
@@ -104,34 +176,34 @@
                     <div class="kpi-card">
                         <div class="kpi-card__header">
                             <span class="title">Total Matches Simulated</span>
-                            <span class="icon">💻</span>
+                            <svg class="icon"><use href="#i-monitor"/></svg>
                         </div>
                         <div class="kpi-card__value">524,912</div>
-                        <div class="kpi-card__trend positive">⚡ +12.4% vs last week</div>
+                        <div class="kpi-card__trend positive"><svg class="icon"><use href="#i-zap"/></svg> +12.4% vs last week</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-card__header">
                             <span class="title">Prediction Accuracy</span>
-                            <span class="icon">🧠</span>
+                            <svg class="icon"><use href="#i-target"/></svg>
                         </div>
                         <div class="kpi-card__value">94.7%</div>
-                        <div class="kpi-card__trend positive">🎯 Backtested on 500K matches</div>
+                        <div class="kpi-card__trend positive">Backtested on 500K matches</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-card__header">
                             <span class="title">Hot Props Available</span>
-                            <span class="icon">🔥</span>
+                            <svg class="icon"><use href="#i-flame"/></svg>
                         </div>
                         <div class="kpi-card__value">1,489</div>
-                        <div class="kpi-card__trend neutral">⚖️ Updated 2 mins ago</div>
+                        <div class="kpi-card__trend neutral"><svg class="icon"><use href="#i-clock"/></svg> Updated 2 mins ago</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-card__header">
                             <span class="title">Active Live Feeds</span>
-                            <span class="icon">📡</span>
+                            <svg class="icon"><use href="#i-radar"/></svg>
                         </div>
                         <div class="kpi-card__value">23</div>
-                        <div class="kpi-card__trend positive">● Live tracking active</div>
+                        <div class="kpi-card__trend positive"><svg class="icon"><use href="#i-dot"/></svg> Live tracking active</div>
                     </div>
                 </div>
 
@@ -218,7 +290,7 @@
             <!-- ==================== FOOTBALL TAB ==================== -->
             <section class="tab-content" id="tab-football">
                 <div class="tab-header">
-                    <h2>⚽ Football Intelligence</h2>
+                    <h2><svg class="icon"><use href="#i-football"/></svg> Football Intelligence</h2>
                     <p>Compare elite players and track real-time Expected Goals (xG) metrics.</p>
                 </div>
 
@@ -275,21 +347,21 @@
                                 <circle cx="100" cy="75" r="25" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
                                 
                                 <!-- Connection Lines (Passes) -->
-                                <line x1="30" y1="75" x2="70" y2="35" stroke="rgba(0, 229, 255, 0.4)" stroke-width="2"/>
-                                <line x1="30" y1="75" x2="70" y2="115" stroke="rgba(0, 229, 255, 0.4)" stroke-width="1.5"/>
-                                <line x1="70" y1="35" x2="120" y2="45" stroke="rgba(139, 92, 246, 0.5)" stroke-width="3"/>
-                                <line x1="70" y1="115" x2="120" y2="105" stroke="rgba(139, 92, 246, 0.4)" stroke-width="2.5"/>
-                                <line x1="120" y1="45" x2="120" y2="105" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1"/>
-                                <line x1="120" y1="45" x2="170" y2="75" stroke="rgba(0, 255, 135, 0.6)" stroke-width="4"/>
-                                <line x1="120" y1="105" x2="170" y2="75" stroke="rgba(0, 255, 135, 0.5)" stroke-width="3"/>
+                                <line x1="30" y1="75" x2="70" y2="35" stroke="rgba(56, 189, 248, 0.45)" stroke-width="2"/>
+                                <line x1="30" y1="75" x2="70" y2="115" stroke="rgba(56, 189, 248, 0.45)" stroke-width="1.5"/>
+                                <line x1="70" y1="35" x2="120" y2="45" stroke="rgba(56, 189, 248, 0.55)" stroke-width="3"/>
+                                <line x1="70" y1="115" x2="120" y2="105" stroke="rgba(56, 189, 248, 0.5)" stroke-width="2.5"/>
+                                <line x1="120" y1="45" x2="120" y2="105" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+                                <line x1="120" y1="45" x2="170" y2="75" stroke="rgba(56, 189, 248, 0.7)" stroke-width="4"/>
+                                <line x1="120" y1="105" x2="170" y2="75" stroke="rgba(56, 189, 248, 0.6)" stroke-width="3"/>
 
                                 <!-- Nodes (Players) -->
-                                <circle cx="30" cy="75" r="7" fill="#00e5ff" class="node"/>
-                                <circle cx="70" cy="35" r="7" fill="#8b5cf6" class="node"/>
-                                <circle cx="70" cy="115" r="7" fill="#8b5cf6" class="node"/>
-                                <circle cx="120" cy="45" r="7" fill="#8b5cf6" class="node"/>
-                                <circle cx="120" cy="105" r="7" fill="#8b5cf6" class="node"/>
-                                <circle cx="170" cy="75" r="7" fill="#00ff87" class="node"/>
+                                <circle cx="30" cy="75" r="7" fill="#38BDF8" class="node"/>
+                                <circle cx="70" cy="35" r="7" fill="#38BDF8" class="node"/>
+                                <circle cx="70" cy="115" r="7" fill="#38BDF8" class="node"/>
+                                <circle cx="120" cy="45" r="7" fill="#38BDF8" class="node"/>
+                                <circle cx="120" cy="105" r="7" fill="#38BDF8" class="node"/>
+                                <circle cx="170" cy="75" r="7" fill="#38BDF8" class="node"/>
 
                                 <!-- Text labels -->
                                 <text x="30" y="62" font-size="6" fill="#fff" text-anchor="middle">DM (Rodri)</text>
@@ -305,7 +377,7 @@
             <!-- ==================== BASKETBALL TAB ==================== -->
             <section class="tab-content" id="tab-basketball">
                 <div class="tab-header">
-                    <h2>🏀 Basketball Analytics</h2>
+                    <h2><svg class="icon"><use href="#i-basketball"/></svg> Basketball Analytics</h2>
                     <p>Interactive shot tracking and zone analysis. Click court zones to inspect efficiency metrics.</p>
                 </div>
 
@@ -386,7 +458,7 @@
             <!-- ==================== TENNIS TAB ==================== -->
             <section class="tab-content" id="tab-tennis">
                 <div class="tab-header">
-                    <h2>🎾 Tennis Intelligence</h2>
+                    <h2><svg class="icon"><use href="#i-tennis"/></svg> Tennis Intelligence</h2>
                     <p>Serve heatmaps, head-to-head breakdowns, and real-time match momentum tracking across ATP & WTA.</p>
                 </div>
 
@@ -459,7 +531,7 @@
                     <div class="grid-card">
                         <div class="grid-card__header">
                             <h3>Live Match Score</h3>
-                            <span class="badge live" style="background:rgba(0,255,135,0.1);color:#00ff87;animation:livePulse 2s infinite;">● LIVE</span>
+                            <span class="badge live" data-pulse style="background:rgba(56,189,248,0.12);color:var(--accent);">LIVE</span>
                         </div>
                         <div class="grid-card__body" style="flex-direction:column;gap:16px;width:100%;">
                             <div class="tennis-score-board">
@@ -499,7 +571,7 @@
             <!-- ==================== BASEBALL TAB ==================== -->
             <section class="tab-content" id="tab-baseball">
                 <div class="tab-header">
-                    <h2>⚾ Baseball Intelligence</h2>
+                    <h2><svg class="icon"><use href="#i-baseball"/></svg> Baseball Intelligence</h2>
                     <p>Pitch type tendencies, interactive strike zone analysis, and batter vs pitcher matchup breakdowns.</p>
                 </div>
 
@@ -582,7 +654,7 @@
                     <div class="grid-card">
                         <div class="grid-card__header">
                             <h3>Live Box Score</h3>
-                            <span class="badge live" style="background:rgba(0,255,135,0.1);color:#00ff87;animation:livePulse 2s infinite;">● LIVE</span>
+                            <span class="badge live" data-pulse style="background:rgba(56,189,248,0.12);color:var(--accent);">LIVE</span>
                         </div>
                         <div class="grid-card__body" style="flex-direction:column;gap:12px;width:100%;">
                             <div class="baseball-score-board">
@@ -603,13 +675,13 @@
                                 </div>
                             </div>
                             <div class="baseball-meta">
-                                <span>🔵 Bottom 7th • 1 Out</span>
+                                <span><svg class="icon"><use href="#i-baseball"/></svg> Bottom 7th · 1 Out</span>
                                 <span>Runners: 1st & 2nd</span>
                             </div>
                             <div class="tennis-stat-row"><span>ERA (Cole)</span><span style="color:#00e5ff;">2.88</span></div>
                             <div class="tennis-stat-row"><span>Strikeouts</span><span style="color:#00e5ff;">9</span></div>
                             <div class="tennis-stat-row"><span>Pitches Thrown</span><span style="color:#00e5ff;">103</span></div>
-                            <div class="tennis-stat-row"><span>Win Prob (NYY)</span><span style="color:#00ff87;">76.4%</span></div>
+                            <div class="tennis-stat-row"><span>Win Prob (NYY)</span><span style="color:var(--accent);">76.4%</span></div>
                         </div>
                     </div>
                 </div>
@@ -618,8 +690,8 @@
             <!-- ==================== PREDICTIVE TAB ==================== -->
             <section class="tab-content" id="tab-predictive">
                 <div class="tab-header">
-                    <h2>🧠 AI Predictive Simulator</h2>
-                    <p>Configure team settings, choose environment parameters, and run real-time machine learning predictions.</p>
+                    <h2><svg class="icon"><use href="#i-brain"/></svg> Predictive Simulator</h2>
+                    <p>Configure team settings, choose environment parameters, and run real-time probability predictions.</p>
                 </div>
 
                 <div class="dashboard-grid">
@@ -674,7 +746,7 @@
                                 </select>
                             </div>
 
-                            <button class="btn-simulate" id="startSimBtn">Run AI Simulation ⚡</button>
+                            <button class="btn-simulate" id="startSimBtn"><svg class="icon"><use href="#i-zap"/></svg> Run Simulation</button>
                         </div>
                     </div>
 
@@ -698,12 +770,201 @@
                             <div class="console-wrapper">
                                 <div class="console-header">
                                     <span>Match Events Feed</span>
-                                    <span class="live-blink" id="liveBlink" style="display:none">● SIMULATING</span>
+                                    <span class="live-blink" id="liveBlink" data-pulse style="display:none">SIMULATING</span>
                                 </div>
                                 <div class="console" id="consoleOutput">
-                                    <div class="system-msg">Press "Run AI Simulation" to evaluate variables...</div>
+                                    <div class="system-msg">Press "Run Simulation" to evaluate variables...</div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== COMPARE TAB ==================== -->
+            <section class="tab-content" id="tab-compare">
+                <div class="tab-header">
+                    <h2><svg class="icon"><use href="#i-scale"/></svg> Compare</h2>
+                    <p>Side-by-side player or team comparison. Swap metrics with the toggle.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Player X-Ray · side-by-side</h3>
+                            <div class="selectors">
+                                <select id="cmpP1">
+                                    <option value="haaland" selected>Erling Haaland</option>
+                                    <option value="mbappe">Kylian Mbappé</option>
+                                    <option value="messi">Lionel Messi</option>
+                                    <option value="ronaldo">Cristiano Ronaldo</option>
+                                </select>
+                                <span class="vs">vs</span>
+                                <select id="cmpP2">
+                                    <option value="haaland">Erling Haaland</option>
+                                    <option value="mbappe" selected>Kylian Mbappé</option>
+                                    <option value="messi">Lionel Messi</option>
+                                    <option value="ronaldo">Cristiano Ronaldo</option>
+                                </select>
+                                <button class="tab-pill" data-cmp-metric="attacking">Attacking</button>
+                                <button class="tab-pill is-active" data-cmp-metric="all">All</button>
+                                <button class="tab-pill" data-cmp-metric="defending">Defending</button>
+                            </div>
+                        </div>
+                        <div class="grid-card__body radar-body">
+                            <div class="chart-container">
+                                <canvas id="cmpChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Per-axis delta</h3>
+                            <span class="badge">Live</span>
+                        </div>
+                        <div class="grid-card__body">
+                            <table class="table" id="cmpDelta">
+                                <thead>
+                                    <tr>
+                                        <th>Axis</th>
+                                        <th class="num">P1</th>
+                                        <th class="num">P2</th>
+                                        <th class="num">Δ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Shooting</td><td class="num" id="dShoot1">—</td><td class="num" id="dShoot2">—</td><td class="num" id="dShootD">—</td></tr>
+                                    <tr><td>Passing</td><td class="num" id="dPass1">—</td><td class="num" id="dPass2">—</td><td class="num" id="dPassD">—</td></tr>
+                                    <tr><td>Dribbling</td><td class="num" id="dDrib1">—</td><td class="num" id="dDrib2">—</td><td class="num" id="dDribD">—</td></tr>
+                                    <tr><td>Defending</td><td class="num" id="dDef1">—</td><td class="num" id="dDef2">—</td><td class="num" id="dDefD">—</td></tr>
+                                    <tr><td>Physical</td><td class="num" id="dPhys1">—</td><td class="num" id="dPhys2">—</td><td class="num" id="dPhysD">—</td></tr>
+                                    <tr><td>Pace</td><td class="num" id="dPace1">—</td><td class="num" id="dPace2">—</td><td class="num" id="dPaceD">—</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== ALERTS TAB ==================== -->
+            <section class="tab-content" id="tab-alerts">
+                <div class="tab-header">
+                    <h2><svg class="icon"><use href="#i-bell"/></svg> Alerts</h2>
+                    <p>Configure how Apex notifies you when value gaps and traps appear.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="grid-card double-width">
+                        <div class="grid-card__header">
+                            <h3>Recent alerts (last 24h)</h3>
+                            <span class="badge">42 new</span>
+                        </div>
+                        <div class="grid-card__body">
+                            <div class="alert-row is-pos">
+                                <div class="alert-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Arsenal vs Chelsea · Arsenal Win</div>
+                                    <div class="alert-row__meta">+24% EV · @ 2.30 · 4 mins ago</div>
+                                </div>
+                                <label class="alert-row__toggle">
+                                    <input type="checkbox" checked> In-app
+                                </label>
+                            </div>
+                            <div class="alert-row is-neg">
+                                <div class="alert-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M14 17h7v-7"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">PSG vs Real Madrid · PSG Win</div>
+                                    <div class="alert-row__meta">−21% EV · @ 1.40 · 12 mins ago</div>
+                                </div>
+                                <label class="alert-row__toggle">
+                                    <input type="checkbox" checked> In-app
+                                </label>
+                            </div>
+                            <div class="alert-row is-pos">
+                                <div class="alert-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Nigeria vs Ghana · Over 2.5</div>
+                                    <div class="alert-row__meta">+33% EV · @ 2.80 · 28 mins ago</div>
+                                </div>
+                                <label class="alert-row__toggle">
+                                    <input type="checkbox"> In-app
+                                </label>
+                            </div>
+                            <div class="alert-row is-pos">
+                                <div class="alert-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Sundowns vs Zamalek · Sundowns Win</div>
+                                    <div class="alert-row__meta">+41% EV · @ 3.10 · 1 hr ago</div>
+                                </div>
+                                <label class="alert-row__toggle">
+                                    <input type="checkbox" checked> In-app
+                                </label>
+                            </div>
+                            <div class="alert-row is-neg">
+                                <div class="alert-row__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M14 17h7v-7"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Man City vs Liverpool · BTTS No</div>
+                                    <div class="alert-row__meta">−12% EV · @ 1.65 · 2 hrs ago</div>
+                                </div>
+                                <label class="alert-row__toggle">
+                                    <input type="checkbox"> In-app
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Notification channels</h3>
+                        </div>
+                        <div class="grid-card__body">
+                            <div class="alert-row" style="margin-bottom:var(--space-3);">
+                                <div class="alert-row__icon"><svg class="icon"><use href="#i-phone"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">In-app</div>
+                                    <div class="alert-row__meta">Always on</div>
+                                </div>
+                                <input type="checkbox" checked>
+                            </div>
+                            <div class="alert-row" style="margin-bottom:var(--space-3);">
+                                <div class="alert-row__icon"><svg class="icon"><use href="#i-mail"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Email</div>
+                                    <div class="alert-row__meta">hello@apexsports.ng</div>
+                                </div>
+                                <input type="checkbox" checked>
+                            </div>
+                            <div class="alert-row" style="margin-bottom:var(--space-3);">
+                                <div class="alert-row__icon"><svg class="icon"><use href="#i-chat"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">Telegram</div>
+                                    <div class="alert-row__meta">@apex_alerts</div>
+                                </div>
+                                <input type="checkbox">
+                            </div>
+                            <div class="alert-row">
+                                <div class="alert-row__icon"><svg class="icon"><use href="#i-chat"/></svg></div>
+                                <div>
+                                    <div class="alert-row__title">WhatsApp</div>
+                                    <div class="alert-row__meta">Pro tier only</div>
+                                </div>
+                                <input type="checkbox">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-card">
+                        <div class="grid-card__header">
+                            <h3>Threshold sensitivity</h3>
+                        </div>
+                        <div class="grid-card__body">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2);">
+                                <span style="font-size:var(--fs-12);color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:var(--tracking-wide);">Min EV %</span>
+                                <strong style="font-family:var(--font-mono);">+8%</strong>
+                            </div>
+                            <input type="range" class="range" min="3" max="25" value="8">
+                            <p style="font-size:var(--fs-12);color:var(--text-muted);margin-top:var(--space-3);">Lower = more alerts. Higher = only the sharpest value gaps.</p>
                         </div>
                     </div>
                 </div>
@@ -712,8 +973,11 @@
         </main>
     </div>
 
-    <script src="lightning.js"></script>
-    <script src="dashboard.js?v=3"></script>
-    <script src="apex-extras.js?v=1"></script>
+    <script src="apex-icons.js?v=6" defer></script>
+    <script src="lightning.js?v=6"></script>
+    <script src="dashboard.js?v=6"></script>
+    <script src="apex-extras.js?v=6"></script>
+  <script src="apex-ui.js?v=7" defer></script>
+  <script src="apex-modern.js?v=1" defer></script>
 </body>
 </html>

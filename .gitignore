@@ -1,0 +1,6 @@
+# Preloader rollback snapshots (local only)
+*.pre-pl2
+
+# Editor / OS
+.DS_Store
+Thumbs.db

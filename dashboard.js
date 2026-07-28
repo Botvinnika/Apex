@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ============================================================
-  // 5. AI MATCH SIMULATOR
+  // 5. MATCH SIMULATOR
   // ============================================================
   const startSimBtn = document.getElementById('startSimBtn');
   const homeSelect = document.getElementById('homeTeam');
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function startSimulation(home, away) {
     isSimulating = true;
-    startSimBtn.textContent = "Cancel Simulation";
+    startSimBtn.innerHTML = '<svg class="icon"><use href="#i-x"/></svg> Cancel Simulation';
     startSimBtn.style.background = 'var(--text-accent-cyan)';
     simStatus.textContent = "Simulating...";
     liveBlink.style.display = 'inline';
@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateProbBars(homeProb, drawProb, awayProb);
     logEvent(0, "SYSTEM", `Evaluating parameters... Weather: ${weather.toUpperCase()}. Home: ${home} (${homeStrength}). Away: ${away} (${awayStrength}).`);
-    logEvent(0, "SYSTEM", "AI outcome probabilities calculated. Kick-off match simulation...");
+    logEvent(0, "SYSTEM", "Outcome probabilities calculated. Kick-off match simulation...");
 
     simInterval = setInterval(() => {
       minute += Math.floor(Math.random() * 6) + 2; // Advance minutes randomly
@@ -535,8 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function endSimulation(cancelled = false) {
     isSimulating = false;
     clearInterval(simInterval);
-    startSimBtn.textContent = "Run AI Simulation ⚡";
-    startSimBtn.style.background = 'var(--gradient-emerald)';
+    startSimBtn.innerHTML = '<svg class="icon"><use href="#i-zap"/></svg> Run Simulation';
+    startSimBtn.style.background = 'var(--gradient-accent)';
     simStatus.textContent = cancelled ? "Cancelled" : "Complete";
     liveBlink.style.display = 'none';
 
@@ -624,9 +624,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:8px;">
             <strong style="color:var(--text-primary);">${d.label}</strong>
           </div>
-          <div class="tennis-stat-row"><span>Serve In %</span><span style="color:#00e5ff;">${d.pct}</span></div>
-          <div class="tennis-stat-row"><span>Ace Rate</span><span style="color:#00ff87;">${d.ace}</span></div>
-          <div class="tennis-stat-row"><span>Double Fault %</span><span style="color:#ec4899;">${d.fault}</span></div>
+          <div class="tennis-stat-row"><span>Serve In %</span><span style="color:var(--accent);">${d.pct}</span></div>
+          <div class="tennis-stat-row"><span>Ace Rate</span><span style="color:var(--accent);">${d.ace}</span></div>
+          <div class="tennis-stat-row"><span>Double Fault %</span><span style="color:var(--text-muted);">${d.fault}</span></div>
         `;
       }
     });

@@ -2,6 +2,7 @@
  * APEX SPORTS — Strategy Builder Logic
  * Frontend only. No real transactions.
  * Odds range: 1.20 – 20.00 (responsible modeling cap)
+ * Slip persists to localStorage so a refresh doesn't lose the build.
  */
 (function () {
   'use strict';
@@ -9,6 +10,29 @@
   // ── STATE ────────────────────────────────────────────────────
   let stake = 1000;
   let selections = [];
+
+  const STORAGE_KEY = 'apex-strategy-v1';
+  function saveSlip() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        stake,
+        selections,
+        savedAt: new Date().toISOString(),
+      }));
+    } catch (e) { /* quota or private mode — silently skip */ }
+  }
+  function loadSlip() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.selections)) return null;
+      return parsed;
+    } catch (e) { return null; }
+  }
+  function clearSlip() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
 
   // ── ELEMENTS ─────────────────────────────────────────────────
   const oddsSlider     = document.getElementById('oddsSlider');
@@ -88,9 +112,9 @@
     const selection = document.getElementById('selectionInput').value.trim();
     const odds      = parseFloat(oddsSlider.value);
 
-    if (!sport)     { showToast('📊 Please select a sport'); return; }
-    if (!match)     { showToast('📊 Please enter a match'); return; }
-    if (!selection) { showToast('📊 Please enter your selection'); return; }
+    if (!sport)     { showToast('Please select a sport'); return; }
+    if (!match)     { showToast('Please enter a match'); return; }
+    if (!selection) { showToast('Please enter your selection'); return; }
 
     const leg = {
       id: Date.now(),
@@ -102,6 +126,7 @@
     };
 
     selections.push(leg);
+    saveSlip();
     renderSelections();
     updateSummary();
 
@@ -113,7 +138,7 @@
     oddsSlider.value = '2.0';
     updateOddsUI();
 
-    showToast('✅ Leg added to your strategy!');
+    showToast('Leg added to your strategy');
   }
 
   // ── RENDER SELECTIONS ─────────────────────────────────────────
@@ -136,19 +161,24 @@
       card.dataset.id = leg.id;
 
       const sportLabel = {
-        football: '⚽ Football', basketball: '🏀 Basketball', tennis: '🎾 Tennis',
-        baseball: '⚾ Baseball', mma: '🥊 MMA', rugby: '🏉 Rugby', cricket: '🏏 Cricket'
+        football: 'Football', basketball: 'Basketball', tennis: 'Tennis',
+        baseball: 'Baseball', mma: 'MMA', rugby: 'Rugby', cricket: 'Cricket'
       }[leg.sport] || leg.sport;
+
+      const sportIcon = {
+        football: 'i-football', basketball: 'i-basketball', tennis: 'i-tennis',
+        baseball: 'i-baseball', mma: 'i-mma', rugby: 'i-rugby', cricket: 'i-cricket'
+      }[leg.sport];
 
       card.innerHTML = `
         <div class="bb-selection-card__num">${i + 1}</div>
         <div class="bb-selection-card__body">
-          <div class="bb-selection-card__sport">${sportLabel} · ${formatMarket(leg.market)}</div>
+          <div class="bb-selection-card__sport">${sportIcon ? `<svg class="icon"><use href="#${sportIcon}"/></svg>` : ''}${sportLabel} · ${formatMarket(leg.market)}</div>
           <div class="bb-selection-card__selection">${leg.selection}</div>
           <div class="bb-selection-card__match">${leg.match}</div>
         </div>
         <div class="bb-selection-card__odds">${leg.odds.toFixed(2)}</div>
-        <button class="bb-selection-card__remove" title="Remove leg" data-id="${leg.id}">✕</button>
+        <button class="bb-selection-card__remove" title="Remove leg" data-id="${leg.id}">×</button>
       `;
 
       selectionsList.appendChild(card);
@@ -159,6 +189,7 @@
       btn.addEventListener('click', () => {
         const id = parseInt(btn.dataset.id);
         selections = selections.filter(s => s.id !== id);
+        saveSlip();
         renderSelections();
         updateSummary();
       });
@@ -187,7 +218,7 @@
       accaType.textContent       = 'Single';
       accaBadge.textContent      = '—';
       placeBetBtn.disabled       = true;
-      updateAIRisk(0);
+      updateRiskMeter(0);
       return;
     }
 
@@ -210,31 +241,30 @@
 
     placeBetBtn.disabled = false;
 
-    // AI risk
+    // Strategy risk — more legs + heavier average multiplier = higher variance
     const avgOdds = selections.reduce((a, s) => a + s.odds, 0) / n;
-    const legRisk = n / 10;           // more legs = more risk
+    const legRisk = n / 10;
     const oddsRisk = (avgOdds - 1.2) / (20 - 1.2);
     const combined = Math.min(1, (legRisk * 0.4) + (oddsRisk * 0.6));
-    updateAIRisk(combined);
+    updateRiskMeter(combined);
   }
 
-  function updateAIRisk(level) {
+  function updateRiskMeter(level) {
     const pct = (level * 100).toFixed(1);
-    // The fill div covers from right — so we invert it
     aiRiskFill.style.width  = (100 - level * 100).toFixed(1) + '%';
     aiRiskFill.style.left   = 'unset';
     aiRiskFill.style.right  = '0';
     aiRiskNeedle.style.left = pct + '%';
 
     const notes = [
-      [0.0, 0.25, '🟢 Low risk strategy. Conservative selections with good implied probability.'],
-      [0.25, 0.5,  '🟡 Moderate risk. A solid combination with fair value — keep an eye on form.'],
-      [0.5, 0.75,  '🟠 High risk. Multiple uncertain outcomes combined. Proceed with caution.'],
-      [0.75, 1.1,  '⚠️ Extreme risk. Very high multiplier combination — treat as simulation only.'],
+      [0.0, 0.25, 'Low risk strategy. Conservative selections with good implied probability.'],
+      [0.25, 0.5,  'Moderate risk. A solid combination with fair value — keep an eye on form.'],
+      [0.5, 0.75,  'High risk. Multiple uncertain outcomes combined. Proceed with caution.'],
+      [0.75, 1.1,  'Extreme risk. Very high multiplier combination — treat as simulation only.'],
     ];
 
     if (level === 0) {
-      aiNote.textContent = 'Add legs to see AI risk analysis.';
+      aiNote.textContent = 'Add legs to see risk analysis.';
     } else {
       const note = notes.find(([lo, hi]) => level >= lo && level < hi);
       aiNote.textContent = note ? note[2] : '';
@@ -244,6 +274,7 @@
   // ── STAKE ─────────────────────────────────────────────────────
   stakeInput.addEventListener('input', () => {
     stake = Math.max(100, parseFloat(stakeInput.value) || 100);
+    saveSlip();
     updateSummary();
   });
 
@@ -253,6 +284,7 @@
       stakeInput.value = stake;
       presets.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      saveSlip();
       updateSummary();
     });
   });
@@ -260,9 +292,10 @@
   // ── CLEAR ALL ─────────────────────────────────────────────────
   clearAllBtn.addEventListener('click', () => {
     selections = [];
+    clearSlip();
     renderSelections();
     updateSummary();
-    showToast('🗑️ Strategy cleared');
+    showToast('Strategy cleared');
   });
 
   // ── PLACE BET (demo) ──────────────────────────────────────────
@@ -270,7 +303,7 @@
     if (selections.length === 0) return;
     const totalOdds = selections.reduce((a, s) => a * s.odds, 1);
     const ret = (stake * totalOdds).toFixed(0);
-    showToast(`📈 Strategy saved! Potential return: ₦${Number(ret).toLocaleString()} (Simulation only)`);
+    showToast(`Strategy saved — potential return ₦${Number(ret).toLocaleString()} (simulation only)`);
     // Animate button
     placeBetBtn.style.transform = 'scale(0.96)';
     setTimeout(() => placeBetBtn.style.transform = '', 150);
@@ -283,6 +316,25 @@
     toast.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── RESTORE FROM STORAGE ──────────────────────────────────────
+  const saved = loadSlip();
+  if (saved) {
+    stake = Number(saved.stake) || 1000;
+    selections = Array.isArray(saved.selections) ? saved.selections : [];
+    stakeInput.value = stake;
+    // Mark matching preset active
+    presets.forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.val) === stake);
+    });
+    if (selections.length > 0) {
+      const when = (() => {
+        try { return new Date(saved.savedAt).toLocaleString(); }
+        catch (e) { return 'earlier'; }
+      })();
+      showToast(`Restored ${selections.length}-leg strategy from ${when}`);
+    }
   }
 
   // ── INIT ──────────────────────────────────────────────────────

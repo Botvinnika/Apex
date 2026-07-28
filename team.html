@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team — ApexSports Analytics</title>
+  <meta name="description" content="The team behind ApexSports — founders, model contributors, and advisors building Africa's first independent sports probability engine.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-tokens.css?v=6">
+  <link rel="stylesheet" href="components.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="theme.css?v=6">
+  <link rel="stylesheet" href="apex-ui.css?v=7">
+  <link rel="stylesheet" href="apex-modern.css?v=1">
+  <script src="theme.js?v=6"></script>
+</head>
+<body>
+
+<!-- Preloader — wordmark headline + live boot-log ticker + typed status -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<!-- Preloader v2 — "Ignition".
+     Three flex rows (top / centre / bottom) so nothing is free-floating
+     and elements cannot overlap at any viewport size. Background layers
+     and the progress bar are the only absolutely positioned pieces. -->
+<div class="pl" id="preloader" role="status" aria-live="polite" aria-label="Loading">
+
+  <div class="pl__fx" aria-hidden="true">
+    <div class="pl__blob pl__blob--1"></div>
+    <div class="pl__blob pl__blob--2"></div>
+    <div class="pl__blob pl__blob--3"></div>
+    <div class="pl__blob pl__blob--4"></div>
+    <div class="pl__blob pl__blob--5"></div>
+    <div class="pl__floor"></div>
+    <div class="pl__ring" style="--r:0"></div>
+    <div class="pl__ring" style="--r:1"></div>
+    <div class="pl__ring" style="--r:2"></div>
+    <canvas class="pl__net" data-pl-net></canvas>
+    <div class="pl__streaks">
+      <i class="pl__streak" style="--s:0"></i>
+      <i class="pl__streak" style="--s:1"></i>
+      <i class="pl__streak" style="--s:2"></i>
+      <i class="pl__streak" style="--s:3"></i>
+      <i class="pl__streak" style="--s:4"></i>
+      <i class="pl__streak" style="--s:5"></i>
+      <i class="pl__streak" style="--s:6"></i>
+    </div>
+    <div class="pl__scan"></div>
+    <div class="pl__glitch"></div>
+    <div class="pl__grain"></div>
+    <div class="pl__vig"></div>
+    <div class="pl__frame"></div>
+  </div>
+
+  <div class="pl__row">
+    <span class="pl__tag"><span class="pl__led"></span>Boot sequence</span>
+    <span class="pl__row-right">
+      <span class="pl__tag pl__tag--right">Node · af-south-1</span>
+      <button class="pl__skip" type="button" data-pl-skip>Skip</button>
+    </span>
+  </div>
+
+  <div class="pl__centre">
+    <h1 class="pl__mark">
+      <span class="pl__sleeve"><span class="pl__word" style="--i:0">Apex</span></span>
+      <span class="pl__sleeve"><span class="pl__word pl__word--grad" style="--i:1">Sports</span></span>
+    </h1>
+    <p class="pl__tagline">Research Team · v4.7.2</p>
+    <p class="pl__status">
+      <span class="pl__status-dot" aria-hidden="true"></span>
+      <span data-pl-status>Booting model runtime</span>
+    </p>
+  </div>
+
+  <div class="pl__row pl__row--bottom">
+    <div class="pl__count" aria-hidden="true">
+      <span data-pl-num>00</span><span class="pl__count-pct">%</span>
+    </div>
+
+    <div class="pl__stats" aria-hidden="true">
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="sims" data-to="10247">0</span>
+        <span class="pl__stat-label">Simulations</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="leagues" data-to="147">0</span>
+        <span class="pl__stat-label">Leagues</span>
+      </div>
+      <div class="pl__stat">
+        <span class="pl__stat-num" data-pl-stat="models" data-to="12">0</span>
+        <span class="pl__stat-label">Models</span>
+      </div>
+    </div>
+
+    <div class="pl__log" data-pl-log aria-hidden="true"></div>
+  </div>
+
+  <div class="pl__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading progress">
+    <div class="pl__bar-fill" data-pl-fill></div>
+  </div>
+</div>
+
+<!-- Top nav -->
+<nav class="nav" id="navbar">
+  <div class="container nav__inner">
+    <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+    <div class="nav__links" id="navLinks">
+      <a href="index.html#features" class="nav__link">Features</a>
+      <a href="index.html#showcase" class="nav__link">How it works</a>
+      <a href="methodology.html" class="nav__link">Methodology</a>
+      <a href="league-hub.html" class="nav__link">Leagues</a>
+      <a href="index.html#pricing" class="nav__link">Pricing</a>
+      <a href="dashboard.html" class="nav__link">Dashboard</a>
+      <a href="strategy-builder.html" class="nav__link">Strategy Builder</a>
+      <div class="nav__cta">
+        <button class="ui-cmdk-trigger" type="button" data-cmdk-open aria-label="Open command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <a href="index.html#pricing" class="btn btn--primary btn--sm">Get Started</a>
+      </div>
+    </div>
+    <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero section--tight" style="min-height:50vh;padding-block:var(--space-20) var(--space-12);">
+  <div class="gradient-mesh" aria-hidden="true"></div>
+  <div class="container hero__inner" style="grid-template-columns:1fr;">
+    <div class="hero__content reveal" style="max-width:780px;margin-inline:auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-4);">
+      <span class="eyebrow" data-pulse>The team · 9 humans · 4 cities · 1 mission</span>
+      <h1 class="hero__title">
+        We sell <span class="title-flair">data</span>,<br>
+        not vibes.
+      </h1>
+      <p class="hero__sub" style="max-width:640px;">
+        Apex is built by a small team of quants, sports analysts, and product folks who got tired of opaque tipsters.
+        Here's who's behind the model.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Mission -->
+<section class="section">
+  <div class="container container-narrow">
+    <div class="section-header reveal" style="text-align:left;align-items:flex-start;">
+      <span class="eyebrow">Our mission</span>
+      <h2 class="section-header__title" style="text-align:left;align-items:flex-start;">The African sports market deserves <span class="title-flair">better data</span>.</h2>
+    </div>
+    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+      <p style="color:var(--text-secondary);font-size:var(--fs-18);line-height:var(--lh-loose);">
+        The sports analytics industry treats Africa as an afterthought. The big models cover the Premier League, La Liga, NBA — and stop there. Local leagues get vague gut-feel "predictions" from Telegram tipsters.
+      </p>
+      <p style="color:var(--text-secondary);font-size:var(--fs-18);line-height:var(--lh-loose);">
+        We started Apex to fix that. The same xG math, the same Monte Carlo rigour, the same transparency — but built for the leagues African punters actually bet on. NPFL. AFCON. CAF. And the rest.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Team grid -->
+<section class="section" style="background:var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Founders</span>
+      <h2 class="section-header__title">The people building Apex.</h2>
+    </div>
+
+    <div class="features-grid reveal" style="grid-template-columns:repeat(3, 1fr);">
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:88px;height:88px;font-size:var(--fs-24);margin-bottom:var(--space-2);">TA</div>
+        <h3 class="feature__title">Tobi Adekunle</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);margin-bottom:var(--space-3);">Co-founder · CEO</p>
+        <p class="feature__desc">Ex-banker, 8 years at a Lagos prop-trading desk. Has a bet on the NPFL every weekend, win or lose.</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:88px;height:88px;font-size:var(--fs-24);margin-bottom:var(--space-2);">KE</div>
+        <h3 class="feature__title">Kemi Eze</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);margin-bottom:var(--space-3);">Co-founder · CTO</p>
+        <p class="feature__desc">PhD in applied stats. Wrote the v1 Dixon-Coles notebook in 2023 on a flight to Abuja. Lives in Nairobi.</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:88px;height:88px;font-size:var(--fs-24);margin-bottom:var(--space-2);">SA</div>
+        <h3 class="feature__title">Sani Abubakar</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);margin-bottom:var(--space-3);">Co-founder · Head of Football</p>
+        <p class="feature__desc">Coached youth football in Kano for 6 years. The reason we know what NPFL matchdays actually look like.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Model contributors -->
+<section class="section">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">Model contributors</span>
+      <h2 class="section-header__title">The hands behind the math.</h2>
+      <p class="section-header__sub">Engineers, analysts, and domain experts shipping the model every week.</p>
+    </div>
+
+    <div class="features-grid reveal" style="grid-template-columns:repeat(3, 1fr);">
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">FO</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">Folake Ogunyemi</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">ML Engineer</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">DM</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">David Mwangi</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">Football Analyst</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">ZN</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">Zola Nkomo</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">Data Engineer</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">NA</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">Ngozi Akpan</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">Product Designer</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">CO</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">Chinedu Okeke</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">Back-end Engineer</p>
+      </article>
+      <article class="card feature" style="text-align:center;align-items:center;">
+        <div class="testimonial__avatar" style="width:64px;height:64px;font-size:var(--fs-18);margin-bottom:var(--space-2);">AM</div>
+        <h3 class="feature__title" style="font-size:var(--fs-18);">Aisha Mohamed</h3>
+        <p class="text-muted" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:var(--tracking-wide);">Tennis &amp; Basketball</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<section class="section" style="background:var(--bg-surface);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">What we believe</span>
+      <h2 class="section-header__title">Four values, every commit.</h2>
+    </div>
+
+    <div class="features-grid reveal" style="grid-template-columns:repeat(4, 1fr);">
+      <div class="card feature">
+        <span class="feature__tag">01</span>
+        <h3 class="feature__title">Show the math</h3>
+        <p class="feature__desc">Every True Odds, every EV, every probability is traceable. No black boxes.</p>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">02</span>
+        <h3 class="feature__title">Local first</h3>
+        <p class="feature__desc">African leagues, African punters, Naira pricing. The market we serve is the market we live in.</p>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">03</span>
+        <h3 class="feature__title">Play responsibly</h3>
+        <p class="feature__desc">We sell probability, not encouragement. We refuse to flag low-confidence markets as VALUE.</p>
+      </div>
+      <div class="card feature">
+        <span class="feature__tag">04</span>
+        <h3 class="feature__title">Ship the truth</h3>
+        <p class="feature__desc">If the model says 0.55, we say 0.55 — not 0.6, not 0.7. Honest numbers build trust over years, not weeks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container container-narrow">
+    <div class="reveal" style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--space-5);">
+      <h2 class="section-header__title">Want to build the future of African sports data?</h2>
+      <p style="color:var(--text-secondary);max-width:520px;">We're hiring quants, engineers, and football analysts. Lagos, Nairobi, remote-friendly.</p>
+      <div class="btn-group btn-group--center">
+        <a href="mailto:hiring@apexsports.ng" class="btn btn--primary btn--md">See open roles</a>
+        <a href="index.html#pricing" class="btn btn--ghost btn--md">Try the product</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="index.html" class="nav__brand">APEX<strong>Sports</strong></a>
+        <p class="footer__brand-desc">Africa's first independent sports probability engine. We sell data, not tips.</p>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Product</h6>
+        <div class="footer__links">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#showcase">How it works</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="league-hub.html">League Hub</a>
+          <a href="strategy-builder.html">Strategy Builder</a>
+          <a href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Company</h6>
+        <div class="footer__links">
+          <a href="team.html">Team</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="mailto:hello@apexsports.ng">Contact</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Community</h6>
+        <div class="footer__links">
+          <a href="#">Telegram</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">Discord</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 ApexSports Analytics. All rights reserved.</span>
+      <span class="footer__legal">
+        <a href="#">Terms</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Responsible gambling</a>
+      </span>
+      <span>Not a sports book. We sell data, not forecasts. 18+ · Play responsibly.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast stack -->
+<div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
+
+<script src="app.js?v=6"></script>
+<script src="apex-icons.js?v=6" defer></script>
+<script src="apex-extras.js?v=6"></script>
+  <script src="apex-ui.js?v=7" defer></script>
+  <script src="apex-modern.js?v=1" defer></script>
+</body>
+</html>
