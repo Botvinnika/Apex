@@ -362,7 +362,7 @@
        strip; scaling the whole set keeps the ratios honest (a pass still
        outruns a sprint, a shot outruns a pass) while playing at a pace
        closer to how football looks in highlights. */
-    var RATE = 1.45;
+    var RATE = 2.05;
     var SPRINT = 0.135 * RATE, JOG = 0.075 * RATE, GK_V = 0.052 * RATE;
     var PASS_MIN = 0.27 * RATE, PASS_VAR = 0.10 * RATE;
     var SHOT_MIN = 0.38 * RATE, SHOT_VAR = 0.08 * RATE;
@@ -579,13 +579,13 @@
           }
         }
 
-        p.vx += (tx - p.x) * 0.030;
-        p.vy += (ty - p.y) * 0.030;
+        p.vx += (tx - p.x) * 0.040;
+        p.vy += (ty - p.y) * 0.040;
         p.vx *= 0.88; p.vy *= 0.88;
 
         // Hard cap in metres per frame — nothing bounded this before.
         // Everyone moves quicker as the game opens up.
-        var lift = 0.85 + tempo * 0.42;
+        var lift = 0.90 + tempo * 0.55;
         var cap = maxv * lift;
         var sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
         if (sp > cap) { p.vx = (p.vx / sp) * cap; p.vy = (p.vy / sp) * cap; }
@@ -629,14 +629,14 @@
         // releases out of 91 events and a 0.65s average touch.
         var hounded = presser && pd < 2.6 && ball.t > 40;
         // High tempo means the ball is moved on quicker.
-        var dwell = (75 + Math.random() * 90) * (1.30 - tempo * 0.72);
+        var dwell = (54 + Math.random() * 62) * (1.30 - tempo * 0.72);
         if (hounded || ball.t > dwell) {
           var inFinalThird = carrier.team === 0 ? carrier.x > 74 : carrier.x < 31;
           if (inFinalThird && Math.random() < 0.55) {
             shoot(carrier);
           } else {
             var tgt = choosePass(carrier);
-            if (tgt) passTo(tgt, (PASS_MIN + Math.random() * PASS_VAR) * (0.88 + tempo * 0.30));
+            if (tgt) passTo(tgt, (PASS_MIN + Math.random() * PASS_VAR) * (0.92 + tempo * 0.34));
             else ball.t = 0;
           }
         }

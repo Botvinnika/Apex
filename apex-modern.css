@@ -606,15 +606,18 @@
   --fx-3: #0D9488;
   --fx-4: #DB2777;
   --fx-a: .34;
-  --fx-net: .40;
-  --fx-bit: rgba(30,64,120,.26);
-  --fx-line: rgba(15,23,42,.13);
-  --fx-mow: rgba(15,23,42,.022);
-  --fx-home: #0369A1;
-  --fx-away: #BE185D;
-  --fx-ball: #0F172A;
-  --fx-trail: rgba(15,23,42,.45);
-  --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.10) 45%, rgba(255,255,255,.46) 100%);
+  /* Light mode needs far more weight than dark: the same alphas that
+     read clearly on near-black wash out completely on cream. Match marks
+     are near-opaque and use fully saturated kit colours. */
+  --fx-net: .92;
+  --fx-bit: rgba(30,64,120,.34);
+  --fx-line: rgba(15,23,42,.26);
+  --fx-mow: rgba(15,23,42,.030);
+  --fx-home: #1D4ED8;
+  --fx-away: #BE123C;
+  --fx-ball: #0B1120;
+  --fx-trail: rgba(15,23,42,.62);
+  --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.30) 100%);
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
@@ -625,7 +628,7 @@
   --fx-away: #BE185D;
   --fx-ball: #0F172A;
   --fx-trail: rgba(15,23,42,.45);
-    --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.10) 45%, rgba(255,255,255,.46) 100%);
+    --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.30) 100%);
   }
 }
 

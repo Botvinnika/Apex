@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsible play — ApexSports Analytics</title>
+  <meta name="description" content="Betting carries real risk. How to recognise harm and where to get support.">
+  <meta name="theme-color" content="#06080F">
+  <meta name="color-scheme" content="dark light">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design-tokens.css?v=6">
+  <link rel="stylesheet" href="components.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="theme.css?v=6">
+  <link rel="stylesheet" href="apex-ui.css?v=7">
+  <link rel="stylesheet" href="apex-modern.css?v=1">
+  <script src="theme.js?v=6"></script>
+  <script src="lightning.js?v=6"></script>
+</head>
+
+  <style>
+    .legal-wrap { padding-block: var(--space-16) var(--space-24); }
+    .legal { max-width: 68ch; color: var(--text-secondary); font-size: var(--fs-16); line-height: 1.75; }
+    .legal h1 { font-family: var(--font-display); font-size: var(--fs-40); color: var(--text-primary);
+                letter-spacing: var(--tracking-tight); margin-bottom: var(--space-4); }
+    .legal .lede { font-size: var(--fs-18); color: var(--text-secondary); margin-bottom: var(--space-10); }
+    .legal h2 { font-family: var(--font-display); font-size: var(--fs-24); color: var(--text-primary);
+                margin-top: var(--space-12); margin-bottom: var(--space-3); letter-spacing: var(--tracking-tight); }
+    .legal p, .legal ul { margin-bottom: var(--space-4); }
+    .legal ul { padding-left: var(--space-6); }
+    .legal li { margin-bottom: var(--space-2); }
+    .legal li::marker { color: var(--text-muted); }
+    .legal a { color: var(--accent); text-decoration: underline; text-underline-offset: .2em; }
+    .legal strong { color: var(--text-primary); }
+    .legal-note { border: 1px solid var(--warning-border); background: var(--warning-soft);
+                  border-radius: var(--radius-md); padding: var(--space-5); margin-bottom: var(--space-10);
+                  color: var(--text-secondary); font-size: var(--fs-14); }
+  </style>
+<body>
+
+<nav class="nav" id="navbar">
+  <div class="container nav__inner">
+    <a href="#" class="nav__brand">APEX<strong>Sports</strong></a>
+    <div class="nav__links" id="navLinks">
+      <a href="#features" class="nav__link">Features</a>
+      <a href="#showcase" class="nav__link">How it works</a>
+      <a href="methodology.html" class="nav__link">Methodology</a>
+      <a href="league-hub.html" class="nav__link">Leagues</a>
+      <a href="#pricing" class="nav__link">Pricing</a>
+      <a href="dashboard.html" class="nav__link">Dashboard</a>
+      <a href="strategy-builder.html" class="nav__link">Strategy Builder</a>
+      <div class="nav__cta">
+        <button class="ui-cmdk-trigger" type="button" data-cmdk-open aria-label="Open command palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </button>
+        <a href="#pricing" class="btn btn--primary btn--sm">Get Started</a>
+      </div>
+    </div>
+    <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<main class="legal-wrap">
+  <div class="container">
+    <article class="legal">
+      <h1>Responsible play</h1>
+      <p class="lede">Betting carries real risk. How to recognise harm and where to get support.</p>
+
+          <h2>The honest position</h2>
+          <p>
+            Most people who bet on sport lose money over time. That is not a failure of skill; it is
+            the arithmetic of a market that prices in a margin. A well-calibrated model can narrow
+            the gap. It cannot close it reliably, and it cannot eliminate variance.
+          </p>
+          <p>
+            Nothing we publish is a recommendation to stake money. If you use our numbers, treat
+            them as one uncertain input among many, and assume they can be wrong.
+          </p>
+
+          <h2>Signs it has stopped being recreation</h2>
+          <ul>
+            <li>Betting with money set aside for rent, food, school fees, or debts.</li>
+            <li>Chasing losses — staking more to recover what you have already lost.</li>
+            <li>Borrowing money, or selling things, in order to bet.</li>
+            <li>Hiding the extent of your betting from family or friends.</li>
+            <li>Feeling restless, irritable, or anxious when you try to stop.</li>
+            <li>Betting to escape stress, low mood, or boredom rather than for enjoyment.</li>
+            <li>Time spent betting crowding out work, study, or relationships.</li>
+          </ul>
+          <p>
+            If several of these are familiar, it is worth talking to someone. That is not a
+            judgement — these patterns are common and they respond well to support.
+          </p>
+
+          <h2>Practical limits that help</h2>
+          <ul>
+            <li><strong>Decide the amount before you start</strong>, treat it as the cost of entertainment, and stop when it is gone.</li>
+            <li><strong>Use deposit and loss limits.</strong> Every licensed operator in Nigeria is required to offer them. Set them when you are calm, not mid-session.</li>
+            <li><strong>Never borrow to bet.</strong> If a stake depends on credit, it is already too large.</li>
+            <li><strong>Take scheduled breaks.</strong> Self-exclusion tools let you lock yourself out for a set period.</li>
+            <li><strong>Do not bet to fix a bad day.</strong> Betting under stress is where the worst decisions get made.</li>
+            <li><strong>Keep a record</strong> of what you actually stake and lose. Memory reliably flatters the result.</li>
+          </ul>
+
+          <h2>Where to get support</h2>
+          <p>
+            <strong>Nigeria.</strong> The National Lottery Regulatory Commission oversees licensed
+            operators and can direct you to responsible-gambling resources and complaint procedures.
+            Licensed operators are obliged to provide self-exclusion on request — ask them directly,
+            in writing if necessary.
+          </p>
+          <p>
+            <strong>Your operator.</strong> Deposit limits, loss limits, session reminders, cooling-off
+            periods, and full account closure are standard tools. You do not need to justify using them.
+          </p>
+          <p>
+            <strong>Medical and mental-health support.</strong> Gambling harm is recognised as a
+            treatable condition. A doctor or a mental-health professional can refer you to
+            appropriate services, and speaking to one is a reasonable first step.
+          </p>
+          <p>
+            <strong>Gamblers Anonymous</strong> runs free peer-support meetings in many countries,
+            including online meetings accessible from Nigeria. Their international directory is at
+            <a href="https://www.gamblersanonymous.org/" rel="noopener nofollow" target="_blank">gamblersanonymous.org</a>.
+          </p>
+          <p>
+            <strong>GamCare</strong> publishes free self-assessment tools and guidance that are
+            useful regardless of where you live:
+            <a href="https://www.gamcare.org.uk/" rel="noopener nofollow" target="_blank">gamcare.org.uk</a>.
+          </p>
+
+          <h2>Supporting someone else</h2>
+          <p>
+            If someone close to you is struggling, the two things that consistently help are talking
+            about it without blame, and not covering their losses. Paying off a gambling debt
+            removes the consequence while leaving the cause untouched, and it usually makes the
+            situation worse. Support services listed above also help families, not only the person
+            betting.
+          </p>
+
+          <h2>Our own commitments</h2>
+          <ul>
+            <li>We do not publish tips, selections, or accumulator suggestions.</li>
+            <li>We do not claim guaranteed returns, and we correct anyone who says we do.</li>
+            <li>We take no commission on stakes and no affiliate revenue from operators.</li>
+            <li>We publish losing periods alongside winning ones.</li>
+            <li>Our service is for adults aged 18 or over only.</li>
+          </ul>
+        
+      <h2>Where to get help</h2>
+      <ul>
+        <li><a href="https://www.gamblersanonymous.org/" rel="noopener nofollow" target="_blank">Gamblers Anonymous</a></li>
+        <li><a href="https://www.gamcare.org.uk/" rel="noopener nofollow" target="_blank">GamCare self-assessment</a></li>
+      </ul>
+
+    </article>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <a href="#" class="nav__brand">APEX<strong>Sports</strong></a>
+        <p class="footer__brand-desc">Africa's first independent sports probability engine. We sell data, not tips.</p>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Product</h6>
+        <div class="footer__links">
+          <a href="#features">Features</a>
+          <a href="#showcase">How it works</a>
+          <a href="methodology.html">Methodology</a>
+          <a href="league-hub.html">League Hub</a>
+          <a href="strategy-builder.html">Strategy Builder</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="#ledger">Public Ledger</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Company</h6>
+        <div class="footer__links">
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+          <a href="responsible-play.html">Responsible play</a>
+          <a href="team.html">Team</a>
+          <a href="#">Blog</a>
+          <a href="#">Careers</a>
+          <a href="mailto:hello@apexsports.ng">Contact</a>
+        </div>
+      </div>
+      <div>
+        <h6 class="footer__col-title">Community</h6>
+        <div class="footer__links">
+          <a href="#">Telegram</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">Discord</a>
+          <a href="#">Leaderboard</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 ApexSports Analytics. All rights reserved.</span>
+      <span class="footer__legal">
+        <a href="#">Terms</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="#">Responsible gambling</a>
+      </span>
+      <span>Not a sports book. We sell data, not forecasts. 18+ · Play responsibly.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js?v=6"></script>
+<script src="apex-icons.js" defer></script>
+<script src="apex-extras.js?v=6"></script>
+<script src="apex-ui.js?v=7" defer></script>
+<script src="apex-modern.js?v=1" defer></script>
+</body>
+</html>
