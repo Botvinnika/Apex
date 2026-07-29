@@ -220,10 +220,44 @@
     });
   }
 
+
+  /* ============================================================
+     4 · SITE BACKGROUND FIELD
+     Mounts the drifting-aurora field into the hero and any section
+     opting in with data-fx. Injected rather than written into every
+     page's markup so it stays a one-file change across both sites.
+     ============================================================ */
+  function initField() {
+    var targets = $$('.hero, [data-fx]');
+    if (!targets.length) return;
+
+    targets.forEach(function (host) {
+      if ($('.site-fx', host)) return;               // never double-mount
+
+      // The field is absolutely positioned, so the host must establish a
+      // containing block or it would escape to the nearest one.
+      var pos = getComputedStyle(host).position;
+      if (pos === 'static') host.style.position = 'relative';
+
+      var fx = document.createElement('div');
+      fx.className = 'site-fx';
+      fx.setAttribute('aria-hidden', 'true');
+      fx.innerHTML =
+        '<div class="site-fx__blob site-fx__blob--1"></div>' +
+        '<div class="site-fx__blob site-fx__blob--2"></div>' +
+        '<div class="site-fx__blob site-fx__blob--3"></div>' +
+        '<div class="site-fx__blob site-fx__blob--4"></div>' +
+        '<div class="site-fx__grid"></div>' +
+        '<div class="site-fx__veil"></div>';
+      host.insertBefore(fx, host.firstChild);
+    });
+  }
+
   function boot() {
     try { initMatrix(); }  catch (e) {}
     try { initExplain(); } catch (e) {}
     try { initRail(); }    catch (e) {}
+    try { initField(); }   catch (e) {}
   }
 
   if (document.readyState === 'loading') {
