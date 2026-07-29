@@ -274,7 +274,8 @@
 
       fx.innerHTML =
         layers +
-        '<div class="site-fx__grid"></div>' +
+        '<div class="site-fx__mow"></div>' +
+        '<div class="site-fx__pitch"><svg viewBox="0 0 105 68" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width=".3" vector-effect="non-scaling-stroke"><rect x=".5" y=".5" width="104" height="67"/><line x1="52.5" y1=".5" x2="52.5" y2="67.5"/><circle cx="52.5" cy="34" r="9.15"/><rect x=".5" y="13.84" width="16.5" height="40.32"/><rect x=".5" y="24.84" width="5.5" height="18.32"/><path d="M17 27.1A9.15 9.15 0 0 1 17 40.9"/><rect x="88" y="13.84" width="16.5" height="40.32"/><rect x="99" y="24.84" width="5.5" height="18.32"/><path d="M88 27.1A9.15 9.15 0 0 0 88 40.9"/><path d="M.5 3.5A3 3 0 0 0 3.5 .5"/><path d="M104.5 3.5A3 3 0 0 1 101.5 .5"/><path d="M.5 64.5A3 3 0 0 1 3.5 67.5"/><path d="M104.5 64.5A3 3 0 0 0 101.5 67.5"/></g><g fill="currentColor" stroke="none"><circle cx="52.5" cy="34" r=".45"/><circle cx="11" cy="34" r=".45"/><circle cx="94" cy="34" r=".45"/></g></svg></div>' +
         '<canvas class="site-fx__net"></canvas>' +
         '<div class="site-fx__bits">' + bits + '</div>' +
         '<div class="site-fx__veil"></div>';
