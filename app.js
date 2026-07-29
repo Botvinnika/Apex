@@ -237,8 +237,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      const LINK = 148;
       let frame = 0;
+      let bolts = [];
+
+      // A jagged bolt between two nodes: midpoints displaced perpendicular
+      // to the line, recursively, which is what gives it the forked look.
+      function makeBolt(a, b) {
+        const pts = [[a.x, a.y], [b.x, b.y]];
+        for (let pass = 0; pass < 4; pass++) {
+          const next = [pts[0]];
+          for (let i = 0; i < pts.length - 1; i++) {
+            const p = pts[i], q = pts[i + 1];
+            const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+            const dx = q[0] - p[0], dy = q[1] - p[1];
+            const len = Math.hypot(dx, dy) || 1;
+            const off = (Math.random() - 0.5) * len * 0.34;
+            next.push([mx - (dy / len) * off, my + (dx / len) * off], q);
+          }
+          pts.length = 0;
+          pts.push.apply(pts, next);
+        }
+        return { pts: pts, life: 1 };
+      }
 
       function draw() {
         if (finished) return;
@@ -248,10 +268,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // so the field keeps re-scrambling instead of drifting to a
         // visually static equilibrium.
         frame++;
-        if (frame % 84 === 0) {
+        // Shock interval tightens and impulse grows with chaos.
+        const every = Math.max(18, Math.round(96 - chaos * 74));
+        if (frame % every === 0) {
+          const kick = 0.7 + chaos * 2.6;
           for (const p of nodes) {
-            p.vx += (Math.random() - 0.5) * 1.9;
-            p.vy += (Math.random() - 0.5) * 1.9;
+            p.vx += (Math.random() - 0.5) * kick;
+            p.vy += (Math.random() - 0.5) * kick;
           }
         }
 
@@ -264,15 +287,40 @@ document.addEventListener('DOMContentLoaded', () => {
           if (p.y < 0 || p.y > h) p.vy *= -1;
         }
 
+        // Lightning: only once chaos is high, and rate-limited so it reads
+        // as discrete strikes rather than constant noise.
+        if (chaos > 0.4 && nodes.length > 4 && Math.random() < (chaos - 0.4) * 0.22) {
+          const a = nodes[(Math.random() * nodes.length) | 0];
+          const b = nodes[(Math.random() * nodes.length) | 0];
+          if (a !== b) bolts.push(makeBolt(a, b));
+          if (bolts.length > 5) bolts.shift();
+        }
+        for (let bi = bolts.length - 1; bi >= 0; bi--) {
+          const bo = bolts[bi];
+          bo.life -= 0.075;
+          if (bo.life <= 0) { bolts.splice(bi, 1); continue; }
+          ctx.save();
+          ctx.strokeStyle = 'rgba(160,220,255,' + (bo.life * 0.85).toFixed(3) + ')';
+          ctx.lineWidth = 1.4;
+          ctx.shadowColor = 'rgba(56,189,248,.9)';
+          ctx.shadowBlur = 14 * bo.life;
+          ctx.beginPath();
+          ctx.moveTo(bo.pts[0][0], bo.pts[0][1]);
+          for (let k = 1; k < bo.pts.length; k++) ctx.lineTo(bo.pts[k][0], bo.pts[k][1]);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         // Links first so nodes sit on top of them.
         for (let i = 0; i < nodes.length; i++) {
           for (let j = i + 1; j < nodes.length; j++) {
             const a = nodes[i], b = nodes[j];
             const dx = a.x - b.x, dy = a.y - b.y;
             const d2 = dx * dx + dy * dy;
+            const LINK = 118 + chaos * 70;   // reach grows with chaos
             if (d2 > LINK * LINK) continue;
             const t = 1 - Math.sqrt(d2) / LINK;
-            ctx.strokeStyle = 'rgba(56,189,248,' + (t * 0.42).toFixed(3) + ')';
+            ctx.strokeStyle = 'rgba(56,189,248,' + (t * (0.16 + chaos * 0.42)).toFixed(3) + ')';
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -312,6 +360,36 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    /* ---------- escalation ---------- */
+    // One dial drives every chaos layer. Eased so the opening stays calm
+    // for longer than a linear ramp would, then climbs hard near the end.
+    let chaos = 0;
+    let glitchAt = 0;
+
+    function setChaos(p) {
+      const t = Math.min(Math.max(p / 100, 0), 1);
+      chaos = Math.pow(t, 1.6);
+      pl.style.setProperty('--chaos', chaos.toFixed(3));
+
+      if (REDUCED) return;
+
+      // Camera shake, only once things are genuinely violent.
+      if (chaos > 0.55) {
+        const amp = (chaos - 0.55) * 11;
+        pl.style.setProperty('--shake-x', ((Math.random() - 0.5) * amp).toFixed(2) + 'px');
+        pl.style.setProperty('--shake-y', ((Math.random() - 0.5) * amp).toFixed(2) + 'px');
+      }
+
+      // Glitch bursts get more frequent as chaos rises: every ~900ms at the
+      // threshold down to ~160ms at peak.
+      const now = performance.now();
+      if (chaos > 0.32 && now - glitchAt > (940 - chaos * 780)) {
+        glitchAt = now;
+        pl.classList.add('is-glitch');
+        setTimeout(() => pl.classList.remove('is-glitch'), 420);
+      }
+    }
+
     /* ---------- drive ---------- */
     const t0 = performance.now();
     let lastPct = -1;
@@ -322,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const eased = 1 - Math.pow(1 - t, 3);
       const pct = Math.round(eased * 100);
       if (pct !== lastPct) { setPct(pct); syncStage(pct); syncStats(pct); lastPct = pct; }
+      setChaos(eased * 100);   // every frame, not just on whole-percent ticks
       if (t < 1) requestAnimationFrame(frame);
     }
 
@@ -330,6 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setPct(0);
     syncStage(0);
     syncStats(0);
+    setChaos(0);
     startLog();
     requestAnimationFrame(frame);
 
@@ -380,6 +460,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       setPct(100);
       syncStats(100);
+      setChaos(100);
+      if (!REDUCED) {
+        pl.classList.add('is-flash');
+        setTimeout(() => pl.classList.remove('is-flash'), 520);
+      }
       if (plStatus) plStatus.textContent = 'Ready';
 
       // Beat on 100% so completion registers, then hand off. The page

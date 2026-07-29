@@ -467,6 +467,14 @@
               #22D3EE 76%,
               var(--pl-mint) 100%);
 
+  /* Escalation dial, written each frame by the engine from real progress.
+     0 = opening calm, 1 = peak chaos just before the curtain lifts. Only
+     interpolatable properties key off it — changing animation-duration
+     mid-flight would restart the keyframes and read as a stutter. */
+  --chaos: 0;
+  --shake-x: 0px;
+  --shake-y: 0px;
+
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -482,7 +490,10 @@
 }
 
 /* ---------- Background stack ----------------------------- */
-.pl__fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.pl__fx {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  transform: translate3d(var(--shake-x), var(--shake-y), 0);
+}
 
 /* 1 · Aurora. Five bodies on short, deliberately mismatched cycles so
    the field never settles into a readable loop. Rotation is added on top
@@ -496,32 +507,32 @@
 }
 .pl__blob--1 {
   background: radial-gradient(circle, var(--pl-violet) 0%, transparent 64%);
-  opacity: .7;
+  opacity: calc(.28 + var(--chaos) * .52);
   top: -24%; left: -18%;
   animation: plDrift1 4.6s ease-in-out infinite alternate;
 }
 .pl__blob--2 {
   background: radial-gradient(circle, var(--pl-cyan) 0%, transparent 64%);
-  opacity: .58;
+  opacity: calc(.22 + var(--chaos) * .46);
   bottom: -28%; right: -16%;
   animation: plDrift2 5.9s ease-in-out infinite alternate;
 }
 .pl__blob--3 {
   background: radial-gradient(circle, var(--pl-mint) 0%, transparent 66%);
-  opacity: .34;
+  opacity: calc(.10 + var(--chaos) * .34);
   top: 24%; left: 40%;
   animation: plDrift3 3.8s ease-in-out infinite alternate;
 }
 .pl__blob--4 {
   background: radial-gradient(circle, #F0349B 0%, transparent 62%);
-  opacity: .34;
+  opacity: calc(.08 + var(--chaos) * .38);
   bottom: -14%; left: 14%;
   width: 46vmax; height: 46vmax;
   animation: plDrift4 5.2s ease-in-out infinite alternate;
 }
 .pl__blob--5 {
   background: radial-gradient(circle, #6366F1 0%, transparent 62%);
-  opacity: .46;
+  opacity: calc(.14 + var(--chaos) * .42);
   top: -12%; right: 6%;
   width: 44vmax; height: 44vmax;
   animation: plDrift5 4.1s ease-in-out infinite alternate;
@@ -562,6 +573,7 @@
   mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,.35) 55%, transparent 92%);
   -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,.35) 55%, transparent 92%);
   animation: plFloor 2.4s linear infinite;
+  opacity: calc(.25 + var(--chaos) * .75);
 }
 @keyframes plFloor { to { background-position: 0 72px; } }
 
@@ -591,7 +603,7 @@
 /* 5 · Film grain. Inline SVG turbulence — no network request. */
 .pl__grain {
   position: absolute; inset: -50%;
-  opacity: .15;
+  opacity: calc(.07 + var(--chaos) * .16);
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: plGrain 620ms steps(3, end) infinite;
@@ -606,7 +618,10 @@
 
 /* 6 · Light streaks. Thin beams tearing across the field on staggered
    cycles — the main source of the "something is happening fast" read. */
-.pl__streaks { position: absolute; inset: -30%; overflow: hidden; }
+.pl__streaks {
+  position: absolute; inset: -30%; overflow: hidden;
+  opacity: calc(.06 + var(--chaos) * .94);
+}
 .pl__streak {
   position: absolute;
   top: -40%;
@@ -639,6 +654,7 @@
   border: 1px solid rgba(56, 189, 248, .38);
   border-radius: 50%;
   opacity: 0;
+  opacity: 0;
   animation: plRing 3.4s cubic-bezier(.16,1,.3,1) infinite;
   animation-delay: calc(var(--r, 0) * 1.13s);
 }
@@ -659,8 +675,10 @@
     transparent 52.5%);
   opacity: 0;
   mix-blend-mode: screen;
-  animation: plGlitch 4.3s steps(1, end) infinite;
+  animation: none;
 }
+/* Fired by the engine; frequency rises with --chaos. */
+.pl.is-glitch .pl__glitch { animation: plGlitch .42s steps(1, end) 1; }
 @keyframes plGlitch {
   0%, 90%  { opacity: 0; transform: translateY(0)      scaleY(1); }
   91%      { opacity: .7; transform: translateY(-24vh) scaleY(2.4); }
@@ -1039,6 +1057,21 @@
   outline: none;
 }
 
+/* White flash on completion — the crescendo the escalation builds to. */
+.pl__flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 46%, #fff, rgba(255,255,255,.35) 40%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.pl.is-flash .pl__flash { animation: plFlash .5s ease-out 1; }
+@keyframes plFlash {
+  0%   { opacity: 0; }
+  12%  { opacity: .92; }
+  100% { opacity: 0; }
+}
+
 /* ---------- Exit ----------------------------------------- */
 /* Exit — shared-element handoff.
    The wordmark is NOT faded with the rest of the panel. Instead JS
@@ -1129,7 +1162,8 @@
    final position and nothing loops. The canvas is never started. */
 @media (prefers-reduced-motion: reduce) {
   .pl__blob, .pl__grain, .pl__floor, .pl__scan,
-  .pl__streak, .pl__ring, .pl__glitch { animation: none; }
+  .pl__streak, .pl__ring, .pl__glitch, .pl__flash { animation: none; }
+  .pl { --chaos: .45; --shake-x: 0px; --shake-y: 0px; }
   .pl__streaks, .pl__ring, .pl__glitch { display: none; }
   .pl__centre::before { animation: none; }
   .pl__blob { opacity: .3; }
