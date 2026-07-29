@@ -658,3 +658,62 @@
   .site-fx__layer { transform: none; transition: none; }
   .site-fx__bit, .site-fx__net { display: none; }
 }
+
+/* ============================================================
+   SPORT FIELD — one fixed surface that morphs while scrolling
+   Sits behind everything; sections declare data-sport and the
+   nearest one to the viewport centre wins.
+   ============================================================ */
+.sport-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 400ms var(--m-ease);
+}
+/* Held during the swap so the old surface is gone before the new
+   one is painted — otherwise markings from two sports overlap. */
+.sport-fx.is-swapping { opacity: 0; }
+
+.sport-fx__marks {
+  position: absolute;
+  inset: -6%;
+  width: 112%; height: 112%;
+  color: var(--fx-line);
+  mask-image: radial-gradient(ellipse 82% 76% at 50% 46%, #000 14%, transparent 82%);
+  -webkit-mask-image: radial-gradient(ellipse 82% 76% at 50% 46%, #000 14%, transparent 82%);
+}
+.sport-fx__marks svg { width: 100%; height: 100%; display: block; }
+
+.sport-fx__net {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: var(--fx-net, .55);
+}
+
+/* The page itself must sit above the field. */
+body > header,
+body > main,
+body > footer,
+body > section,
+body > .ticker,
+body > nav { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sport-fx { transition: none; }
+  .sport-fx__net { display: none; }
+}
+
+/* Aurora + turf carried over onto the sport surface. */
+.sport-fx .site-fx__layer { position: absolute; inset: -12%; }
+.sport-fx__mow {
+  position: absolute; inset: -10%;
+  background: repeating-linear-gradient(100deg, transparent 0 5.5%, var(--fx-mow) 5.5% 11%);
+  mask-image: radial-gradient(ellipse 78% 70% at 50% 45%, #000 10%, transparent 76%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 70% at 50% 45%, #000 10%, transparent 76%);
+  animation: fxMow 38s linear infinite;
+}
+.sport-fx__veil { position: absolute; inset: 0; background: var(--fx-veil); }
+@media (prefers-reduced-motion: reduce) { .sport-fx__mow { animation: none; } }

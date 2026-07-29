@@ -803,7 +803,8 @@
     try { initMatrix(); }  catch (e) {}
     try { initExplain(); } catch (e) {}
     try { initRail(); }    catch (e) {}
-    try { initField(); }   catch (e) {}
+    // initField() retired: apex-sports.js now owns the background
+    // surface, and running both drew two pitches on top of each other.
   }
 
   if (document.readyState === 'loading') {
