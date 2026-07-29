@@ -583,52 +583,71 @@
 }
 
 /* Field colours per theme. Light stays deliberately restrained — the
-   same alphas that look alive on near-black turn to haze on cream. */
+   same alphas that look alive on near-black turn to haze on cream.
+
+   The aurora and both kits stay inside the brand's cool range. They
+   used to run purple / green / magenta, which read as a completely
+   different design system glowing behind a cyan-and-slate product —
+   the single loudest reason the field felt bolted on rather than
+   built in. Depth now comes from value (deep blue → bright cyan)
+   instead of from hue, and the two kits are brand cyan against
+   neutral slate the way a real home/away pairing works. */
 :root {
-  --fx-1: #9945FF;
+  --fx-1: #0369A1;
   --fx-2: #38BDF8;
-  --fx-3: #14F195;
-  --fx-4: #F0349B;
-  --fx-a: .55;
+  --fx-3: #0EA5E9;
+  --fx-4: #1E40AF;
+  --fx-a: .46;
   --fx-net: .55;
   --fx-bit: rgba(160,215,255,.34);
-  --fx-line: rgba(255,255,255,.16);
+  --fx-line: rgba(255,255,255,.11);
   --fx-mow: rgba(255,255,255,.022);
   --fx-home: #38BDF8;
-  --fx-away: #F0349B;
+  --fx-away: #94A3B8;
   --fx-ball: #FFFFFF;
   --fx-trail: rgba(255,255,255,.5);
-  --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, transparent 42%, rgba(6,8,15,.42) 100%);
+  /* Three stops so the field settles back into --bg-base at the frame
+     edge instead of stopping on a ring. */
+  --fx-veil: radial-gradient(ellipse 90% 82% at 50% 48%,
+              transparent 28%,
+              rgba(6,8,15,.34) 62%,
+              rgba(6,8,15,.76) 100%);
 }
 :root[data-theme="light"] {
-  --fx-1: #7C3AED;
-  --fx-2: #0284C7;
-  --fx-3: #0D9488;
-  --fx-4: #DB2777;
-  --fx-a: .34;
+  --fx-1: #0284C7;
+  --fx-2: #0EA5E9;
+  --fx-3: #0369A1;
+  --fx-4: #1D4ED8;
+  --fx-a: .30;
   /* Light mode needs far more weight than dark: the same alphas that
      read clearly on near-black wash out completely on cream. Match marks
      are near-opaque and use fully saturated kit colours. */
   --fx-net: .92;
   --fx-bit: rgba(30,64,120,.34);
-  --fx-line: rgba(15,23,42,.26);
+  --fx-line: rgba(15,23,42,.19);
   --fx-mow: rgba(15,23,42,.030);
-  --fx-home: #1D4ED8;
-  --fx-away: #BE123C;
+  --fx-home: #0284C7;
+  --fx-away: #475569;
   --fx-ball: #0B1120;
   --fx-trail: rgba(15,23,42,.62);
-  --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.30) 100%);
+  --fx-veil: radial-gradient(ellipse 90% 82% at 50% 48%,
+              rgba(255,255,255,.03) 30%,
+              rgba(255,255,255,.36) 64%,
+              rgba(255,255,255,.80) 100%);
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --fx-1: #7C3AED; --fx-2: #0284C7; --fx-3: #0D9488; --fx-a: .34;
-    --fx-line: rgba(15,23,42,.13);
-  --fx-mow: rgba(15,23,42,.022);
-  --fx-home: #0369A1;
-  --fx-away: #BE185D;
-  --fx-ball: #0F172A;
-  --fx-trail: rgba(15,23,42,.45);
-    --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.04) 50%, rgba(255,255,255,.30) 100%);
+    --fx-1: #0284C7; --fx-2: #0EA5E9; --fx-3: #0369A1; --fx-4: #1D4ED8; --fx-a: .30;
+    --fx-line: rgba(15,23,42,.12);
+    --fx-mow: rgba(15,23,42,.022);
+    --fx-home: #0369A1;
+    --fx-away: #475569;
+    --fx-ball: #0F172A;
+    --fx-trail: rgba(15,23,42,.45);
+    --fx-veil: radial-gradient(ellipse 90% 82% at 50% 48%,
+                rgba(255,255,255,.03) 30%,
+                rgba(255,255,255,.36) 64%,
+                rgba(255,255,255,.80) 100%);
   }
 }
 
@@ -642,7 +661,7 @@
    handed it an animation under reduced motion. */
 .site-fx__blob--4 {
   width: 44vmax; height: 44vmax; bottom: -18%; left: 22%;
-  background: radial-gradient(circle, var(--fx-4, #F0349B) 0%, transparent 64%);
+  background: radial-gradient(circle, var(--fx-4, #1E40AF) 0%, transparent 64%);
   animation: fxDrift4 22s ease-in-out infinite alternate;
 }
 @keyframes fxDrift4 {
@@ -670,19 +689,45 @@
   z-index: 0;
   pointer-events: none;
   opacity: 1;
-  transition: opacity 400ms var(--m-ease);
+  transition: opacity 400ms var(--m-ease), filter 400ms var(--m-ease);
 }
-/* Held during the swap so the old surface is gone before the new
-   one is painted — otherwise markings from two sports overlap. */
-.sport-fx.is-swapping { opacity: 0; }
+/* Damped during the swap so the outgoing markings are unreadable before
+   the new ones are painted. This used to go to opacity 0, which removed
+   the field entirely for 420ms — a blank frame mid-scroll that announced
+   the background as a separate thing switching itself off. Dipping to a
+   blurred trace instead keeps the surface continuously present, so the
+   change reads as one court dissolving into the next. */
+.sport-fx.is-swapping { opacity: .12; filter: blur(6px); }
 
 .sport-fx__marks {
   position: absolute;
   inset: -6%;
   width: 112%; height: 112%;
   color: var(--fx-line);
-  mask-image: radial-gradient(ellipse 82% 76% at 50% 46%, #000 14%, transparent 82%);
-  -webkit-mask-image: radial-gradient(ellipse 82% 76% at 50% 46%, #000 14%, transparent 82%);
+  /* A long multi-stop falloff rather than one linear ramp: the old mask
+     held full strength to 14% then fell off in a single step, so the
+     markings ended on a perceptible ellipse edge and read as a diagram
+     laid over the page. Dissolving them across four stops removes that
+     boundary entirely.
+
+     The sub-pixel blur is the other half of it. Crisp 1.5px vector lines
+     sit in the same focal plane as the text and compete with it; softening
+     them slightly pushes the court behind the content the way depth of
+     field does, which is what makes the two read as one image. */
+  --fx-fade: radial-gradient(ellipse 90% 84% at 50% 46%,
+              #000 0%,
+              rgba(0,0,0,.92) 28%,
+              rgba(0,0,0,.58) 50%,
+              rgba(0,0,0,.24) 68%,
+              transparent 88%);
+  mask-image: var(--fx-fade);
+  -webkit-mask-image: var(--fx-fade);
+  filter: blur(.7px);
+}
+/* Motion off means the field is static texture, so it can sit fractionally
+   sharper without pulling focus. */
+@media (prefers-reduced-motion: reduce) {
+  .sport-fx__marks { filter: blur(.4px); }
 }
 .sport-fx__marks svg { width: 100%; height: 100%; display: block; }
 
@@ -717,3 +762,123 @@ body > nav { position: relative; z-index: 1; }
 }
 .sport-fx__veil { position: absolute; inset: 0; background: var(--fx-veil); }
 @media (prefers-reduced-motion: reduce) { .sport-fx__mow { animation: none; } }
+
+
+/* ============================================================
+   FIELD ↔ CONTENT COHESION
+
+   The field is a fixed living surface at z-index 0 and the page
+   sits above it. Sections that painted a fully opaque background
+   erased it completely, so scrolling alternated between "match
+   surface" and "flat dark slab" — the field and the content read
+   as two unrelated designs stacked on each other.
+
+   Everything below makes them one thing: panels become translucent
+   planes resting ON the field, so the field stays continuously
+   present underneath instead of switching on and off. Uniform
+   treatment across every band is what does the work — the old mix
+   of bordered/borderless and opaque/transparent bands was the tell.
+   ============================================================ */
+
+:root {
+  /* Translucent counterparts to --bg-surface / --bg-elevated.
+     Alpha is tuned so body copy stays comfortable over moving
+     players while the turf still reads as texture underneath. */
+  --glass-band:  rgba(12, 16, 24, 0.72);
+  --glass-card:  rgba(17, 22, 31, 0.84);
+  --glass-inset: rgba(8, 11, 18, 0.80);
+  --glass-blur:  20px;
+  --glass-edge:  rgba(255, 255, 255, 0.07);
+}
+:root[data-theme="light"] {
+  /* Light needs more cover: --fx-net is .92 here and the markings
+     are near-opaque, so dark-mode alphas would shred legibility. */
+  --glass-band:  rgba(255, 255, 255, 0.80);
+  --glass-card:  rgba(255, 255, 255, 0.89);
+  --glass-inset: rgba(241, 245, 249, 0.86);
+  --glass-edge:  rgba(15, 23, 42, 0.09);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --glass-band:  rgba(255, 255, 255, 0.80);
+    --glass-card:  rgba(255, 255, 255, 0.89);
+    --glass-inset: rgba(241, 245, 249, 0.86);
+    --glass-edge:  rgba(15, 23, 42, 0.09);
+  }
+}
+
+/* ---- Full-width bands: frosted planes, not opaque slabs ----
+   The blur matters as much as the alpha: it turns moving players
+   into a soft wash, which is what keeps text over a live sim calm.
+   Every band gets the same hairline top and bottom so the page has
+   one repeating rhythm rather than arbitrary section edges. */
+.stats-strip,
+.press-strip,
+.showcase,
+.compare,
+.league-hub-section,
+.pricing {
+  background: var(--glass-band);
+  border-block: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(118%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(118%);
+}
+
+/* Where backdrop-filter is unavailable, fall back to the original
+   opaque surfaces — a half-transparent band with no blur would put
+   sharp moving figures directly behind running text. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .stats-strip,
+  .press-strip,
+  .showcase,
+  .compare,
+  .league-hub-section,
+  .pricing { background: var(--bg-surface); }
+  .card { background: var(--bg-elevated); }
+  .card--inset { background: var(--bg-inset); }
+}
+
+/* ---- Cards: glass resting on the field ----
+   Deliberately no backdrop-filter here. Cards are numerous and a
+   band already resolved the backdrop beneath most of them; one blur
+   layer per stacking context keeps this cheap on long scrolls. */
+.card {
+  background: var(--glass-card);
+  border-color: var(--glass-edge);
+}
+.card--inset { background: var(--glass-inset); }
+
+/* A card sitting inside a frosted band is looking through two tints.
+   Drop it to a plain wash so it reads as a raised plane on the band
+   rather than a second, murkier pane of glass. */
+.stats-strip .card,
+.press-strip .card,
+.showcase .card,
+.compare .card,
+.league-hub-section .card,
+.pricing .card {
+  background: var(--neutral-soft);
+  border-color: var(--border-default);
+}
+
+/* ---- Field steadiness ----
+   The field used to be loud in the gaps between bands and absent
+   underneath them. Damping its peak keeps one even presence across
+   the whole scroll, which is what stops the eye reading two layers.
+
+   Carried on a custom property rather than theme-scoped `.sport-fx`
+   rules, so `.sport-fx.is-swapping` still out-specifies the resting
+   opacity in every theme — scoping it as `:root[data-theme] .sport-fx`
+   would quietly beat the swap dip in light mode. */
+.sport-fx { opacity: var(--fx-surface-a, .78); }
+:root[data-theme="light"] { --fx-surface-a: .62; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) { --fx-surface-a: .62; }
+}
+
+/* Reduced motion already stops the sim; without movement the field
+   is pure texture, so panels can let more of it through. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --glass-band: rgba(12, 16, 24, 0.62); }
+  :root[data-theme="light"] { --glass-band: rgba(255, 255, 255, 0.72); }
+}

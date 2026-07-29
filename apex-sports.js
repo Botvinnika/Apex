@@ -60,45 +60,69 @@
         '<circle cx="52.5" cy="34" r="9.15"/>' +
         '<rect x=".5" y="13.84" width="16.5" height="40.32"/>' +
         '<rect x=".5" y="24.84" width="5.5" height="18.32"/>' +
-        '<path d="M17 27.1A9.15 9.15 0 0 1 17 40.9"/>' +
+        '<path d="M17 26.688A9.15 9.15 0 0 1 17 41.312"/>' +
         '<rect x="88" y="13.84" width="16.5" height="40.32"/>' +
         '<rect x="99" y="24.84" width="5.5" height="18.32"/>' +
-        '<path d="M88 27.1A9.15 9.15 0 0 0 88 40.9"/>' +
+        '<path d="M88 26.688A9.15 9.15 0 0 0 88 41.312"/>' +
         '</g><g fill="currentColor">' +
-        '<circle cx="52.5" cy="34" r=".45"/><circle cx="11" cy="34" r=".45"/>' +
-        '<circle cx="94" cy="34" r=".45"/></g>'
+        '<circle cx="52.5" cy="34" r=".45"/><circle cx="11.5" cy="34" r=".45"/>' +
+        '<circle cx="93.5" cy="34" r=".45"/></g>'
     },
 
     /* ---------- BASKETBALL · 28 x 15 ---------- */
     basketball: {
       W: 28, H: 15,
       squad: 5,
-      rate: 2.3,
+      /* Was 2.3, which peaked players at ~15.9 m/s and put a full-court
+         sprint at 1.8s against a real ~4s — on a 28m floor that reads
+         as a frantic pinball table rather than basketball. The engine's
+         speeds are football metres/frame, so a short court needs a much
+         lower multiplier to cover ground at a plausible rate. At 1.05
+         the tempo-lifted ceiling lands near 10 m/s, which is about
+         where a real full-court break tops out. */
+      rate: 1.05,
       sprint: 0.115, jog: 0.070, keeper: 0.070,
       pass: [0.30, 0.12], shot: [0.34, 0.08],
       hold: [34, 40],           // the shot clock makes everything quicker
-      goalHalf: 0.9,            // the rim is small — most attempts miss
-      finalThird: 0.60,
+      goalHalf: 0.9,
+      /* The rim sits 1.575m in from the baseline, not on it. Without
+         this the ball was aimed at the end wall and flew straight past
+         the hoop. */
+      goalInset: 1.575,
+      finalThird: 0.62,
       shootChance: 0.72,
       shape: [
         { x: 6,  y: 7.5, role: 'PG' },
         { x: 10, y: 3,   role: 'SG' }, { x: 10, y: 12, role: 'SF' },
         { x: 14, y: 5.5, role: 'PF' }, { x: 14, y: 9.5, role: 'C'  }
       ],
+      /* FIBA proportions, drawn inside a 0.4 inset so the sideline sits
+         off the very edge. Baselines x=0.4 / x=27.6, centre y=7.5.
+         Baskets are 1.575m off each baseline — every arc below is struck
+         from those two points, which is what makes the geometry read as
+         a real court rather than approximate curves. */
       marks:
         '<g fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke">' +
         '<rect x=".4" y=".4" width="27.2" height="14.2"/>' +
         '<line x1="14" y1=".4" x2="14" y2="14.6"/>' +
         '<circle cx="14" cy="7.5" r="1.8"/>' +
-        // keys
-        '<rect x=".4" y="4.9" width="5.8" height="4.9"/>' +
-        '<rect x="21.8" y="4.9" width="5.8" height="4.9"/>' +
+        // keys — 5.8 deep x 4.9 wide, centred on y=7.5
+        '<rect x=".4" y="5.05" width="5.8" height="4.9"/>' +
+        '<rect x="21.8" y="5.05" width="5.8" height="4.9"/>' +
+        // free-throw circles, struck from the top of each key
         '<circle cx="6.2" cy="7.5" r="1.8"/><circle cx="21.8" cy="7.5" r="1.8"/>' +
-        // three-point arcs + corner lines
-        '<path d="M1.6 .9v2.1A6.75 6.75 0 0 0 1.6 12v2.1"/>' +
-        '<path d="M26.4 .9v2.1A6.75 6.75 0 0 1 26.4 12v2.1"/>' +
+        // three-point line — 6.75m from the basket, with the straight
+        // corner run 0.9m in from each sideline (y=1.3 / y=13.7)
+        '<path d="M.4 1.3H4.644A6.75 6.75 0 0 1 4.644 13.7H.4"/>' +
+        '<path d="M27.6 1.3H23.356A6.75 6.75 0 0 0 23.356 13.7H27.6"/>' +
+        // restricted-area semicircles, 1.25m from each basket
+        '<path d="M1.975 6.25A1.25 1.25 0 0 1 1.975 8.75"/>' +
+        '<path d="M26.025 6.25A1.25 1.25 0 0 0 26.025 8.75"/>' +
+        // backboards — 1.8m wide, 1.2m off the baseline
+        '<line x1="1.6" y1="6.6" x2="1.6" y2="8.4"/>' +
+        '<line x1="26.4" y1="6.6" x2="26.4" y2="8.4"/>' +
         '</g><g fill="currentColor">' +
-        '<circle cx="1.6" cy="7.5" r=".28"/><circle cx="26.4" cy="7.5" r=".28"/></g>'
+        '<circle cx="1.975" cy="7.5" r=".26"/><circle cx="26.025" cy="7.5" r=".26"/></g>'
     },
 
     /* ---------- TENNIS · 23.77 x 10.97 (doubles) ---------- */
@@ -223,8 +247,31 @@
     }
 
     function shoot(c) {
-      var gx = c.team === 0 ? PW : 0;
-      var gy = PH / 2 + (Math.random() - 0.5) * PH * 0.30;
+      var inset = S.goalInset || 0;
+      var gx = c.team === 0 ? PW - inset : inset;
+      var gy = PH / 2;
+
+      if (inset > 0) {
+        /* Basket sports: settle the outcome up front from range, then
+           aim to match it. Deciding the result and drawing it — rather
+           than letting a tolerance window on the end wall decide by
+           accident — is both truer to the sport and steadier to watch,
+           since a shot can no longer sail out of bounds by a hair. */
+        var range = dist(ball.x, ball.y, gx, gy);
+        ball.willScore = Math.random() < Math.max(0.24, 0.78 - (range / PW) * 0.70);
+        if (!ball.willScore) {
+          /* Keep a miss tight to the rim so it rims out and can be
+             rebounded. A wider scatter sent half of all misses over the
+             endline instead, and every one of those reset the floor. */
+          gx += (Math.random() - 0.5) * 0.9;
+          gy += (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.8);
+          gy = Math.max(1, Math.min(PH - 1, gy));
+        }
+      } else {
+        ball.willScore = null;
+        gy += (Math.random() - 0.5) * PH * 0.30;
+      }
+
       var d = dist(ball.x, ball.y, gx, gy) || 1;
       var sp = (SHOT_MIN + Math.random() * SHOT_VAR) * (0.92 + tempo * 0.18);
       ball.vx = ((gx - ball.x) / d) * sp;
@@ -252,6 +299,21 @@
         }
       }
 
+      /* No carrier means the ball is live and unclaimed. Send the
+         nearest player on each side after it, otherwise every player
+         falls back to their resting shape and a rebound looks ignored. */
+      var chaseA = null, chaseB = null;
+      if (!carrier) {
+        var bestA = Infinity, bestB = Infinity;
+        for (var t3 = 0; t3 < players.length; t3++) {
+          var pt = players[t3];
+          if (pt.gk) continue;
+          var dt = dist(pt.x, pt.y, ball.x, ball.y);
+          if (pt.team === 0) { if (dt < bestA) { bestA = dt; chaseA = pt; } }
+          else if (dt < bestB) { bestB = dt; chaseB = pt; }
+        }
+      }
+
       for (var i = 0; i < players.length; i++) {
         var p = players[i];
         var Rl = ROLE[p.role] || ROLE.CM;
@@ -267,9 +329,19 @@
           ty = PH / 2 + (ball.y - PH / 2) * 0.26;
           maxv = GKV;
         } else if (p === carrier) {
-          tx = p.x + fwd * 2.2 * k;
-          ty = p.y + p.wob * 1.2 * k;
+          if (S.goalInset) {
+            // Drive at the rim, not at the end wall behind it.
+            var bx = p.team === 0 ? PW - S.goalInset : S.goalInset;
+            var bd = dist(p.x, p.y, bx, PH / 2) || 1;
+            tx = p.x + ((bx - p.x) / bd) * 2.2 * k;
+            ty = p.y + ((PH / 2 - p.y) / bd) * 2.2 * k + p.wob * 1.2 * k;
+          } else {
+            tx = p.x + fwd * 2.2 * k;
+            ty = p.y + p.wob * 1.2 * k;
+          }
           maxv = (presser && pd < 6 * k) ? SPRINT * 0.92 : JOG;
+        } else if (p === chaseA || p === chaseB) {
+          tx = ball.x; ty = ball.y; maxv = SPRINT;
         } else if (p === presser && pd < Rl.roam * k) {
           tx = ball.x; ty = ball.y; maxv = SPRINT;
         } else {
@@ -348,10 +420,42 @@
           ball.owner = win; ball.state = 'carry'; ball.t = 0;
         }
 
+        /* Loose ball with no intended receiver — a rebound or a
+           deflection. First player to reach it collects. Without this a
+           carom just drifts until friction stops it, which reads as the
+           sim stalling rather than as a contested board. */
+        if (ball.state === 'travel' && !ball.target) {
+          var lr = PW * 0.055, lw = null, ld = lr;
+          for (var q = 0; q < players.length; q++) {
+            var qd = dist(players[q].x, players[q].y, ball.x, ball.y);
+            if (qd < ld) { ld = qd; lw = players[q]; }
+          }
+          if (lw) { ball.owner = lw; ball.state = 'carry'; ball.t = 0; }
+        }
+
         if (ball.state === 'shot') {
-          var scored = (ball.x > PW - 0.5 && Math.abs(ball.y - PH / 2) < S.goalHalf) ||
-                       (ball.x < 0.5 && Math.abs(ball.y - PH / 2) < S.goalHalf);
-          if (scored) { flash = 1; reset(Math.random() < 0.5 ? 0 : 1); return; }
+          var gi = S.goalInset || 0;
+          if (gi > 0) {
+            /* Basket sports: the scoring point is the rim, not a line.
+               Once the ball arrives, a make resets and a miss caroms —
+               previously every miss called reset(), snapping all ten
+               players back to formation, which is most of why this
+               looked nothing like basketball. */
+            var rimx = ball.vx > 0 ? PW - gi : gi;
+            var reached = ball.vx > 0 ? ball.x >= rimx : ball.x <= rimx;
+            if (reached) {
+              if (ball.willScore) { flash = 1; reset(Math.random() < 0.5 ? 0 : 1); return; }
+              ball.x = rimx;
+              ball.y = PH / 2 + (Math.random() - 0.5) * 1.3;
+              ball.vx = -ball.vx * (0.20 + Math.random() * 0.20);
+              ball.vy = (Math.random() - 0.5) * 0.13;
+              ball.state = 'travel'; ball.target = null;
+            }
+          } else {
+            var scored = (ball.x > PW - 0.5 && Math.abs(ball.y - PH / 2) < S.goalHalf) ||
+                         (ball.x < 0.5 && Math.abs(ball.y - PH / 2) < S.goalHalf);
+            if (scored) { flash = 1; reset(Math.random() < 0.5 ? 0 : 1); return; }
+          }
           if (ball.x < -1 || ball.x > PW + 1 || ball.y < -1 || ball.y > PH + 1) {
             reset(ball.vx > 0 ? 1 : 0); return;
           }
@@ -466,7 +570,7 @@
 
       var cs = getComputedStyle(fx);
       var home  = cs.getPropertyValue('--fx-home').trim()  || '#38BDF8';
-      var away  = cs.getPropertyValue('--fx-away').trim()  || '#F0349B';
+      var away  = cs.getPropertyValue('--fx-away').trim()  || '#94A3B8';
       var ballC = cs.getPropertyValue('--fx-ball').trim()  || '#fff';
       var trailC = cs.getPropertyValue('--fx-trail').trim() || 'rgba(255,255,255,.5)';
 
