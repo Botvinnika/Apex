@@ -355,6 +355,13 @@
     if (!ctx) return;
 
     var PW = 105, PH = 68;                       // pitch metres
+
+    /* Speeds are metres per frame at 60fps, taken from real ranges:
+       sprint ~8 m/s, jog ~4.5, keeper ~3, pass ~16-22, shot ~26-32.
+       The first version ran 3-9x these and looked like air hockey. */
+    var SPRINT = 0.135, JOG = 0.075, GK_V = 0.052;
+    var PASS_MIN = 0.27, PASS_VAR = 0.10;
+    var SHOT_MIN = 0.44, SHOT_VAR = 0.09;
     var w = 0, h = 0, sc = 1, ox = 0, oy = 0;    // viewport + slice transform
     var raf = null, running = false;
     var mx = -9999, my = -9999;                  // pointer, in pitch units
@@ -379,7 +386,9 @@
             team: t, gk: i === 0,
             hx: base[0], hy: base[1],            // formation anchor
             x: base[0], y: base[1],
-            vx: 0, vy: 0
+            vx: 0, vy: 0,
+            ph: Math.random() * 6.28, ph2: Math.random() * 6.28,
+            wob: 0, wob2: 0
           });
         }
       }
@@ -438,7 +447,7 @@
       var gx = carrier.team === 0 ? PW : 0;
       var gy = 34 + (Math.random() - 0.5) * 12;      // sometimes wide
       var d = dist(ball.x, ball.y, gx, gy) || 1;
-      var sp = 1.25;
+      var sp = SHOT_MIN + Math.random() * SHOT_VAR;
       ball.vx = ((gx - ball.x) / d) * sp;
       ball.vy = ((gy - ball.y) / d) * sp;
       ball.state = 'shot';
@@ -451,45 +460,74 @@
     function step() {
       var carrier = ball.owner;
 
-      // Team shape: every player eases toward its anchor, pulled toward
-      // the ball so the block slides rather than standing still.
+      // ---- team block ----
+      // A real side shifts as a unit: the whole block slides toward the
+      // ball's side and moves its line up or down, while each player
+      // holds their slot inside that shape. Previously every outfielder
+      // homed on the ball independently, which collapsed all 11 into a
+      // blob around it.
+      var blockX = (ball.x - PW / 2) * 0.30;      // line height
+      var blockY = (ball.y - PH / 2) * 0.34;      // lateral shift
+
+      // Only the closest player of each side actually goes to the ball.
+      var chaser = [null, null], chaseD = [Infinity, Infinity];
+      for (var c = 0; c < players.length; c++) {
+        var pc = players[c];
+        if (pc.gk) continue;
+        var dc = dist(pc.x, pc.y, ball.x, ball.y);
+        if (dc < chaseD[pc.team]) { chaseD[pc.team] = dc; chaser[pc.team] = pc; }
+      }
+
       for (var i = 0; i < players.length; i++) {
         var p = players[i];
-        var pull = p.gk ? 0.06 : 0.26;
-        var tx = p.hx + (ball.x - p.hx) * pull;
-        var ty = p.hy + (ball.y - p.hy) * pull;
+        var maxv = JOG;
+        var tx, ty;
 
-        if (p.gk) {                                  // keeper hugs its line
-          tx = p.hx + (ball.x - p.hx) * 0.03;
-          ty = 34 + (ball.y - 34) * 0.30;
+        if (p.gk) {
+          // Keeper holds his line and shuffles across with the ball.
+          tx = p.hx + (ball.x - p.hx) * 0.04;
+          ty = 34 + (ball.y - 34) * 0.26;
+          maxv = GK_V;
+        } else if (p === carrier) {
+          tx = p.x + (p.team === 0 ? 2.2 : -2.2);   // drive forward
+          ty = p.y + p.wob * 1.2;
+          maxv = JOG;
+        } else if (p === chaser[p.team] && chaseD[p.team] < 26) {
+          tx = ball.x; ty = ball.y;                 // close it down
+          maxv = SPRINT;
+        } else {
+          // Hold shape. wob is a slow per-player wander so the block
+          // breathes instead of sitting on exact coordinates.
+          tx = p.hx + blockX + p.wob * 2.4;
+          ty = p.hy + blockY + p.wob2 * 2.0;
         }
 
-        // The nearest opponent to the carrier presses it directly.
-        if (carrier && p.team !== carrier.team && !p.gk && p.presser) {
-          tx = carrier.x; ty = carrier.y;
-        }
-        if (p === carrier) {                          // carrier drifts forward
-          tx = p.x + (p.team === 0 ? 3 : -3);
-          ty = p.y + (Math.random() - 0.5) * 2;
-        }
-
-        // Pointer nudge: players give way slightly, so the cursor still
-        // does something without turning the match into a toy.
+        // Pointer nudge: players give way slightly as the cursor passes.
         if (FINE) {
           var dxm = p.x - mx, dym = p.y - my;
           var dm = Math.sqrt(dxm * dxm + dym * dym);
-          if (dm < 11 && dm > 0.01) {
-            tx += (dxm / dm) * (11 - dm) * 0.7;
-            ty += (dym / dm) * (11 - dm) * 0.7;
+          if (dm < 9 && dm > 0.01) {
+            tx += (dxm / dm) * (9 - dm) * 0.8;
+            ty += (dym / dm) * (9 - dm) * 0.8;
           }
         }
 
-        p.vx += (tx - p.x) * 0.012;
-        p.vy += (ty - p.y) * 0.012;
-        p.vx *= 0.90; p.vy *= 0.90;
+        p.vx += (tx - p.x) * 0.020;
+        p.vy += (ty - p.y) * 0.020;
+        p.vx *= 0.86; p.vy *= 0.86;
+
+        // Hard speed cap in metres per frame — without this a player
+        // crossing a 10m gap accelerated to roughly 72 m/s.
+        var sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        if (sp > maxv) { p.vx = (p.vx / sp) * maxv; p.vy = (p.vy / sp) * maxv; }
+
         p.x += p.vx; p.y += p.vy;
         p.x = Math.max(1, Math.min(PW - 1, p.x));
         p.y = Math.max(1, Math.min(PH - 1, p.y));
+
+        // Advance the wander phases.
+        p.ph += 0.006; p.ph2 += 0.0043;
+        p.wob = Math.sin(p.ph); p.wob2 = Math.sin(p.ph2);
       }
 
       // Reassign the presser each frame — nearest opponent to the carrier.
@@ -507,7 +545,7 @@
 
       /* ---- ball ---- */
       if (ball.state === 'carry' && carrier) {
-        ball.x = carrier.x + (carrier.team === 0 ? 1.1 : -1.1);
+        ball.x = carrier.x + (carrier.team === 0 ? 0.9 : -0.9);
         ball.y = carrier.y;
         ball.t++;
 
@@ -520,19 +558,19 @@
           }
         }
 
-        if (ball.t > 22 + Math.random() * 34) {
+        if (ball.t > 48 + Math.random() * 66) {
           var inFinalThird = carrier.team === 0 ? carrier.x > 74 : carrier.x < 31;
           if (inFinalThird && Math.random() < 0.55) {
             shoot(carrier);
           } else {
             var tgt = choosePass(carrier);
-            if (tgt) passTo(tgt, 0.62 + Math.random() * 0.35);
+            if (tgt) passTo(tgt, PASS_MIN + Math.random() * PASS_VAR);
             else ball.t = 0;
           }
         }
       } else if (ball.state === 'travel' || ball.state === 'shot') {
         ball.x += ball.vx; ball.y += ball.vy;
-        ball.vx *= 0.994; ball.vy *= 0.994;
+        ball.vx *= 0.991; ball.vy *= 0.991;
 
         if (ball.state === 'travel' && ball.target) {
           if (dist(ball.x, ball.y, ball.target.x, ball.target.y) < 1.5) {
