@@ -282,7 +282,7 @@
       host.insertBefore(fx, host.firstChild);
 
       if (!REDUCED) {
-        startFieldNet(fx, host, FINE);
+        startMatch(fx, host, FINE);
         if (FINE) trackPointer(fx, host);
       }
     });
@@ -331,100 +331,353 @@
     }
   }
 
-  /* Particle field with a pointer repulsion well. Stops completely when
-     the host scrolls out of view, so it costs nothing off-screen. */
-  function startFieldNet(fx, host, FINE) {
+  /* ============================================================
+     LIVE MATCH FIELD
+     An 11v11 game played out on the pitch markings behind the content.
+
+     Everything is computed in real pitch units (105 x 68 metres) and
+     mapped through the same xMidYMid-slice transform the pitch SVG
+     uses, so players line up with the painted lines at any aspect ratio.
+
+     Behaviour, roughly in order of how much it matters visually:
+       - players hold a formation and shift toward the ball, so the
+         whole shape slides around like a real team block
+       - the carrier picks a pass by scoring teammates on space and
+         forward progress, not at random
+       - the nearest opponent presses the carrier and can intercept
+       - shots are taken from the final third and either score, miss,
+         or are saved; play restarts from a kickoff or goal kick
+     ============================================================ */
+  function startMatch(fx, host, FINE) {
     var cv = $('.site-fx__net', fx);
     if (!cv) return;
     var ctx = cv.getContext('2d');
     if (!ctx) return;
 
-    var w = 0, h = 0, nodes = [], raf = null, running = false;
-    var mx = -9999, my = -9999;
-    var REPEL = 130, LINK = 132;
+    var PW = 105, PH = 68;                       // pitch metres
+    var w = 0, h = 0, sc = 1, ox = 0, oy = 0;    // viewport + slice transform
+    var raf = null, running = false;
+    var mx = -9999, my = -9999;                  // pointer, in pitch units
+
+    /* ---- formations: 4-3-3, home attacks +x ---- */
+    var SHAPE = [
+      [5, 34],
+      [20, 13], [20, 27], [20, 41], [20, 55],
+      [38, 19], [38, 34], [38, 49],
+      [58, 15], [58, 34], [58, 53]
+    ];
+    function mirror(p) { return [PW - p[0], PH - p[1]]; }
+
+    var players = [], ball = null, trail = [], passLine = null, flash = 0;
+
+    function reset(kickoffTeam) {
+      players = [];
+      for (var t = 0; t < 2; t++) {
+        for (var i = 0; i < SHAPE.length; i++) {
+          var base = t === 0 ? SHAPE[i] : mirror(SHAPE[i]);
+          players.push({
+            team: t, gk: i === 0,
+            hx: base[0], hy: base[1],            // formation anchor
+            x: base[0], y: base[1],
+            vx: 0, vy: 0
+          });
+        }
+      }
+      var starter = players[kickoffTeam * 11 + 9];   // a central forward
+      ball = {
+        x: PW / 2, y: PH / 2, vx: 0, vy: 0,
+        owner: starter, state: 'carry', t: 0
+      };
+      trail = []; passLine = null;
+    }
+
+    function dist(ax, ay, bx, by) {
+      var dx = ax - bx, dy = ay - by;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    /* ---- pick a pass: prefer open teammates who are further forward ---- */
+    function choosePass(carrier) {
+      var mates = players.filter(function (p) {
+        return p.team === carrier.team && p !== carrier && !p.gk;
+      });
+      var best = null, bestScore = -Infinity;
+      var fwd = carrier.team === 0 ? 1 : -1;
+
+      for (var i = 0; i < mates.length; i++) {
+        var m = mates[i];
+        var d = dist(carrier.x, carrier.y, m.x, m.y);
+        if (d < 6 || d > 42) continue;           // too short / not on
+
+        // Nearest opponent to the receiver — crowded targets score badly.
+        var press = Infinity;
+        for (var k = 0; k < players.length; k++) {
+          var o = players[k];
+          if (o.team === carrier.team) continue;
+          press = Math.min(press, dist(m.x, m.y, o.x, o.y));
+        }
+
+        var progress = (m.x - carrier.x) * fwd;  // metres gained
+        var score = progress * 1.6 + press * 2.2 - d * 0.35 + Math.random() * 9;
+        if (score > bestScore) { bestScore = score; best = m; }
+      }
+      return best;
+    }
+
+    function passTo(target, speed) {
+      var d = dist(ball.x, ball.y, target.x, target.y) || 1;
+      ball.vx = ((target.x - ball.x) / d) * speed;
+      ball.vy = ((target.y - ball.y) / d) * speed;
+      ball.state = 'travel';
+      ball.target = target;
+      ball.owner = null;
+      passLine = { x1: ball.x, y1: ball.y, x2: target.x, y2: target.y, life: 1 };
+    }
+
+    function shoot(carrier) {
+      var gx = carrier.team === 0 ? PW : 0;
+      var gy = 34 + (Math.random() - 0.5) * 12;      // sometimes wide
+      var d = dist(ball.x, ball.y, gx, gy) || 1;
+      var sp = 1.25;
+      ball.vx = ((gx - ball.x) / d) * sp;
+      ball.vy = ((gy - ball.y) / d) * sp;
+      ball.state = 'shot';
+      ball.owner = null;
+      ball.target = null;
+      passLine = { x1: ball.x, y1: ball.y, x2: gx, y2: gy, life: 1 };
+    }
+
+    /* ---- per-frame simulation ---- */
+    function step() {
+      var carrier = ball.owner;
+
+      // Team shape: every player eases toward its anchor, pulled toward
+      // the ball so the block slides rather than standing still.
+      for (var i = 0; i < players.length; i++) {
+        var p = players[i];
+        var pull = p.gk ? 0.06 : 0.26;
+        var tx = p.hx + (ball.x - p.hx) * pull;
+        var ty = p.hy + (ball.y - p.hy) * pull;
+
+        if (p.gk) {                                  // keeper hugs its line
+          tx = p.hx + (ball.x - p.hx) * 0.03;
+          ty = 34 + (ball.y - 34) * 0.30;
+        }
+
+        // The nearest opponent to the carrier presses it directly.
+        if (carrier && p.team !== carrier.team && !p.gk && p.presser) {
+          tx = carrier.x; ty = carrier.y;
+        }
+        if (p === carrier) {                          // carrier drifts forward
+          tx = p.x + (p.team === 0 ? 3 : -3);
+          ty = p.y + (Math.random() - 0.5) * 2;
+        }
+
+        // Pointer nudge: players give way slightly, so the cursor still
+        // does something without turning the match into a toy.
+        if (FINE) {
+          var dxm = p.x - mx, dym = p.y - my;
+          var dm = Math.sqrt(dxm * dxm + dym * dym);
+          if (dm < 11 && dm > 0.01) {
+            tx += (dxm / dm) * (11 - dm) * 0.7;
+            ty += (dym / dm) * (11 - dm) * 0.7;
+          }
+        }
+
+        p.vx += (tx - p.x) * 0.012;
+        p.vy += (ty - p.y) * 0.012;
+        p.vx *= 0.90; p.vy *= 0.90;
+        p.x += p.vx; p.y += p.vy;
+        p.x = Math.max(1, Math.min(PW - 1, p.x));
+        p.y = Math.max(1, Math.min(PH - 1, p.y));
+      }
+
+      // Reassign the presser each frame — nearest opponent to the carrier.
+      for (var q = 0; q < players.length; q++) players[q].presser = false;
+      if (carrier) {
+        var near = null, nd = Infinity;
+        for (var r = 0; r < players.length; r++) {
+          var o = players[r];
+          if (o.team === carrier.team || o.gk) continue;
+          var d2 = dist(o.x, o.y, carrier.x, carrier.y);
+          if (d2 < nd) { nd = d2; near = o; }
+        }
+        if (near) near.presser = true;
+      }
+
+      /* ---- ball ---- */
+      if (ball.state === 'carry' && carrier) {
+        ball.x = carrier.x + (carrier.team === 0 ? 1.1 : -1.1);
+        ball.y = carrier.y;
+        ball.t++;
+
+        // Interception: pressing player close enough steals it.
+        for (var s = 0; s < players.length; s++) {
+          var op = players[s];
+          if (op.team === carrier.team) continue;
+          if (dist(op.x, op.y, ball.x, ball.y) < 1.6) {
+            ball.owner = op; ball.t = 0; break;
+          }
+        }
+
+        if (ball.t > 22 + Math.random() * 34) {
+          var inFinalThird = carrier.team === 0 ? carrier.x > 74 : carrier.x < 31;
+          if (inFinalThird && Math.random() < 0.55) {
+            shoot(carrier);
+          } else {
+            var tgt = choosePass(carrier);
+            if (tgt) passTo(tgt, 0.62 + Math.random() * 0.35);
+            else ball.t = 0;
+          }
+        }
+      } else if (ball.state === 'travel' || ball.state === 'shot') {
+        ball.x += ball.vx; ball.y += ball.vy;
+        ball.vx *= 0.994; ball.vy *= 0.994;
+
+        if (ball.state === 'travel' && ball.target) {
+          if (dist(ball.x, ball.y, ball.target.x, ball.target.y) < 1.5) {
+            // Loose ball: whoever is closest actually collects it.
+            var win = ball.target, wd = 1.6;
+            for (var u = 0; u < players.length; u++) {
+              var pl = players[u];
+              var dd = dist(pl.x, pl.y, ball.x, ball.y);
+              if (dd < wd) { wd = dd; win = pl; }
+            }
+            ball.owner = win; ball.state = 'carry'; ball.t = 0;
+          }
+        }
+
+        if (ball.state === 'shot') {
+          var scored = (ball.x > PW - 0.5 && Math.abs(ball.y - 34) < 3.7) ||
+                       (ball.x < 0.5 && Math.abs(ball.y - 34) < 3.7);
+          if (scored) { flash = 1; reset(Math.random() < 0.5 ? 0 : 1); return; }
+          if (ball.x < -2 || ball.x > PW + 2 || ball.y < -2 || ball.y > PH + 2) {
+            reset(ball.vx > 0 ? 1 : 0); return;      // goal kick to the other side
+          }
+          // A keeper close to the shot saves it.
+          for (var g = 0; g < players.length; g++) {
+            var k = players[g];
+            if (k.gk && dist(k.x, k.y, ball.x, ball.y) < 2.4) {
+              ball.owner = k; ball.state = 'carry'; ball.t = 0; break;
+            }
+          }
+        }
+
+        if (Math.abs(ball.vx) + Math.abs(ball.vy) < 0.06) {
+          var cl = players[0], cd = Infinity;
+          for (var v = 0; v < players.length; v++) {
+            var e = dist(players[v].x, players[v].y, ball.x, ball.y);
+            if (e < cd) { cd = e; cl = players[v]; }
+          }
+          ball.owner = cl; ball.state = 'carry'; ball.t = 0;
+        }
+      }
+
+      trail.push([ball.x, ball.y]);
+      if (trail.length > 16) trail.shift();
+      if (passLine) { passLine.life -= 0.045; if (passLine.life <= 0) passLine = null; }
+      if (flash > 0) flash -= 0.02;
+    }
+
+    /* ---- drawing ---- */
+    function X(px) { return ox + px * sc; }
+    function Y(py) { return oy + py * sc; }
+
+    function draw() {
+      if (!running) return;
+      step();
+      ctx.clearRect(0, 0, w, h);
+
+      var cs = getComputedStyle(fx);
+      var home  = cs.getPropertyValue('--fx-home').trim()  || '#38BDF8';
+      var away  = cs.getPropertyValue('--fx-away').trim()  || '#F0349B';
+      var ballC = cs.getPropertyValue('--fx-ball').trim()  || '#fff';
+      var trailC = cs.getPropertyValue('--fx-trail').trim() || 'rgba(255,255,255,.5)';
+
+      if (passLine) {                       // the intended pass, fading out
+        ctx.globalAlpha = passLine.life * 0.5;
+        ctx.strokeStyle = trailC;
+        ctx.lineWidth = Math.max(1, sc * 0.11);
+        ctx.setLineDash([sc * 0.5, sc * 0.5]);
+        ctx.beginPath();
+        ctx.moveTo(X(passLine.x1), Y(passLine.y1));
+        ctx.lineTo(X(passLine.x2), Y(passLine.y2));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      ctx.globalAlpha = 1;                  // ball trail
+      ctx.strokeStyle = trailC;
+      ctx.lineWidth = Math.max(1.2, sc * 0.16);
+      ctx.beginPath();
+      for (var i = 0; i < trail.length; i++) {
+        var pt = trail[i];
+        if (i === 0) ctx.moveTo(X(pt[0]), Y(pt[1]));
+        else ctx.lineTo(X(pt[0]), Y(pt[1]));
+      }
+      ctx.globalAlpha = 0.32;
+      ctx.stroke();
+
+      for (var p = 0; p < players.length; p++) {          // players
+        var pl = players[p];
+        ctx.globalAlpha = pl.gk ? 0.55 : 0.85;
+        ctx.fillStyle = pl.team === 0 ? home : away;
+        ctx.beginPath();
+        // Radii are metres * sc, not raw pixels — a player reads about a
+        // metre across at any viewport size.
+        ctx.arc(X(pl.x), Y(pl.y), sc * (pl.gk ? 0.48 : 0.55), 0, Math.PI * 2);
+        ctx.fill();
+        if (pl === ball.owner) {                          // carrier ring
+          ctx.globalAlpha = 0.9;
+          ctx.strokeStyle = pl.team === 0 ? home : away;
+          ctx.lineWidth = Math.max(1, sc * 0.09);
+          ctx.beginPath();
+          ctx.arc(X(pl.x), Y(pl.y), sc * 1.15, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      ctx.globalAlpha = 1;                                // ball
+      ctx.fillStyle = ballC;
+      ctx.beginPath();
+      ctx.arc(X(ball.x), Y(ball.y), Math.max(1.6, sc * 0.26), 0, Math.PI * 2);
+      ctx.fill();
+
+      if (flash > 0) {                                    // goal
+        ctx.globalAlpha = flash * 0.22;
+        ctx.fillStyle = ballC;
+        ctx.fillRect(0, 0, w, h);
+      }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    }
 
     function resize() {
       var r = host.getBoundingClientRect();
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = Math.max(1, r.width); h = Math.max(1, r.height);
+      w = Math.max(1, r.width * 1.12); h = Math.max(1, r.height * 1.12);
       cv.width = Math.floor(w * dpr); cv.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      var count = Math.max(24, Math.min(90, Math.round((w * h) / 20000)));
-      nodes = [];
-      for (var i = 0; i < count; i++) {
-        nodes.push({
-          x: Math.random() * w, y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          r: Math.random() * 1.7 + 0.8
-        });
-      }
+      // Same transform as the SVG's xMidYMid slice, so dots sit on lines.
+      sc = Math.max(w / PW, h / PH);
+      ox = (w - PW * sc) / 2;
+      oy = (h - PH * sc) / 2;
     }
 
     if (FINE) {
       host.addEventListener('pointermove', function (e) {
         var r = host.getBoundingClientRect();
-        mx = e.clientX - r.left; my = e.clientY - r.top;
+        mx = ((e.clientX - r.left) * 1.12 - ox) / sc;
+        my = ((e.clientY - r.top) * 1.12 - oy) / sc;
       }, { passive: true });
       host.addEventListener('pointerleave', function () { mx = my = -9999; }, { passive: true });
-    }
-
-    function draw() {
-      if (!running) return;
-      ctx.clearRect(0, 0, w, h);
-
-      for (var i = 0; i < nodes.length; i++) {
-        var p = nodes[i];
-        // Pointer well. Force is capped so a fast cursor sweep cannot give
-        // a node runaway velocity.
-        var dx = p.x - mx, dy = p.y - my;
-        var d2 = dx * dx + dy * dy;
-        if (d2 < REPEL * REPEL && d2 > 0.01) {
-          var d = Math.sqrt(d2);
-          var f = Math.min((1 - d / REPEL) * 1.4, 1.4);
-          p.vx += (dx / d) * f * 0.55;
-          p.vy += (dy / d) * f * 0.55;
-        }
-        p.x += p.vx; p.y += p.vy;
-        p.vx *= 0.965; p.vy *= 0.965;          // friction, or it never settles
-        // Drift floor so the field never goes completely still.
-        if (Math.abs(p.vx) < 0.06) p.vx += (Math.random() - 0.5) * 0.05;
-        if (Math.abs(p.vy) < 0.06) p.vy += (Math.random() - 0.5) * 0.05;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-        p.x = Math.max(0, Math.min(w, p.x));
-        p.y = Math.max(0, Math.min(h, p.y));
-      }
-
-      var stroke = getComputedStyle(fx).getPropertyValue('--fx-bit').trim() ||
-                   'rgba(160,215,255,.3)';
-      ctx.strokeStyle = stroke;
-      ctx.lineWidth = 1;
-      for (var a = 0; a < nodes.length; a++) {
-        for (var b = a + 1; b < nodes.length; b++) {
-          var na = nodes[a], nb = nodes[b];
-          var ex = na.x - nb.x, ey = na.y - nb.y;
-          var e2 = ex * ex + ey * ey;
-          if (e2 > LINK * LINK) continue;
-          ctx.globalAlpha = (1 - Math.sqrt(e2) / LINK) * 0.5;
-          ctx.beginPath(); ctx.moveTo(na.x, na.y); ctx.lineTo(nb.x, nb.y); ctx.stroke();
-        }
-      }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = stroke;
-      for (var k = 0; k < nodes.length; k++) {
-        ctx.beginPath();
-        ctx.arc(nodes[k].x, nodes[k].y, nodes[k].r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
     }
 
     function start() { if (!running) { running = true; raf = requestAnimationFrame(draw); } }
     function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
 
     resize();
+    reset(Math.random() < 0.5 ? 0 : 1);
     window.addEventListener('resize', resize, { passive: true });
 
     if ('IntersectionObserver' in window) {
