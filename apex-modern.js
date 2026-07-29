@@ -231,26 +231,208 @@
     var targets = $$('.hero, [data-fx]');
     if (!targets.length) return;
 
-    targets.forEach(function (host) {
-      if ($('.site-fx', host)) return;               // never double-mount
+    var FINE = window.matchMedia &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-      // The field is absolutely positioned, so the host must establish a
-      // containing block or it would escape to the nearest one.
-      var pos = getComputedStyle(host).position;
-      if (pos === 'static') host.style.position = 'relative';
+    targets.forEach(function (host) {
+      if ($('.site-fx', host)) return;                 // never double-mount
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
 
       var fx = document.createElement('div');
       fx.className = 'site-fx';
       fx.setAttribute('aria-hidden', 'true');
+
+      // Each blob gets its own depth layer: parallax rides the wrapper and
+      // the keyframe drift rides the child, so neither overwrites the
+      // other's transform.
+      var depths = [26, 16, 34, 20];
+      var layers = '';
+      for (var i = 1; i <= 4; i++) {
+        layers += '<div class="site-fx__layer" style="--depth:' + depths[i - 1] + '">' +
+                    '<div class="site-fx__blob site-fx__blob--' + i + '"></div>' +
+                  '</div>';
+      }
+
+      // Drifting debris on staggered depths so it separates under parallax.
+      var bits = '';
+      var kinds = ['', ' site-fx__bit--dot', ' site-fx__bit--ring'];
+      for (var b = 0; b < 14; b++) {
+        var left = (b * 7.3 + 4) % 96;
+        var sz   = 5 + (b % 4) * 4;
+        var dur  = 20 + (b % 5) * 6;
+        var del  = -(b * 2.4);
+        var dx   = ((b % 5) - 2) * 4;
+        var rot  = 140 + (b % 3) * 120;
+        var dep  = 8 + (b % 4) * 11;
+        bits += '<div class="site-fx__layer" style="--depth:' + dep + '">' +
+                  '<span class="site-fx__bit' + kinds[b % 3] + '" style="' +
+                    'left:' + left.toFixed(1) + '%;bottom:-10%;' +
+                    '--sz:' + sz + 'px;--dur:' + dur + 's;--del:' + del + 's;' +
+                    '--dx:' + dx + 'vw;--rot:' + rot + 'deg"></span>' +
+                '</div>';
+      }
+
       fx.innerHTML =
-        '<div class="site-fx__blob site-fx__blob--1"></div>' +
-        '<div class="site-fx__blob site-fx__blob--2"></div>' +
-        '<div class="site-fx__blob site-fx__blob--3"></div>' +
-        '<div class="site-fx__blob site-fx__blob--4"></div>' +
+        layers +
         '<div class="site-fx__grid"></div>' +
+        '<canvas class="site-fx__net"></canvas>' +
+        '<div class="site-fx__bits">' + bits + '</div>' +
         '<div class="site-fx__veil"></div>';
       host.insertBefore(fx, host.firstChild);
+
+      if (!REDUCED) {
+        startFieldNet(fx, host, FINE);
+        if (FINE) trackPointer(fx, host);
+      }
     });
+  }
+
+  /* Pointer parallax. Raw pointer samples are eased toward rather than
+     applied directly, so the field glides instead of snapping. */
+  function trackPointer(fx, host) {
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = null, primed = false;
+
+    function write() {
+      fx.style.setProperty('--px', cx.toFixed(4));
+      fx.style.setProperty('--py', cy.toFixed(4));
+    }
+
+    host.addEventListener('pointermove', function (e) {
+      var r = host.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;   // -1 .. 1
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      // The very first move has nothing to ease from, so easing from 0
+      // reads as lag before the field responds at all. Seed part of the
+      // way there and write synchronously, then let rAF take over.
+      if (!primed) {
+        primed = true;
+        cx = tx * 0.55; cy = ty * 0.55;
+        write();
+      }
+      if (!raf) raf = requestAnimationFrame(step);
+    }, { passive: true });
+
+    host.addEventListener('pointerleave', function () {
+      tx = 0; ty = 0;
+      if (!raf) raf = requestAnimationFrame(step);
+    }, { passive: true });
+
+    function step() {
+      cx += (tx - cx) * 0.09;
+      cy += (ty - cy) * 0.09;
+      write();
+      // Keep easing until settled, then release the loop entirely.
+      if (Math.abs(tx - cx) > 0.001 || Math.abs(ty - cy) > 0.001) {
+        raf = requestAnimationFrame(step);
+      } else {
+        raf = null;
+      }
+    }
+  }
+
+  /* Particle field with a pointer repulsion well. Stops completely when
+     the host scrolls out of view, so it costs nothing off-screen. */
+  function startFieldNet(fx, host, FINE) {
+    var cv = $('.site-fx__net', fx);
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    if (!ctx) return;
+
+    var w = 0, h = 0, nodes = [], raf = null, running = false;
+    var mx = -9999, my = -9999;
+    var REPEL = 130, LINK = 132;
+
+    function resize() {
+      var r = host.getBoundingClientRect();
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = Math.max(1, r.width); h = Math.max(1, r.height);
+      cv.width = Math.floor(w * dpr); cv.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var count = Math.max(24, Math.min(90, Math.round((w * h) / 20000)));
+      nodes = [];
+      for (var i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          r: Math.random() * 1.7 + 0.8
+        });
+      }
+    }
+
+    if (FINE) {
+      host.addEventListener('pointermove', function (e) {
+        var r = host.getBoundingClientRect();
+        mx = e.clientX - r.left; my = e.clientY - r.top;
+      }, { passive: true });
+      host.addEventListener('pointerleave', function () { mx = my = -9999; }, { passive: true });
+    }
+
+    function draw() {
+      if (!running) return;
+      ctx.clearRect(0, 0, w, h);
+
+      for (var i = 0; i < nodes.length; i++) {
+        var p = nodes[i];
+        // Pointer well. Force is capped so a fast cursor sweep cannot give
+        // a node runaway velocity.
+        var dx = p.x - mx, dy = p.y - my;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < REPEL * REPEL && d2 > 0.01) {
+          var d = Math.sqrt(d2);
+          var f = Math.min((1 - d / REPEL) * 1.4, 1.4);
+          p.vx += (dx / d) * f * 0.55;
+          p.vy += (dy / d) * f * 0.55;
+        }
+        p.x += p.vx; p.y += p.vy;
+        p.vx *= 0.965; p.vy *= 0.965;          // friction, or it never settles
+        // Drift floor so the field never goes completely still.
+        if (Math.abs(p.vx) < 0.06) p.vx += (Math.random() - 0.5) * 0.05;
+        if (Math.abs(p.vy) < 0.06) p.vy += (Math.random() - 0.5) * 0.05;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        p.x = Math.max(0, Math.min(w, p.x));
+        p.y = Math.max(0, Math.min(h, p.y));
+      }
+
+      var stroke = getComputedStyle(fx).getPropertyValue('--fx-bit').trim() ||
+                   'rgba(160,215,255,.3)';
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 1;
+      for (var a = 0; a < nodes.length; a++) {
+        for (var b = a + 1; b < nodes.length; b++) {
+          var na = nodes[a], nb = nodes[b];
+          var ex = na.x - nb.x, ey = na.y - nb.y;
+          var e2 = ex * ex + ey * ey;
+          if (e2 > LINK * LINK) continue;
+          ctx.globalAlpha = (1 - Math.sqrt(e2) / LINK) * 0.5;
+          ctx.beginPath(); ctx.moveTo(na.x, na.y); ctx.lineTo(nb.x, nb.y); ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = stroke;
+      for (var k = 0; k < nodes.length; k++) {
+        ctx.beginPath();
+        ctx.arc(nodes[k].x, nodes[k].y, nodes[k].r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    }
+
+    function start() { if (!running) { running = true; raf = requestAnimationFrame(draw); } }
+    function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { start(); } else { stop(); }
+      }, { threshold: 0 }).observe(host);
+    } else {
+      start();
+    }
   }
 
   function boot() {

@@ -459,6 +459,18 @@
 .site-fx ~ .hero__inner,
 .site-fx ~ .section__inner { position: relative; z-index: 1; }
 
+.site-fx__layer {
+  position: absolute;
+  inset: -12%;
+  will-change: transform;
+  /* Cursor parallax lives here, keyframe drift lives on the child. Putting
+     both on one element would let the animation clobber the offset. */
+  transform: translate3d(
+    calc(var(--px, 0) * var(--depth, 10) * 1px),
+    calc(var(--py, 0) * var(--depth, 10) * 1px), 0);
+  transition: transform 260ms cubic-bezier(.22,1,.36,1);
+}
+
 .site-fx__blob {
   position: absolute;
   border-radius: 50%;
@@ -494,6 +506,41 @@
 @keyframes fxDrift3 {
   from { transform: translate3d(-50%,0,0) scale(.85) rotate(0deg); }
   to   { transform: translate3d(-50%,-16vh,0) scale(1.3) rotate(34deg); }
+}
+
+/* Cursor-reactive particle field. Nodes drift, link by proximity, and are
+   pushed out of the way by the pointer. */
+.site-fx__net {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: var(--fx-net, .5);
+}
+
+/* Drifting debris — small marks that give the field texture beyond the
+   soft aurora, each on its own depth so they separate under parallax. */
+.site-fx__bits { position: absolute; inset: 0; }
+.site-fx__bit {
+  position: absolute;
+  color: var(--fx-bit, rgba(255,255,255,.30));
+  animation: fxBit var(--dur, 26s) linear infinite;
+  animation-delay: var(--del, 0s);
+  opacity: 0;
+}
+.site-fx__bit::before {
+  content: '';
+  display: block;
+  width: var(--sz, 8px); height: var(--sz, 8px);
+  border: 1px solid currentColor;
+  border-radius: var(--rad, 0);
+}
+.site-fx__bit--dot::before { background: currentColor; border-radius: 50%; }
+.site-fx__bit--ring::before { border-radius: 50%; }
+@keyframes fxBit {
+  0%   { opacity: 0; transform: translate3d(0, 12vh, 0) rotate(0deg); }
+  10%  { opacity: 1; }
+  85%  { opacity: .5; }
+  100% { opacity: 0; transform: translate3d(var(--dx, 6vw), -22vh, 0) rotate(var(--rot, 220deg)); }
 }
 
 /* Panning grid — motion the old static 4%-alpha grid never had. */
@@ -536,6 +583,8 @@
   --fx-3: #14F195;
   --fx-4: #F0349B;
   --fx-a: .55;
+  --fx-net: .55;
+  --fx-bit: rgba(160,215,255,.34);
   --fx-line: rgba(255,255,255,.085);
   --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, transparent 42%, rgba(6,8,15,.42) 100%);
 }
@@ -545,6 +594,8 @@
   --fx-3: #0D9488;
   --fx-4: #DB2777;
   --fx-a: .34;
+  --fx-net: .40;
+  --fx-bit: rgba(30,64,120,.26);
   --fx-line: rgba(15,23,42,.085);
   --fx-veil: radial-gradient(ellipse 86% 76% at 50% 50%, rgba(255,255,255,.10) 45%, rgba(255,255,255,.46) 100%);
 }
