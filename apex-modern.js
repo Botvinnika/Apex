@@ -366,14 +366,41 @@
     var raf = null, running = false;
     var mx = -9999, my = -9999;                  // pointer, in pitch units
 
-    /* ---- formations: 4-3-3, home attacks +x ---- */
+    /* ---- 4-3-3, home attacks +x ---- */
     var SHAPE = [
-      [5, 34],
-      [20, 13], [20, 27], [20, 41], [20, 55],
-      [38, 19], [38, 34], [38, 49],
-      [58, 15], [58, 34], [58, 53]
+      { x: 5,  y: 34, role: 'GK' },
+      { x: 20, y: 56, role: 'FB' },
+      { x: 17, y: 41, role: 'CB' },
+      { x: 17, y: 27, role: 'CB' },
+      { x: 20, y: 12, role: 'FB' },
+      { x: 33, y: 34, role: 'DM' },
+      { x: 42, y: 46, role: 'CM' },
+      { x: 42, y: 22, role: 'CM' },
+      { x: 64, y: 59, role: 'WG' },
+      { x: 70, y: 34, role: 'ST' },
+      { x: 64, y: 9,  role: 'WG' }
     ];
-    function mirror(p) { return [PW - p[0], PH - p[1]]; }
+
+    /* Per-role behaviour.
+         adv  : metres pushed up when the team has the ball
+         drop : metres dropped when it does not
+         pull : how far the player slides across toward the ball's side.
+                Low for wingers (they hold the touchline), high for
+                centre-backs and the DM (they stay compact and shuffle).
+         roam : how far the player will leave shape to press.
+         run  : full-backs and wingers surge up their own flank when the
+                ball is on their side. */
+    var ROLE = {
+      GK: { adv: 2,  drop: -1,  pull: 0.18, roam: 6,  run: 0 },
+      CB: { adv: 8,  drop: -5,  pull: 0.42, roam: 14, run: 0 },
+      FB: { adv: 20, drop: -2,  pull: 0.12, roam: 18, run: 14 },
+      DM: { adv: 7,  drop: -8,  pull: 0.46, roam: 20, run: 0 },
+      CM: { adv: 15, drop: -9,  pull: 0.34, roam: 24, run: 0 },
+      WG: { adv: 14, drop: -22, pull: 0.10, roam: 20, run: 10 },
+      ST: { adv: 12, drop: -18, pull: 0.24, roam: 16, run: 0 }
+    };
+
+    function mirror(p) { return { x: PW - p.x, y: PH - p.y, role: p.role }; }
 
     var players = [], ball = null, trail = [], passLine = null, flash = 0;
 
@@ -383,9 +410,9 @@
         for (var i = 0; i < SHAPE.length; i++) {
           var base = t === 0 ? SHAPE[i] : mirror(SHAPE[i]);
           players.push({
-            team: t, gk: i === 0,
-            hx: base[0], hy: base[1],            // formation anchor
-            x: base[0], y: base[1],
+            team: t, gk: base.role === 'GK', role: base.role,
+            hx: base.x, hy: base.y,              // formation anchor
+            x: base.x, y: base.y,
             vx: 0, vy: 0,
             ph: Math.random() * 6.28, ph2: Math.random() * 6.28,
             wob: 0, wob2: 0
@@ -427,7 +454,7 @@
         }
 
         var progress = (m.x - carrier.x) * fwd;  // metres gained
-        var score = progress * 1.6 + press * 2.2 - d * 0.35 + Math.random() * 9;
+        var score = progress * 1.4 + press * 2.4 - d * 0.30 + Math.random() * 11;
         if (score > bestScore) { bestScore = score; best = m; }
       }
       return best;
@@ -460,46 +487,63 @@
     function step() {
       var carrier = ball.owner;
 
-      // ---- team block ----
-      // A real side shifts as a unit: the whole block slides toward the
-      // ball's side and moves its line up or down, while each player
-      // holds their slot inside that shape. Previously every outfielder
-      // homed on the ball independently, which collapsed all 11 into a
-      // blob around it.
-      var blockX = (ball.x - PW / 2) * 0.30;      // line height
-      var blockY = (ball.y - PH / 2) * 0.34;      // lateral shift
+      // ---- role-driven shape ----
+      // Every player used to receive the SAME block offset, so the side
+      // slid around as one rigid slab. Each role now has its own job.
+      var inPoss = carrier ? carrier.team : -1;
 
-      // Only the closest player of each side actually goes to the ball.
-      var chaser = [null, null], chaseD = [Infinity, Infinity];
-      for (var c = 0; c < players.length; c++) {
-        var pc = players[c];
-        if (pc.gk) continue;
-        var dc = dist(pc.x, pc.y, ball.x, ball.y);
-        if (dc < chaseD[pc.team]) { chaseD[pc.team] = dc; chaser[pc.team] = pc; }
+      // Only the closest player of the side WITHOUT the ball presses.
+      var presser = null, pd = Infinity;
+      if (carrier) {
+        for (var c = 0; c < players.length; c++) {
+          var pc = players[c];
+          if (pc.team === carrier.team || pc.gk) continue;
+          var dc = dist(pc.x, pc.y, ball.x, ball.y);
+          if (dc < pd) { pd = dc; presser = pc; }
+        }
       }
 
       for (var i = 0; i < players.length; i++) {
         var p = players[i];
-        var maxv = JOG;
-        var tx, ty;
+        var R = ROLE[p.role] || ROLE.CM;
+        var fwd = p.team === 0 ? 1 : -1;
+        var attacking = p.team === inPoss;
+        var maxv = JOG, tx, ty;
 
         if (p.gk) {
-          // Keeper holds his line and shuffles across with the ball.
           tx = p.hx + (ball.x - p.hx) * 0.04;
           ty = 34 + (ball.y - 34) * 0.26;
           maxv = GK_V;
+
         } else if (p === carrier) {
-          tx = p.x + (p.team === 0 ? 2.2 : -2.2);   // drive forward
+          tx = p.x + fwd * 2.2;                       // drive forward
           ty = p.y + p.wob * 1.2;
-          maxv = JOG;
-        } else if (p === chaser[p.team] && chaseD[p.team] < 26) {
-          tx = ball.x; ty = ball.y;                 // close it down
+
+        } else if (p === presser && pd < R.roam) {
+          tx = ball.x; ty = ball.y;                   // close the ball down
           maxv = SPRINT;
+
         } else {
-          // Hold shape. wob is a slow per-player wander so the block
-          // breathes instead of sitting on exact coordinates.
-          tx = p.hx + blockX + p.wob * 2.4;
-          ty = p.hy + blockY + p.wob2 * 2.0;
+          // Hold the slot, adjusted for the phase of play.
+          tx = p.hx + fwd * (attacking ? R.adv : R.drop);
+
+          // Lateral: slide toward the ball's side by a role-specific
+          // amount. A winger barely moves (holds width); a centre-back
+          // shuffles across to stay compact.
+          ty = p.hy + (ball.y - PH / 2) * R.pull;
+
+          // Flank runs: a full-back or winger surges up their own touchline
+          // when their team has it and the ball is on their side.
+          if (R.run && attacking) {
+            var onMySide = (p.hy > PH / 2) === (ball.y > PH / 2);
+            if (onMySide) {
+              tx += fwd * R.run;
+              maxv = SPRINT * 0.85;
+            }
+          }
+
+          tx += p.wob * 2.2;
+          ty += p.wob2 * 1.8;
         }
 
         // Pointer nudge: players give way slightly as the cursor passes.
@@ -516,8 +560,7 @@
         p.vy += (ty - p.y) * 0.020;
         p.vx *= 0.86; p.vy *= 0.86;
 
-        // Hard speed cap in metres per frame — without this a player
-        // crossing a 10m gap accelerated to roughly 72 m/s.
+        // Hard cap in metres per frame — nothing bounded this before.
         var sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
         if (sp > maxv) { p.vx = (p.vx / sp) * maxv; p.vy = (p.vy / sp) * maxv; }
 
@@ -525,22 +568,8 @@
         p.x = Math.max(1, Math.min(PW - 1, p.x));
         p.y = Math.max(1, Math.min(PH - 1, p.y));
 
-        // Advance the wander phases.
         p.ph += 0.006; p.ph2 += 0.0043;
         p.wob = Math.sin(p.ph); p.wob2 = Math.sin(p.ph2);
-      }
-
-      // Reassign the presser each frame — nearest opponent to the carrier.
-      for (var q = 0; q < players.length; q++) players[q].presser = false;
-      if (carrier) {
-        var near = null, nd = Infinity;
-        for (var r = 0; r < players.length; r++) {
-          var o = players[r];
-          if (o.team === carrier.team || o.gk) continue;
-          var d2 = dist(o.x, o.y, carrier.x, carrier.y);
-          if (d2 < nd) { nd = d2; near = o; }
-        }
-        if (near) near.presser = true;
       }
 
       /* ---- ball ---- */
