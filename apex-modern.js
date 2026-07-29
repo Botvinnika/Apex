@@ -356,12 +356,22 @@
 
     var PW = 105, PH = 68;                       // pitch metres
 
-    /* Speeds are metres per frame at 60fps, taken from real ranges:
-       sprint ~8 m/s, jog ~4.5, keeper ~3, pass ~16-22, shot ~26-32.
-       The first version ran 3-9x these and looked like air hockey. */
-    var SPRINT = 0.135, JOG = 0.075, GK_V = 0.052;
-    var PASS_MIN = 0.27, PASS_VAR = 0.10;
-    var SHOT_MIN = 0.44, SHOT_VAR = 0.09;
+    /* Speeds start from real ranges at 60fps — sprint ~8 m/s, jog ~4.5,
+       keeper ~3, pass ~16-22, shot ~26-32 — then everything is lifted by
+       one shared RATE. True real-time reads as sluggish in a background
+       strip; scaling the whole set keeps the ratios honest (a pass still
+       outruns a sprint, a shot outruns a pass) while playing at a pace
+       closer to how football looks in highlights. */
+    var RATE = 1.45;
+    var SPRINT = 0.135 * RATE, JOG = 0.075 * RATE, GK_V = 0.052 * RATE;
+    var PASS_MIN = 0.27 * RATE, PASS_VAR = 0.10 * RATE;
+    var SHOT_MIN = 0.38 * RATE, SHOT_VAR = 0.08 * RATE;
+
+    /* Tempo, 0 = patient circulation, 1 = full-tilt break. It spikes on a
+       turnover — the moment a real game accelerates — decays back toward a
+       slowly wandering baseline, and scales player speed, pass weight and
+       how long anyone dwells on the ball. */
+    var tempo = 0.45, tempoBase = 0.45, tempoPhase = Math.random() * 6.28;
     var w = 0, h = 0, sc = 1, ox = 0, oy = 0;    // viewport + slice transform
     var raf = null, running = false;
     var mx = -9999, my = -9999;                  // pointer, in pitch units
@@ -476,7 +486,7 @@
       var gx = carrier.team === 0 ? PW : 0;
       var gy = 34 + (Math.random() - 0.5) * 12;      // sometimes wide
       var d = dist(ball.x, ball.y, gx, gy) || 1;
-      var sp = SHOT_MIN + Math.random() * SHOT_VAR;
+      var sp = (SHOT_MIN + Math.random() * SHOT_VAR) * (0.92 + tempo * 0.18);
       ball.vx = ((gx - ball.x) / d) * sp;
       ball.vy = ((gy - ball.y) / d) * sp;
       ball.state = 'shot';
@@ -488,6 +498,13 @@
     /* ---- per-frame simulation ---- */
     function step() {
       var carrier = ball.owner;
+
+      // Baseline wanders slowly; tempo eases toward it and decays after
+      // any spike, so the game visibly settles and surges.
+      tempoPhase += 0.0022;
+      tempoBase = 0.45 + Math.sin(tempoPhase) * 0.22;
+      tempo += (tempoBase - tempo) * 0.012;
+      tempo = Math.max(0, Math.min(1, tempo));
 
       // ---- role-driven shape ----
       // Every player used to receive the SAME block offset, so the side
@@ -562,13 +579,16 @@
           }
         }
 
-        p.vx += (tx - p.x) * 0.020;
-        p.vy += (ty - p.y) * 0.020;
-        p.vx *= 0.86; p.vy *= 0.86;
+        p.vx += (tx - p.x) * 0.030;
+        p.vy += (ty - p.y) * 0.030;
+        p.vx *= 0.88; p.vy *= 0.88;
 
         // Hard cap in metres per frame — nothing bounded this before.
+        // Everyone moves quicker as the game opens up.
+        var lift = 0.85 + tempo * 0.42;
+        var cap = maxv * lift;
         var sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (sp > maxv) { p.vx = (p.vx / sp) * maxv; p.vy = (p.vy / sp) * maxv; }
+        if (sp > cap) { p.vx = (p.vx / sp) * cap; p.vy = (p.vy / sp) * cap; }
 
         p.x += p.vx; p.y += p.vy;
         p.x = Math.max(1, Math.min(PW - 1, p.x));
@@ -597,6 +617,7 @@
             // ~5% per frame ≈ a duel lasting a few tenths of a second.
             if (Math.random() < 0.05) {
               carrier.cool = 80;                 // ~1.3s before he can win it back
+              tempo = Math.min(1, tempo + 0.55);  // a turnover breaks the game open
               ball.owner = op; ball.t = 0;
               break;
             }
@@ -607,13 +628,15 @@
         // Tuned against a 60s simulation: pd 3.2/t20 produced 45 panic
         // releases out of 91 events and a 0.65s average touch.
         var hounded = presser && pd < 2.6 && ball.t > 40;
-        if (hounded || ball.t > 75 + Math.random() * 90) {
+        // High tempo means the ball is moved on quicker.
+        var dwell = (75 + Math.random() * 90) * (1.30 - tempo * 0.72);
+        if (hounded || ball.t > dwell) {
           var inFinalThird = carrier.team === 0 ? carrier.x > 74 : carrier.x < 31;
           if (inFinalThird && Math.random() < 0.55) {
             shoot(carrier);
           } else {
             var tgt = choosePass(carrier);
-            if (tgt) passTo(tgt, PASS_MIN + Math.random() * PASS_VAR);
+            if (tgt) passTo(tgt, (PASS_MIN + Math.random() * PASS_VAR) * (0.88 + tempo * 0.30));
             else ball.t = 0;
           }
         }
