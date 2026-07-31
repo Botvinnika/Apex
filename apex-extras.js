@@ -289,6 +289,7 @@
         { group: 'Pages',     title: 'Dashboard',     subtitle: 'Real-time analytics view', icon: 'i-radar', action: 'navigate:dashboard.html', keywords: 'analytics stats' },
         { group: 'Pages',     title: 'Strategy Builder', subtitle: 'Stack custom legs', icon: 'i-bookmark', action: 'navigate:strategy-builder.html', keywords: 'builder bet combo' },
         { group: 'Pages',     title: 'Methodology',   subtitle: 'How the model works',       icon: 'i-spark', action: 'navigate:methodology.html', keywords: 'method model math' },
+        { group: 'Pages',     title: 'Athlete Analysis', subtitle: 'Six-axis player profiles', icon: 'i-radar', action: 'navigate:analysis.html', keywords: 'player athlete profile percentile radar compare' },
         { group: 'Pages',     title: 'League Hub',    subtitle: 'African leagues deep-dive', icon: 'i-trophy', action: 'navigate:league-hub.html', keywords: 'africa npfl afcon' },
         { group: 'Pages',     title: 'Team',          subtitle: 'Founders & contributors',   icon: 'i-spark', action: 'navigate:team.html',      keywords: 'team about people' },
         // In-page sections (only on index)
@@ -466,4 +467,112 @@
     window.ApexShortcuts = { open: openShortcuts, close: closeShortcuts };
   });
 
+})();
+
+/* ============================================================
+   6. NAV GROUP — the "Platform" dropdown
+
+   Opens on hover for pointer users and on click/Enter for everyone
+   else, because a hover-only menu is unreachable by keyboard and
+   unusable on touch. Below 900px .nav__links is hidden and the mobile
+   drawer takes over, so this stays out of the way entirely.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  function ready(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  ready(function () {
+    var group = document.querySelector('[data-navgroup]');
+    if (!group) return;
+
+    var trigger = group.querySelector('.nav__trigger');
+    var menu = group.querySelector('.nav__menu');
+    if (!trigger || !menu) return;
+
+    var isDesktop = function () { return window.matchMedia('(min-width: 901px)').matches; };
+    var hoverTimer = null;
+
+    function open() {
+      group.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+    function close() {
+      group.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+    function toggle() {
+      if (group.classList.contains('is-open')) close(); else open();
+    }
+
+    // Pointer: open on enter, close on leave with a small grace period
+    // so crossing the gap to the menu does not dismiss it.
+    group.addEventListener('mouseenter', function () {
+      if (!isDesktop()) return;
+      clearTimeout(hoverTimer);
+      open();
+    });
+    group.addEventListener('mouseleave', function () {
+      if (!isDesktop()) return;
+      hoverTimer = setTimeout(close, 160);
+    });
+
+    // Keyboard / touch
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      toggle();
+    });
+    trigger.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        open();
+        var first = menu.querySelector('.nav__menuitem');
+        if (first) first.focus();
+      }
+    });
+    menu.addEventListener('keydown', function (e) {
+      var items = Array.prototype.slice.call(menu.querySelectorAll('.nav__menuitem'));
+      var i = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items[(i + 1) % items.length].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (i <= 0) { trigger.focus(); close(); }
+        else items[i - 1].focus();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+        trigger.focus();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && group.classList.contains('is-open')) {
+        close();
+        trigger.focus();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      if (!group.contains(e.target)) close();
+    });
+    // Focus moving out of the group closes it, so tabbing past the menu
+    // does not leave it hanging open behind the rest of the bar.
+    group.addEventListener('focusout', function (e) {
+      if (!group.contains(e.relatedTarget)) close();
+    });
+
+    /* Mark the trigger as "you are here" when the current page lives
+       inside the group, so collapsing these links does not cost the
+       reader their sense of place. */
+    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    var match = menu.querySelector('a[href="' + here + '"]');
+    if (match) {
+      group.classList.add('is-current');
+      match.setAttribute('aria-current', 'page');
+    }
+  });
 })();

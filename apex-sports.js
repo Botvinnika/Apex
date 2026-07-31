@@ -41,6 +41,7 @@
       sprint: 0.135, jog: 0.075, keeper: 0.052,
       pass: [0.27, 0.10], shot: [0.38, 0.08],
       hold: [54, 62],
+      spacing: 7.5,
       goalHalf: 3.7,            // half-width of the scoring mouth
       finalThird: 0.70,         // fraction of pitch length before shooting
       shootChance: 0.55,
@@ -91,10 +92,16 @@
       goalInset: 1.575,
       finalThird: 0.62,
       shootChance: 0.72,
+      /* Spacing is the whole game on a 28m floor, so this is a real
+         five-out-ish set rather than a compressed football block. The
+         old shape put PF and C on the halfway line at y=5.5/9.5, which
+         mirrors onto itself — both teams' bigs spawned on exactly the
+         same two points and then stayed welded together. */
+      spacing: 3.4,
       shape: [
-        { x: 6,  y: 7.5, role: 'PG' },
-        { x: 10, y: 3,   role: 'SG' }, { x: 10, y: 12, role: 'SF' },
-        { x: 14, y: 5.5, role: 'PF' }, { x: 14, y: 9.5, role: 'C'  }
+        { x: 7,    y: 7.5,  role: 'PG' },
+        { x: 11.5, y: 2.4,  role: 'SG' }, { x: 11.5, y: 12.6, role: 'SF' },
+        { x: 16,   y: 5.2,  role: 'PF' }, { x: 17.5, y: 10.2, role: 'C'  }
       ],
       /* FIBA proportions, drawn inside a 0.4 inset so the sideline sits
          off the very edge. Baselines x=0.4 / x=27.6, centre y=7.5.
@@ -133,6 +140,7 @@
       sprint: 0.105, jog: 0.062, keeper: 0.062,
       pass: [0.42, 0.14], shot: [0.46, 0.10],
       hold: [26, 26],           // a stroke is struck almost on contact
+      spacing: 2.6,
       goalHalf: 5.5,
       finalThird: 0.0,
       shootChance: 0.30,
@@ -173,12 +181,22 @@
     CM:  { adv: 15, drop: -9,  pull: 0.34, roam: 24, run: 0 },
     WG:  { adv: 14, drop: -22, pull: 0.10, roam: 20, run: 10 },
     ST:  { adv: 12, drop: -18, pull: 0.24, roam: 16, run: 0 },
-    // basketball — everyone presses, spacing matters more than lines
-    PG:  { adv: 5,  drop: -3,  pull: 0.34, roam: 12, run: 3 },
-    SG:  { adv: 5,  drop: -3,  pull: 0.22, roam: 12, run: 4 },
-    SF:  { adv: 5,  drop: -3,  pull: 0.22, roam: 12, run: 4 },
-    PF:  { adv: 4,  drop: -2,  pull: 0.30, roam: 10, run: 0 },
-    C:   { adv: 3,  drop: -2,  pull: 0.30, roam: 9,  run: 0 },
+    /* basketball — `off`/`def` are metres from the rim being attacked
+       or defended, used instead of adv/drop. The football offsets are
+       scaled by PW/105, which on a 28m floor moved a player barely a
+       metre between attack and defence, so both teams milled around
+       halfway and never ran the court. Expressing it relative to the
+       basket also keeps bigs near the rim and guards out top in both
+       phases, which adv/drop inverted.
+
+       pull is deliberately low: it slides a player onto the ball's y,
+       and with five men on a 15m-wide floor football values dragged
+       everyone into the same band as the ball. */
+    PG:  { adv: 5,  drop: -3,  pull: 0.16, roam: 12, run: 3, off: 8.6, def: 7.4 },
+    SG:  { adv: 5,  drop: -3,  pull: 0.11, roam: 12, run: 4, off: 7.0, def: 5.6 },
+    SF:  { adv: 5,  drop: -3,  pull: 0.11, roam: 12, run: 4, off: 7.0, def: 5.6 },
+    PF:  { adv: 4,  drop: -2,  pull: 0.14, roam: 10, run: 0, off: 3.6, def: 2.9 },
+    C:   { adv: 3,  drop: -2,  pull: 0.14, roam: 9,  run: 0, off: 2.3, def: 1.7 },
     // tennis
     BASE:{ adv: 1,  drop: -1,  pull: 0.85, roam: 8,  run: 0 },
     NET: { adv: 2,  drop: -2,  pull: 0.80, roam: 8,  run: 0 }
@@ -314,6 +332,27 @@
         }
       }
 
+      /* Personal space. Nothing in the engine kept players apart, so any
+         time the ball settled they all steered at the same point and
+         collapsed into a knot around it. Computed as a pre-pass over the
+         previous frame's positions so the result doesn't depend on
+         iteration order, then folded into steering below. */
+      var sepR = S.spacing || PW * 0.055;
+      for (var s0 = 0; s0 < players.length; s0++) { players[s0].sx = 0; players[s0].sy = 0; }
+      for (var s1 = 0; s1 < players.length; s1++) {
+        for (var s2 = s1 + 1; s2 < players.length; s2++) {
+          var pa = players[s1], pb = players[s2];
+          var sdx = pb.x - pa.x, sdy = pb.y - pa.y;
+          var sd = Math.sqrt(sdx * sdx + sdy * sdy);
+          if (sd >= sepR || sd < 0.0001) continue;
+          var force = 1 - sd / sepR;
+          var ux = (sdx / sd) * force, uy = (sdy / sd) * force;
+          pa.sx -= ux; pa.sy -= uy;
+          pb.sx += ux; pb.sy += uy;
+        }
+      }
+      var SEP = SPRINT * 0.38;
+
       for (var i = 0; i < players.length; i++) {
         var p = players[i];
         var Rl = ROLE[p.role] || ROLE.CM;
@@ -345,7 +384,17 @@
         } else if (p === presser && pd < Rl.roam * k) {
           tx = ball.x; ty = ball.y; maxv = SPRINT;
         } else {
-          tx = p.hx + fwd * (att ? Rl.adv : Rl.drop) * k;
+          if (S.goalInset && Rl.off != null) {
+            // Basket sports run the whole floor: hold station relative
+            // to the rim in play, not to a fixed spot near halfway.
+            var anchor = att
+              ? (p.team === 0 ? PW - S.goalInset : S.goalInset)
+              : (p.team === 0 ? S.goalInset : PW - S.goalInset);
+            var gap = att ? Rl.off : Rl.def;
+            tx = anchor + (anchor > PW / 2 ? -gap : gap);
+          } else {
+            tx = p.hx + fwd * (att ? Rl.adv : Rl.drop) * k;
+          }
           ty = p.hy + (ball.y - PH / 2) * Rl.pull;
           if (Rl.run && att) {
             var mine = (p.hy > PH / 2) === (ball.y > PH / 2);
@@ -355,8 +404,8 @@
           ty += p.wob2 * 1.8 * k;
         }
 
-        p.vx += (tx - p.x) * 0.040;
-        p.vy += (ty - p.y) * 0.040;
+        p.vx += (tx - p.x) * 0.040 + p.sx * SEP;
+        p.vy += (ty - p.y) * 0.040 + p.sy * SEP;
         p.vx *= 0.88; p.vy *= 0.88;
 
         var lift = 0.90 + tempo * 0.55;
@@ -522,10 +571,16 @@
     var w = 0, h = 0, sc = 1, ox = 0, oy = 0;
     var raf = null;
 
+    /* Both layers must resolve to the SAME transform or the players
+       drift off the painted lines. The markings host and the canvas are
+       now the identical box (see .sport-fx__marks in apex-modern.css),
+       and both use fit-with-bleed below. */
+    var BLEED = 1.06;
+
     function paintMarks(name) {
       var sp = SPORTS[name];
       marksHost.innerHTML =
-        '<svg viewBox="0 0 ' + sp.W + ' ' + sp.H + '" preserveAspectRatio="xMidYMid slice">' +
+        '<svg viewBox="0 0 ' + sp.W + ' ' + sp.H + '" preserveAspectRatio="xMidYMid meet">' +
         sp.marks + '</svg>';
     }
 
@@ -535,7 +590,12 @@
       cv.width = Math.floor(w * dpr); cv.height = Math.floor(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!S) return;
-      sc = Math.max(w / S.W, h / S.H);
+      /* Was Math.max — cover. That cropped the court to fill the frame,
+         which on any laptop cut 2m off each end and on a phone cut 10m,
+         taking the baskets, keys and three-point arcs with it and
+         leaving an unrecognisable set of lines. Fit keeps the whole
+         court; the small bleed stops it reading as a floating rectangle. */
+      sc = Math.min(w / S.W, h / S.H) * BLEED;
       ox = (w - S.W * sc) / 2;
       oy = (h - S.H * sc) / 2;
     }
@@ -570,7 +630,7 @@
 
       var cs = getComputedStyle(fx);
       var home  = cs.getPropertyValue('--fx-home').trim()  || '#38BDF8';
-      var away  = cs.getPropertyValue('--fx-away').trim()  || '#94A3B8';
+      var away  = cs.getPropertyValue('--fx-away').trim()  || '#F43F5E';
       var ballC = cs.getPropertyValue('--fx-ball').trim()  || '#fff';
       var trailC = cs.getPropertyValue('--fx-trail').trim() || 'rgba(255,255,255,.5)';
 

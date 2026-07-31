@@ -8,13 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="design-tokens.css?v=6">
-    <link rel="stylesheet" href="components.css?v=6">
-    <link rel="stylesheet" href="dashboard.css?v=6">
-    <link rel="stylesheet" href="theme.css?v=6">
-  <link rel="stylesheet" href="apex-ui.css?v=7">
-  <link rel="stylesheet" href="apex-modern.css?v=1">
-    <script src="theme.js?v=6"></script>
+    <link rel="stylesheet" href="design-tokens.css?v=20260730">
+    <link rel="stylesheet" href="components.css?v=20260730">
+    <link rel="stylesheet" href="dashboard.css?v=20260730">
+    <link rel="stylesheet" href="theme.css?v=20260730">
+  <link rel="stylesheet" href="apex-ui.css?v=20260730">
+  <link rel="stylesheet" href="apex-modern.css?v=20260730">
+    <script src="theme.js?v=20260730"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230B1220'/%3E%3Cpath d='M50 16L82 82L68 82L62 68L38 68L32 82L18 82Z M44 58L56 58L50 44Z' fill='%2338BDF8'/%3E%3Ccircle cx='50' cy='50' r='3.5' fill='%230B1220'/%3E%3C/svg%3E">
     <!-- Chart.js CDN for premium charts -->
     <!-- Pinned: the unversioned jsdelivr URL follows Chart.js latest, so a
@@ -60,6 +60,28 @@
                 <button class="sidebar__nav-item" data-tab="alerts">
                     <svg class="icon"><use href="#i-bell"/></svg> Alerts
                 </button>
+
+                <!-- The rest of the product, reachable without going back
+                     out to the marketing nav. These leave the dashboard, so
+                     they are links rather than tab buttons and are separated
+                     to make that difference visible. -->
+                <span class="sidebar__group">Workspace</span>
+                <a class="sidebar__nav-item sidebar__nav-item--link" href="analysis.html">
+                    <svg class="icon"><use href="#i-radar"/></svg> Athlete Analysis
+                    <svg class="sidebar__out" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                </a>
+                <a class="sidebar__nav-item sidebar__nav-item--link" href="strategy-builder.html">
+                    <svg class="icon"><use href="#i-bookmark"/></svg> Strategy Builder
+                    <svg class="sidebar__out" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                </a>
+                <a class="sidebar__nav-item sidebar__nav-item--link" href="league-hub.html">
+                    <svg class="icon"><use href="#i-trophy"/></svg> League Hub
+                    <svg class="sidebar__out" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                </a>
+                <a class="sidebar__nav-item sidebar__nav-item--link" href="methodology.html">
+                    <svg class="icon"><use href="#i-spark"/></svg> Methodology
+                    <svg class="sidebar__out" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                </a>
             </nav>
 
             <div class="sidebar__footer">
@@ -973,12 +995,12 @@
         </main>
     </div>
 
-    <script src="apex-icons.js?v=6" defer></script>
-    <script src="lightning.js?v=6"></script>
-    <script src="dashboard.js?v=6"></script>
-    <script src="apex-extras.js?v=6"></script>
-  <script src="apex-ui.js?v=7" defer></script>
-  <script src="apex-modern.js?v=1" defer></script>
-  <script src="apex-sports.js?v=1" defer></script>
+    <script src="apex-icons.js?v=20260730" defer></script>
+    <script src="lightning.js?v=20260730"></script>
+    <script src="dashboard.js?v=20260730"></script>
+    <script src="apex-extras.js?v=20260730"></script>
+  <script src="apex-ui.js?v=20260730" defer></script>
+  <script src="apex-modern.js?v=20260730" defer></script>
+  <script src="apex-sports.js?v=20260730" defer></script>
 </body>
 </html>

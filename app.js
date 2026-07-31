@@ -467,19 +467,33 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (plStatus) plStatus.textContent = 'Ready';
 
-      // Beat on 100% so completion registers, then hand off. The page
-      // underneath is deliberately NOT animated — driving page content
-      // from here risks leaving the site invisible if the two desync,
-      // and it fights the existing .reveal system.
+      // Beat on 100% so completion registers, then hand off.
       setTimeout(() => {
         flyMarkToBrand();
         pl.classList.add('is-out');
         document.removeEventListener('keydown', onKey);
         if (typeof startFeatureVisuals === 'function') startFeatureVisuals();
+
+        /* Bring the page in while the panel is still leaving, so the two
+           overlap instead of running end to end. The page used to be
+           revealed fully formed behind a fading curtain, which is why the
+           handoff read as a cut no matter how smooth the exit was.
+
+           Safe by construction: the keyframe animates FROM the offset
+           state TO normal with no fill holding either end, so a missing
+           or un-removed class degrades to "no animation", never to
+           hidden content. The class is stripped once the animation is
+           done so .reveal and anything else keeps a clean slate. */
+        if (!REDUCED) {
+          const html = document.documentElement;
+          html.classList.add('site-enter');
+          setTimeout(() => html.classList.remove('site-enter'), 900);
+        }
+
         setTimeout(() => {
           pl.classList.add('is-done');
-        }, REDUCED ? 0 : 980);
-      }, REDUCED ? 0 : 240);
+        }, REDUCED ? 0 : 1100);
+      }, REDUCED ? 0 : 200);
     }
 
     function onKey(e) {
@@ -754,7 +768,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       priceAmounts.forEach(amount => {
-        const value = isAnnual ? amount.getAttribute('data-annual') : amount.getAttribute('data-monthly');
+        const raw = isAnnual ? amount.getAttribute('data-annual') : amount.getAttribute('data-monthly');
+        // The data attributes are bare digits ("10000") while the markup
+        // ships them grouped ("10,000"), so writing the attribute straight
+        // through dropped the separator on the first toggle and never got
+        // it back. Pinned to en-US so it always matches the served HTML
+        // rather than following the visitor's locale.
+        const n = Number(raw);
+        const value = raw !== null && raw !== '' && Number.isFinite(n)
+          ? n.toLocaleString('en-US')
+          : raw;
         amount.style.opacity = 0;
         setTimeout(() => {
           amount.textContent = value;

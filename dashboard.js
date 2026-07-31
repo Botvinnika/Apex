@@ -5,6 +5,31 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ============================================================
+  // 0. CHART PALETTE
+  // Series and chrome colours live in CSS (see the --viz-* block in
+  // dashboard.css) so a theme switch changes them in one place. Canvas
+  // can't read custom properties itself, so resolve them once here.
+  // ============================================================
+  const VIZ = (() => {
+    const cs = getComputedStyle(document.documentElement);
+    const read = (name, fallback) =>
+      (cs.getPropertyValue(name) || '').trim() || fallback;
+    return {
+      s1:   read('--viz-1', '#0284C7'),
+      s2:   read('--viz-2', '#D95926'),
+      grid: read('--viz-grid', 'rgba(255,255,255,.06)'),
+      tick: read('--viz-tick', '#9AA4B5')
+    };
+  })();
+
+  // Chart.js takes no alpha channel on a hex string, so derive fills.
+  const vizFill = (hex, a) => {
+    const h = hex.replace('#', '');
+    const n = parseInt(h.length === 3 ? h.replace(/./g, c => c + c) : h, 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  };
+
+  // ============================================================
   // 1. DATE-TIME DISPLAY & INITIAL STATE
   // ============================================================
   const dateTimeEl = document.getElementById('dateTime');
@@ -60,36 +85,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. CHART.JS INTEGRATION (FOOTBALL TAB)
   // ============================================================
   
-  // 3a. Player DB
+  /* 3a. Player DB — data only.
+     Colour is NOT stored per player. This is a two-slot comparator: the
+     left selector is always slot 1 and the right is always slot 2, and
+     the legend names who is in each. Storing a hue per player looks
+     tempting but cannot work — four entity colours would have to stay
+     distinguishable in every 2-of-4 pairing, and past three slots no
+     ordering clears the all-pairs CVD floor. Assigning by slot keeps
+     every possible matchup on the one validated pair. */
   const playerData = {
-    haaland: {
-      label: 'Erling Haaland',
-      data: [95, 45, 68, 25, 92, 88], // Shooting, Passing, Dribbling, Defending, Physical, Pace
-      borderColor: 'rgba(0, 229, 255, 1)',
-      backgroundColor: 'rgba(0, 229, 255, 0.15)',
-      pointBackgroundColor: 'rgba(0, 229, 255, 1)'
-    },
-    mbappe: {
-      label: 'Kylian Mbappé',
-      data: [90, 78, 92, 32, 75, 97],
-      borderColor: 'rgba(139, 92, 246, 1)',
-      backgroundColor: 'rgba(139, 92, 246, 0.15)',
-      pointBackgroundColor: 'rgba(139, 92, 246, 1)'
-    },
-    messi: {
-      label: 'Lionel Messi',
-      data: [92, 95, 96, 20, 58, 72],
-      borderColor: 'rgba(0, 255, 135, 1)',
-      backgroundColor: 'rgba(0, 255, 135, 0.15)',
-      pointBackgroundColor: 'rgba(0, 255, 135, 1)'
-    },
-    ronaldo: {
-      label: 'Cristiano Ronaldo',
-      data: [88, 70, 78, 22, 82, 76],
-      borderColor: 'rgba(236, 72, 153, 1)',
-      backgroundColor: 'rgba(236, 72, 153, 0.15)',
-      pointBackgroundColor: 'rgba(236, 72, 153, 1)'
-    }
+    haaland: { label: 'Erling Haaland',    data: [95, 45, 68, 25, 92, 88] }, // Shooting, Passing, Dribbling, Defending, Physical, Pace
+    mbappe:  { label: 'Kylian Mbappé',     data: [90, 78, 92, 32, 75, 97] },
+    messi:   { label: 'Lionel Messi',      data: [92, 95, 96, 20, 58, 72] },
+    ronaldo: { label: 'Cristiano Ronaldo', data: [88, 70, 78, 22, 82, 76] }
+  };
+
+  // Slot styling, applied by position rather than by entity.
+  const vizSlot = (i) => {
+    const c = i === 0 ? VIZ.s1 : VIZ.s2;
+    return { borderColor: c, backgroundColor: vizFill(c, 0.15), pointBackgroundColor: c };
   };
 
   // 3b. Setup Radar Chart
@@ -104,24 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       labels: ['Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical', 'Pace'],
       datasets: [
-        {
-          label: dataset1.label,
-          data: dataset1.data,
-          borderColor: dataset1.borderColor,
-          backgroundColor: dataset1.backgroundColor,
-          pointBackgroundColor: dataset1.pointBackgroundColor,
-          borderWidth: 2,
-          pointRadius: 4
-        },
-        {
-          label: dataset2.label,
-          data: dataset2.data,
-          borderColor: dataset2.borderColor,
-          backgroundColor: dataset2.backgroundColor,
-          pointBackgroundColor: dataset2.pointBackgroundColor,
-          borderWidth: 2,
-          pointRadius: 4
-        }
+        Object.assign({ label: dataset1.label, data: dataset1.data,
+                        borderWidth: 2, pointRadius: 4 }, vizSlot(0)),
+        Object.assign({ label: dataset2.label, data: dataset2.data,
+                        borderWidth: 2, pointRadius: 4 }, vizSlot(1))
       ]
     },
     options: {
@@ -130,17 +130,17 @@ document.addEventListener('DOMContentLoaded', () => {
       scales: {
         r: {
           grid: {
-            color: 'rgba(255, 255, 255, 0.05)'
+            color: VIZ.grid
           },
           angleLines: {
-            color: 'rgba(255, 255, 255, 0.05)'
+            color: VIZ.grid
           },
           ticks: {
             display: false,
             maxTicksLimit: 5
           },
           pointLabels: {
-            color: '#94a3b8',
+            color: VIZ.tick,
             font: {
               family: 'Space Grotesk',
               size: 11,
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       plugins: {
         legend: {
           labels: {
-            color: '#fff',
+            color: VIZ.tick,
             font: {
               family: 'Plus Jakarta Sans',
               size: 12,
@@ -174,17 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const p1 = playerData[p1Select.value];
     const p2 = playerData[p2Select.value];
 
+    // Only label and data change — the slot keeps its colour, so picking
+    // a different player never repaints the other series.
     radarChart.data.datasets[0].label = p1.label;
     radarChart.data.datasets[0].data = p1.data;
-    radarChart.data.datasets[0].borderColor = p1.borderColor;
-    radarChart.data.datasets[0].backgroundColor = p1.backgroundColor;
-    radarChart.data.datasets[0].pointBackgroundColor = p1.pointBackgroundColor;
-
     radarChart.data.datasets[1].label = p2.label;
     radarChart.data.datasets[1].data = p2.data;
-    radarChart.data.datasets[1].borderColor = p2.borderColor;
-    radarChart.data.datasets[1].backgroundColor = p2.backgroundColor;
-    radarChart.data.datasets[1].pointBackgroundColor = p2.pointBackgroundColor;
 
     radarChart.update();
   }
@@ -196,8 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lineCtx = document.getElementById('xgLineChart').getContext('2d');
   
   const gradientFill = lineCtx.createLinearGradient(0, 0, 0, 200);
-  gradientFill.addColorStop(0, 'rgba(0, 229, 255, 0.2)');
-  gradientFill.addColorStop(1, 'rgba(0, 229, 255, 0)');
+  gradientFill.addColorStop(0, vizFill(VIZ.s1, 0.20));
+  gradientFill.addColorStop(1, vizFill(VIZ.s1, 0));
 
   const xgLineChart = new Chart(lineCtx, {
     type: 'line',
@@ -207,24 +202,24 @@ document.addEventListener('DOMContentLoaded', () => {
         {
           label: 'Expected Goals (xG)',
           data: [1.2, 1.8, 1.4, 2.4, 1.9, 2.2, 2.8, 1.5, 2.6, 2.15],
-          borderColor: '#00e5ff',
+          borderColor: VIZ.s1,
           backgroundColor: gradientFill,
           fill: true,
           tension: 0.4,
           borderWidth: 2,
           pointRadius: 4,
-          pointBackgroundColor: '#00e5ff'
+          pointBackgroundColor: VIZ.s1
         },
         {
           label: 'Actual Goals scored',
           data: [1, 2, 1, 3, 2, 2, 4, 1, 3, 2],
-          borderColor: '#a78bfa',
+          borderColor: VIZ.s2,
           borderDash: [4, 4],
           fill: false,
           tension: 0.1,
           borderWidth: 1.5,
           pointRadius: 3,
-          pointBackgroundColor: '#a78bfa'
+          pointBackgroundColor: VIZ.s2
         }
       ]
     },
@@ -234,17 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8' }
+          ticks: { color: VIZ.tick }
         },
         y: {
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          ticks: { color: '#94a3b8' }
+          grid: { color: VIZ.grid },
+          ticks: { color: VIZ.tick }
         }
       },
       plugins: {
         legend: {
           labels: {
-            color: '#fff',
+            color: VIZ.tick,
             font: { family: 'Plus Jakarta Sans', size: 10 }
           }
         }
@@ -548,11 +543,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============================================================
   // 6. TENNIS RADAR CHART
   // ============================================================
+  // Data only — colour comes from the slot, as on the football radar.
   const tennisPlayerData = {
-    djokovic: { label: 'Novak Djokovic', data: [98, 95, 88, 90, 96, 82], borderColor: 'rgba(0,229,255,1)', backgroundColor: 'rgba(0,229,255,0.15)', pointBackgroundColor: 'rgba(0,229,255,1)' },
-    alcaraz:  { label: 'Carlos Alcaraz',  data: [92, 90, 96, 85, 88, 98], borderColor: 'rgba(139,92,246,1)', backgroundColor: 'rgba(139,92,246,0.15)', pointBackgroundColor: 'rgba(139,92,246,1)' },
-    sinner:   { label: 'Jannik Sinner',   data: [90, 88, 85, 92, 84, 90], borderColor: 'rgba(0,255,135,1)', backgroundColor: 'rgba(0,255,135,0.15)', pointBackgroundColor: 'rgba(0,255,135,1)' },
-    medvedev: { label: 'Daniil Medvedev', data: [86, 94, 80, 88, 82, 78], borderColor: 'rgba(236,72,153,1)', backgroundColor: 'rgba(236,72,153,0.15)', pointBackgroundColor: 'rgba(236,72,153,1)' }
+    djokovic: { label: 'Novak Djokovic',  data: [98, 95, 88, 90, 96, 82] },
+    alcaraz:  { label: 'Carlos Alcaraz',  data: [92, 90, 96, 85, 88, 98] },
+    sinner:   { label: 'Jannik Sinner',   data: [90, 88, 85, 92, 84, 90] },
+    medvedev: { label: 'Daniil Medvedev', data: [86, 94, 80, 88, 82, 78] }
   };
 
   const tennisRadarCtx = document.getElementById('tennisRadarChart');
@@ -562,25 +558,27 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: ['Serve', 'Return', 'Baseline', 'Net Play', 'Mental', 'Speed'],
         datasets: [
-          { ...tennisPlayerData.djokovic, borderWidth: 2, pointRadius: 4 },
-          { ...tennisPlayerData.alcaraz, borderWidth: 2, pointRadius: 4 }
+          Object.assign({ ...tennisPlayerData.djokovic, borderWidth: 2, pointRadius: 4 }, vizSlot(0)),
+          Object.assign({ ...tennisPlayerData.alcaraz,  borderWidth: 2, pointRadius: 4 }, vizSlot(1))
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, angleLines: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false }, pointLabels: { color: '#94a3b8', font: { family: 'Space Grotesk', size: 11, weight: 'bold' } }, suggestedMin: 0, suggestedMax: 100 } },
-        plugins: { legend: { labels: { color: '#fff', font: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' } } } }
+        scales: { r: { grid: { color: VIZ.grid }, angleLines: { color: VIZ.grid }, ticks: { display: false }, pointLabels: { color: VIZ.tick, font: { family: 'Space Grotesk', size: 11, weight: 'bold' } }, suggestedMin: 0, suggestedMax: 100 } },
+        plugins: { legend: { labels: { color: VIZ.tick, font: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' } } } }
       }
     });
 
     document.getElementById('tennisPlayer1').addEventListener('change', function() {
       const p = tennisPlayerData[this.value];
-      tRadarChart.data.datasets[0] = { ...p, borderWidth: 2, pointRadius: 4 };
+      tRadarChart.data.datasets[0] = Object.assign(
+        { ...p, borderWidth: 2, pointRadius: 4 }, vizSlot(0));
       tRadarChart.update();
     });
     document.getElementById('tennisPlayer2').addEventListener('change', function() {
       const p = tennisPlayerData[this.value];
-      tRadarChart.data.datasets[1] = { ...p, borderWidth: 2, pointRadius: 4 };
+      tRadarChart.data.datasets[1] = Object.assign(
+        { ...p, borderWidth: 2, pointRadius: 4 }, vizSlot(1));
       tRadarChart.update();
     });
   }
@@ -593,14 +591,14 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: ['100-110', '111-120', '121-130', '131-140', '141-150', '150+'],
         datasets: [
-          { label: 'Djokovic', data: [5, 12, 28, 34, 18, 8], backgroundColor: 'rgba(0,229,255,0.6)', borderColor: '#00e5ff', borderWidth: 1, borderRadius: 4 },
-          { label: 'Alcaraz', data: [3, 8, 22, 38, 22, 12], backgroundColor: 'rgba(139,92,246,0.6)', borderColor: '#a78bfa', borderWidth: 1, borderRadius: 4 }
+          { label: 'Djokovic', data: [5, 12, 28, 34, 18, 8], backgroundColor: vizFill(VIZ.s1, 0.6), borderColor: VIZ.s1, borderWidth: 1, borderRadius: 4 },
+          { label: 'Alcaraz', data: [3, 8, 22, 38, 22, 12], backgroundColor: vizFill(VIZ.s2, 0.6), borderColor: VIZ.s2, borderWidth: 1, borderRadius: 4 }
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } },
-        plugins: { legend: { labels: { color: '#fff', font: { size: 11 } } } }
+        scales: { x: { grid: { display: false }, ticks: { color: VIZ.tick, font: { size: 10 } } }, y: { grid: { color: VIZ.grid }, ticks: { color: VIZ.tick } } },
+        plugins: { legend: { labels: { color: VIZ.tick, font: { size: 11 } } } }
       }
     });
   }
@@ -668,24 +666,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const defaultSz = document.querySelector('[data-zone="sz-mm"]');
   if (defaultSz) defaultSz.click();
 
-  // Baseball Pitch Arsenal donut chart
+  /* Baseball pitch arsenal — ranked horizontal bar, not a donut.
+     Two reasons it changed. A donut is only defensible for part-to-whole
+     "at a glance", and these values (24 / 18 / 14) are close enough that
+     arc length can't separate them — reading them off a shared baseline
+     can. And a five-slice donut needs five categorical hues that stay
+     distinct in every pairing, which no five-hue set achieves; the old
+     one was cyan/purple/pink/green/amber and failed badly. Putting the
+     pitch name on the axis moves identity to the label, so the whole
+     chart needs exactly one hue and no legend. */
   const pitchCtx = document.getElementById('pitchArsenalChart');
   if (pitchCtx) {
+    const pitches = [
+      ['4-Seam FB', 34], ['Slider', 24], ['Curveball', 18],
+      ['Changeup', 14], ['Cutter', 10]
+    ];
     new Chart(pitchCtx.getContext('2d'), {
-      type: 'doughnut',
+      type: 'bar',
       data: {
-        labels: ['4-Seam FB', 'Slider', 'Curveball', 'Changeup', 'Cutter'],
+        labels: pitches.map(p => p[0]),
         datasets: [{
-          data: [34, 24, 18, 14, 10],
-          backgroundColor: ['rgba(0,229,255,0.8)', 'rgba(139,92,246,0.8)', 'rgba(236,72,153,0.8)', 'rgba(0,255,135,0.8)', 'rgba(251,191,36,0.8)'],
-          borderColor: 'rgba(0,0,0,0.3)',
-          borderWidth: 2,
-          hoverOffset: 8
+          label: 'Usage',
+          data: pitches.map(p => p[1]),
+          backgroundColor: VIZ.s1,
+          borderRadius: 4,
+          borderSkipped: false,
+          barThickness: 18
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false, cutout: '60%',
-        plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 11 }, padding: 10 } } }
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        // One series — the card title names it, so a legend box would
+        // only repeat itself.
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => c.parsed.x + '% of pitches thrown' } }
+        },
+        scales: {
+          x: {
+            grid: { color: VIZ.grid, drawBorder: false },
+            ticks: { color: VIZ.tick, font: { size: 10 }, callback: (v) => v + '%' },
+            beginAtZero: true
+          },
+          y: {
+            grid: { display: false, drawBorder: false },
+            ticks: { color: VIZ.tick, font: { size: 11 } }
+          }
+        }
       }
     });
   }

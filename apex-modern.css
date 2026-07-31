@@ -255,13 +255,17 @@
 /* The draw diagonal is the one structural feature worth marking. */
 .m-cellbox[data-draw] { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 
+/* align-items was declared twice here — flex-start, then center — so
+   the later one silently won and centred the legend, the most-likely
+   readout and the toggle inside the side column, while every other
+   block on the page (.m-head, the copy above) is left-aligned. That
+   mismatch is what made the percentage look off-position. On a column
+   flex container justify-content distributes vertically and does
+   nothing useful against auto height, and flex-wrap is inert too. */
 .m-matrix__foot {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
   gap: 14px;
 }
 .m-legend { display: flex; align-items: center; gap: 9px; }
@@ -598,12 +602,12 @@
   --fx-3: #0EA5E9;
   --fx-4: #1E40AF;
   --fx-a: .46;
-  --fx-net: .55;
+  --fx-net: .38;
   --fx-bit: rgba(160,215,255,.34);
   --fx-line: rgba(255,255,255,.11);
   --fx-mow: rgba(255,255,255,.022);
   --fx-home: #38BDF8;
-  --fx-away: #94A3B8;
+  --fx-away: #F43F5E;
   --fx-ball: #FFFFFF;
   --fx-trail: rgba(255,255,255,.5);
   /* Three stops so the field settles back into --bg-base at the frame
@@ -622,12 +626,12 @@
   /* Light mode needs far more weight than dark: the same alphas that
      read clearly on near-black wash out completely on cream. Match marks
      are near-opaque and use fully saturated kit colours. */
-  --fx-net: .92;
+  --fx-net: .68;
   --fx-bit: rgba(30,64,120,.34);
   --fx-line: rgba(15,23,42,.19);
   --fx-mow: rgba(15,23,42,.030);
   --fx-home: #0284C7;
-  --fx-away: #475569;
+  --fx-away: #BE123C;
   --fx-ball: #0B1120;
   --fx-trail: rgba(15,23,42,.62);
   --fx-veil: radial-gradient(ellipse 90% 82% at 50% 48%,
@@ -641,7 +645,7 @@
     --fx-line: rgba(15,23,42,.12);
     --fx-mow: rgba(15,23,42,.022);
     --fx-home: #0369A1;
-    --fx-away: #475569;
+    --fx-away: #BE123C;
     --fx-ball: #0F172A;
     --fx-trail: rgba(15,23,42,.45);
     --fx-veil: radial-gradient(ellipse 90% 82% at 50% 48%,
@@ -701,8 +705,16 @@
 
 .sport-fx__marks {
   position: absolute;
-  inset: -6%;
-  width: 112%; height: 112%;
+  /* Must be the exact box the canvas uses (the viewport), or the SVG
+     resolves preserveAspectRatio against a different rectangle and the
+     court is painted at a different scale from the players running on
+     it. This was inset:-6%/112%, so the markings sat 12% larger than
+     the coordinate space the simulation moves in and nobody lined up
+     with anything. The matching bleed lives in apex-sports.js. */
+  inset: 0;
+  width: 100%; height: 100%;
+  transform: scale(1.06);
+  transform-origin: 50% 50%;
   color: var(--fx-line);
   /* A long multi-stop falloff rather than one linear ramp: the old mask
      held full strength to 14% then fell off in a single step, so the
@@ -722,12 +734,12 @@
               transparent 88%);
   mask-image: var(--fx-fade);
   -webkit-mask-image: var(--fx-fade);
-  filter: blur(.7px);
+  filter: blur(1.1px);
 }
 /* Motion off means the field is static texture, so it can sit fractionally
    sharper without pulling focus. */
 @media (prefers-reduced-motion: reduce) {
-  .sport-fx__marks { filter: blur(.4px); }
+  .sport-fx__marks { filter: blur(.7px); }
 }
 .sport-fx__marks svg { width: 100%; height: 100%; display: block; }
 
@@ -818,10 +830,19 @@ body > nav { position: relative; z-index: 1; }
 .compare,
 .league-hub-section,
 .pricing {
-  background: var(--glass-band);
-  border-block: 1px solid var(--glass-edge);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(118%);
-  backdrop-filter: blur(var(--glass-blur)) saturate(118%);
+  /* No hairline top and bottom. A 1px rule spanning the full viewport
+     is a literal demarcation line — it announces "new section" harder
+     than any tint does, and stacking six of them down the page is what
+     chopped the scroll into slabs. The tint instead fades in and out
+     over ~48px, so a band gathers and releases rather than starting. */
+  background: linear-gradient(to bottom,
+    transparent 0,
+    var(--glass-band) clamp(28px, 5vw, 64px),
+    var(--glass-band) calc(100% - clamp(28px, 5vw, 64px)),
+    transparent 100%);
+  border-block: 0;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(112%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(112%);
 }
 
 /* Where backdrop-filter is unavailable, fall back to the original
@@ -870,10 +891,10 @@ body > nav { position: relative; z-index: 1; }
    rules, so `.sport-fx.is-swapping` still out-specifies the resting
    opacity in every theme — scoping it as `:root[data-theme] .sport-fx`
    would quietly beat the swap dip in light mode. */
-.sport-fx { opacity: var(--fx-surface-a, .78); }
-:root[data-theme="light"] { --fx-surface-a: .62; }
+.sport-fx { opacity: var(--fx-surface-a, .60); }
+:root[data-theme="light"] { --fx-surface-a: .46; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) { --fx-surface-a: .62; }
+  :root:not([data-theme]) { --fx-surface-a: .46; }
 }
 
 /* Reduced motion already stops the sim; without movement the field
@@ -881,4 +902,156 @@ body > nav { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   :root { --glass-band: rgba(12, 16, 24, 0.62); }
   :root[data-theme="light"] { --glass-band: rgba(255, 255, 255, 0.72); }
+}
+
+/* ============================================================
+   SCORELINE RANK — replaces the 7×7 heat grid
+
+   The grid encoded probability as cell darkness, which meant you
+   could see that a cell was likely but not whether it was a home
+   win, a draw or an away win — and comparing two similar shades
+   across a grid is a job the eye is bad at.
+
+   Here magnitude is bar length (read off a shared baseline, which
+   the eye is good at) and outcome is colour, which is categorical
+   and is the thing colour should carry.
+
+   Home and away use the validated blue/orange pair rather than
+   red/green: it reads as the same opposition, but red-green is the
+   one pairing ~8% of men cannot separate, and here colour IS the
+   information rather than decoration.
+   ============================================================ */
+.sl { display: flex; flex-direction: column; gap: 18px; }
+
+/* ---- three-way split ---- */
+.sl__split {
+  display: flex; height: 34px; border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--m-line-2); background: var(--m-sunken);
+  gap: 2px;                       /* 2px surface gap between segments */
+}
+.sl__seg {
+  display: grid; place-items: center; min-width: 0;
+  font-family: var(--m-mono); font-size: 12px; font-weight: 700;
+  color: #fff; transition: width 420ms var(--m-ease);
+}
+.sl__seg b { font-weight: 700; }
+.sl__seg--home { background: var(--sl-home, #0284C7); }
+.sl__seg--draw { background: var(--sl-draw, #64748B); }
+.sl__seg--away { background: var(--sl-away, #EA6A2A); }
+
+.sl__splitkey { display: flex; gap: 18px; flex-wrap: wrap; }
+.sl__k { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--m-text-2); }
+.sl__dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.sl__dot--home { background: var(--sl-home, #0284C7); }
+.sl__dot--draw { background: var(--sl-draw, #64748B); }
+.sl__dot--away { background: var(--sl-away, #EA6A2A); }
+
+/* ---- ranked list ---- */
+.sl__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.sl__row {
+  display: grid;
+  grid-template-columns: 18px 46px 1fr 52px 46px;
+  align-items: center; gap: 12px;
+  padding: 7px 10px; border-radius: 9px;
+  background: var(--m-bg-2);
+  border: 1px solid transparent;
+  transition: border-color 160ms var(--m-ease), background 160ms var(--m-ease);
+}
+.sl__row:hover { border-color: var(--m-line); background: var(--m-bg); }
+.sl__rank { font-family: var(--m-mono); font-size: 10px; color: var(--m-text-3); text-align: right; }
+.sl__score {
+  font-family: var(--m-mono); font-size: 15px; font-weight: 700;
+  color: var(--m-text); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+.sl__score i { font-style: normal; color: var(--m-text-3); margin: 0 1px; }
+.sl__track { height: 9px; border-radius: 99px; background: var(--m-sunken); overflow: hidden; }
+.sl__bar {
+  display: block; height: 100%; border-radius: 99px;
+  transition: width 420ms var(--m-ease);
+}
+.sl__row--home .sl__bar { background: var(--sl-home, #0284C7); }
+.sl__row--draw .sl__bar { background: var(--sl-draw, #64748B); }
+.sl__row--away .sl__bar { background: var(--sl-away, #EA6A2A); }
+.sl__pct {
+  font-family: var(--m-mono); font-size: 13px; font-weight: 600;
+  color: var(--m-text); text-align: right; font-variant-numeric: tabular-nums;
+}
+/* Fair decimal price — the number a reader actually acts on. */
+.sl__odds {
+  font-family: var(--m-mono); font-size: 11px; color: var(--m-text-3);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.sl__odds::before { content: '@'; opacity: .5; margin-right: 2px; }
+
+.sl__foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.sl__note { font-size: 12px; color: var(--m-text-3); margin: 0; max-width: 46ch; }
+
+@media (max-width: 620px) {
+  .sl__row { grid-template-columns: 14px 40px 1fr 44px; gap: 8px; padding: 6px 8px; }
+  .sl__odds { display: none; }
+  .sl__seg { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl__seg, .sl__bar, .sl__row { transition: none; }
+}
+
+/* Outcome palette — home <- draw -> away is diverging, not categorical,
+   so it is two poles plus a neutral midpoint (the form the method
+   prescribes for polarity). Validated per mode with the dataviz
+   validator: worst all-pairs CVD ΔE 12.3 dark / 13.2 light, worst
+   normal-vision ΔE 16.2 / 17.6, all three ≥ 3:1 on their surface.
+
+   The validator also flags the midpoint for low chroma and, in dark
+   mode, for sitting above the categorical lightness band. Both are
+   intended: the chroma floor exists to stop a categorical series
+   reading as gray, and a diverging midpoint is meant to. Its
+   lightness is what buys separation from the blue pole. */
+:root {
+  --sl-home: #0284C7;
+  --sl-draw: #475569;
+  --sl-away: #C2410C;
+}
+:root:not([data-theme="light"]) {
+  --sl-home: #0284C7;
+  --sl-draw: #94A3B8;
+  --sl-away: #D95926;
+}
+:root[data-theme="light"] {
+  --sl-home: #0284C7;
+  --sl-draw: #475569;
+  --sl-away: #C2410C;
+}
+
+/* The side panel is gone with the grid, so this is a single column now. */
+.m-matrix { grid-template-columns: 1fr; }
+
+/* ============================================================
+   BRAND RED — structural accents only
+
+   Scoped to chrome that carries no financial meaning. See the note
+   in design-tokens.css: no red on this site can be told apart from
+   --negative, so red never touches EV, edge, P&L, deltas or
+   verdicts. It marks structure, not outcomes.
+   ============================================================ */
+
+/* Kicker rule — a short red tick before every section label. Small,
+   repeated, and nowhere near a number: the cheapest way to get the
+   whole page reading sharper. */
+.m-kicker::before {
+  background: var(--brand-red, #E11D48);
+  opacity: 1;
+  height: 2px;
+  border-radius: 2px;
+}
+
+/* No red full-stop after .m-head h2 — those headings already end in a
+   period in the markup, so it would render as "..". */
+
+/* The feature cell's ambient wash gains a warm corner, matching the
+   cyan-to-crimson depth the field now carries behind it. */
+.m-cell--feature {
+  background:
+    radial-gradient(120% 90% at 15% 0%, var(--accent-soft, rgba(56,189,248,.12)), transparent 60%),
+    radial-gradient(90% 80% at 100% 100%, var(--brand-red-soft, rgba(225,29,72,.10)), transparent 62%),
+    var(--m-bg-2);
 }

@@ -250,3 +250,37 @@
 
   color-scheme: light;
 }
+
+/* ============================================================
+   BRAND RED — the second accent
+
+   Deliberately scoped. Every red tested sits within ΔE 3.5–8.5 of
+   --negative (#EF4444), far under the ~15 needed to read as a
+   different colour, so this site cannot carry two reds that mean
+   two things. Red therefore goes only where there is no financial
+   reading to confuse:
+
+     YES — team kits on the field, ambient glow, structural chrome
+           (kicker rules, live pulse, section markers)
+     NO  — EV, edge, P&L, deltas, verdicts, anything a reader could
+           mistake for a loss
+
+   Keeping it off the numbers is what lets it stay sharp instead of
+   becoming noise.
+   ============================================================ */
+:root {
+  --brand-red:        #E11D48;   /* rose-600 — deeper and pinker than
+                                    the alert red, so the two never look
+                                    like the same token misapplied */
+  --brand-red-bright: #F43F5E;   /* small marks on dark surfaces */
+  --brand-red-deep:   #9F1239;
+  --brand-red-soft:   rgba(225, 29, 72, 0.10);
+  --brand-red-border: rgba(225, 29, 72, 0.30);
+}
+:root[data-theme="light"] {
+  --brand-red:        #BE123C;
+  --brand-red-bright: #E11D48;
+  --brand-red-deep:   #881337;
+  --brand-red-soft:   rgba(190, 18, 60, 0.08);
+  --brand-red-border: rgba(190, 18, 60, 0.26);
+}

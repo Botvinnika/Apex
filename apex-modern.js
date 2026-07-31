@@ -24,32 +24,14 @@
     var root = $('[data-matrix]');
     if (!root) return;
 
-    var N = 7;                       // 0–6 goals per side
-    var grid = $('[data-matrix-grid]', root);
+    var N = 7;                       // 0-6 goals per side
+    var TOP = 8;                     // scorelines worth showing
+    var listEl  = $('[data-sl-list]', root);
+    var splitEl = $('[data-sl-split]', root);
+    var keyEl   = $('[data-sl-splitkey]', root);
     var tableWrap = $('[data-matrix-table]', root);
     var toggle = $('[data-matrix-toggle]', root);
-    var maxOut = $('[data-matrix-max]', root);
-    if (!grid) return;
-
-    var tip = document.createElement('div');
-    tip.className = 'm-tip';
-    tip.setAttribute('role', 'status');
-    document.body.appendChild(tip);
-
-    // ---- build the grid once; only fills change afterwards ----
-    var cells = [];
-    var html = '<span class="m-grid__hd" aria-hidden="true"></span>';
-    for (var a = 0; a < N; a++) html += '<span class="m-grid__hd">' + a + '</span>';
-    for (var h = 0; h < N; h++) {
-      html += '<span class="m-grid__hd">' + h + '</span>';
-      for (var aw = 0; aw < N; aw++) {
-        html += '<span class="m-cellbox" tabindex="0" role="img" ' +
-                'data-h="' + h + '" data-a="' + aw + '"' +
-                (h === aw ? ' data-draw' : '') + '></span>';
-      }
-    }
-    grid.innerHTML = html;
-    cells = $$('.m-cellbox', grid);
+    if (!listEl) return;
 
     function pois(l, k) {
       var p = Math.exp(-l);
@@ -59,69 +41,84 @@
 
     var last = [];
 
+    /* Outcome is a categorical property of a scoreline, not a rank, so
+       it gets the colour. Probability is magnitude and gets the bar
+       length. Encoding both on one mark is what the old 7x7 heat grid
+       could not do: it showed magnitude but hid whether a cell was a
+       home win, a draw or an away win.
+
+       Home/away use the validated blue-orange pair rather than
+       red/green. It carries the same opposition reading, but red and
+       green are the one pairing ~8% of men cannot separate, and here
+       the colour IS the information. */
+    function outcomeOf(hg, ag) {
+      return hg > ag ? 'home' : (hg === ag ? 'draw' : 'away');
+    }
+
     function paint(lh, la) {
-      var vals = [], max = 0;
-      for (var h = 0; h < N; h++) {
-        for (var a = 0; a < N; a++) {
-          var p = pois(lh, h) * pois(la, a);
+      var vals = [], cells = [];
+      var agg = { home: 0, draw: 0, away: 0 };
+      for (var hg = 0; hg < N; hg++) {
+        for (var ag = 0; ag < N; ag++) {
+          var p = pois(lh, hg) * pois(la, ag);
           vals.push(p);
-          if (p > max) max = p;
+          var o = outcomeOf(hg, ag);
+          agg[o] += p;
+          cells.push({ h: hg, a: ag, p: p, o: o });
         }
       }
       last = vals;
 
-      cells.forEach(function (el, i) {
-        var p = vals[i];
-        // Poisson mass is heavily skewed, so a linear map would leave
-        // almost every cell in the first step. sqrt spreads the low end
-        // without inverting any ordering.
-        var t = max > 0 ? Math.sqrt(p / max) : 0;
-        var step = Math.min(7, Math.max(1, Math.ceil(t * 7)));
-        el.style.background = 'var(--seq-' + step + ')';
-        var lbl = el.dataset.h + '–' + el.dataset.a + ': ' + (p * 100).toFixed(1) + '%';
-        el.setAttribute('aria-label', lbl);
-        el.__p = p;
-      });
+      // --- three-way split bar ---
+      var tot = agg.home + agg.draw + agg.away || 1;
+      var parts = [
+        { k: 'home', label: 'Home win', v: agg.home / tot },
+        { k: 'draw', label: 'Draw',     v: agg.draw / tot },
+        { k: 'away', label: 'Away win', v: agg.away / tot }
+      ];
+      splitEl.innerHTML = parts.map(function (s) {
+        return '<span class="sl__seg sl__seg--' + s.k + '" style="width:' +
+               (s.v * 100).toFixed(2) + '%"><b>' + (s.v * 100).toFixed(1) + '%</b></span>';
+      }).join('');
+      splitEl.setAttribute('aria-label', parts.map(function (s) {
+        return s.label + ' ' + (s.v * 100).toFixed(1) + ' percent';
+      }).join(', '));
+      keyEl.innerHTML = parts.map(function (s) {
+        return '<span class="sl__k"><i class="sl__dot sl__dot--' + s.k + '"></i>' +
+               s.label + '</span>';
+      }).join('');
 
-      if (maxOut) {
-        var mi = vals.indexOf(max);
-        maxOut.textContent = Math.floor(mi / N) + '–' + (mi % N) +
-                             ' (' + (max * 100).toFixed(1) + '%)';
+      // --- ranked scorelines ---
+      cells.sort(function (x, y) { return y.p - x.p; });
+      var top = cells.slice(0, TOP);
+      var peak = top[0] ? top[0].p : 1;
+
+      listEl.innerHTML = top.map(function (c, i) {
+        var pct = (c.p * 100);
+        var w = peak > 0 ? (c.p / peak) * 100 : 0;
+        var oddsTxt = c.p > 0 ? (1 / c.p).toFixed(1) : '—';
+        return '<li class="sl__row sl__row--' + c.o + '">' +
+          '<span class="sl__rank">' + (i + 1) + '</span>' +
+          '<span class="sl__score">' + c.h + '<i>&ndash;</i>' + c.a + '</span>' +
+          '<span class="sl__track"><span class="sl__bar" style="width:' + w.toFixed(2) + '%"></span></span>' +
+          '<span class="sl__pct">' + pct.toFixed(1) + '%</span>' +
+          '<span class="sl__odds">' + oddsTxt + '</span>' +
+        '</li>';
+      }).join('');
+
+      if (tableWrap && tableWrap.__render && !tableWrap.hasAttribute('hidden')) {
+        tableWrap.__render(vals);
       }
-      if (tableWrap && tableWrap.__render) tableWrap.__render(vals);
     }
 
-    // ---- hover / focus tooltip ----
-    function showTip(el) {
-      var r = el.getBoundingClientRect();
-      tip.innerHTML = el.dataset.h + '–' + el.dataset.a +
-                      ' &middot; <b>' + (el.__p * 100).toFixed(1) + '%</b>';
-      tip.style.left = (r.left + r.width / 2) + 'px';
-      tip.style.top = r.top + 'px';
-      tip.classList.add('is-on');
-    }
-    function hideTip() { tip.classList.remove('is-on'); }
-
-    grid.addEventListener('pointerover', function (e) {
-      var c = e.target.closest('.m-cellbox');
-      if (c) showTip(c);
-    });
-    grid.addEventListener('pointerout', hideTip);
-    grid.addEventListener('focusin', function (e) {
-      var c = e.target.closest('.m-cellbox');
-      if (c) showTip(c);
-    });
-    grid.addEventListener('focusout', hideTip);
-    window.addEventListener('scroll', hideTip, { passive: true });
-
-    // ---- table view: identity never depends on colour alone ----
+    // ---- full table: identity never depends on colour alone ----
     if (tableWrap) {
       tableWrap.__render = function (vals) {
         var rows = '';
-        for (var h = 0; h < N; h++) {
-          rows += '<tr><td>' + h + '</td>';
-          for (var a = 0; a < N; a++) {
-            rows += '<td>' + (vals[h * N + a] * 100).toFixed(1) + '</td>';
+        for (var hg = 0; hg < N; hg++) {
+          rows += '<tr><th scope="row">' + hg + '</th>';
+          for (var ag = 0; ag < N; ag++) {
+            rows += '<td>' + (vals[hg * N + ag] * 100).toFixed(1) + '</td>';
           }
           rows += '</tr>';
         }
@@ -140,10 +137,10 @@
         if (showing) {
           tableWrap.removeAttribute('hidden');
           tableWrap.__render(last);
-          toggle.textContent = 'Show matrix';
+          toggle.textContent = 'Hide table';
         } else {
           tableWrap.setAttribute('hidden', '');
-          toggle.textContent = 'Show table';
+          toggle.textContent = 'Show all 49';
         }
         toggle.setAttribute('aria-expanded', String(showing));
       });
@@ -700,7 +697,7 @@
 
       var cs = getComputedStyle(fx);
       var home  = cs.getPropertyValue('--fx-home').trim()  || '#38BDF8';
-      var away  = cs.getPropertyValue('--fx-away').trim()  || '#F0349B';
+      var away  = cs.getPropertyValue('--fx-away').trim()  || '#94A3B8';
       var ballC = cs.getPropertyValue('--fx-ball').trim()  || '#fff';
       var trailC = cs.getPropertyValue('--fx-trail').trim() || 'rgba(255,255,255,.5)';
 

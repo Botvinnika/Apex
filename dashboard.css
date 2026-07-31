@@ -59,6 +59,27 @@ body { overflow-y: auto; }
 .tab-header h2 { font-size: var(--fs-32); margin-bottom: var(--space-2); }
 .tab-header p { color: var(--text-secondary); font-size: var(--fs-16); }
 
+/* ----- Panel primitive -----
+   .kpi-card, .live-card and .grid-card were bare flex containers —
+   no background, border, padding or radius — so every metric and chart
+   on this page floated directly on the document while .pick-card sat
+   right beside them as a proper card. That single omission is why the
+   dashboard read as unfinished next to the rest of the site.
+
+   One primitive for all three, using the same glass tokens as .card on
+   the marketing pages so both halves of the product look like one
+   system. Falls back to the solid surfaces where those aren't loaded.
+   No hover state: none of these are clickable, and a lift would imply
+   otherwise — .pick-card keeps its hover precisely because it is. */
+.kpi-card,
+.live-card,
+.grid-card {
+  padding: var(--space-5);
+  background: var(--glass-card, var(--bg-elevated));
+  border: 1px solid var(--glass-edge, var(--border-default));
+  border-radius: var(--radius-lg);
+}
+
 /* ----- KPI grid ----- */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-8); }
 .kpi-card { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -99,6 +120,40 @@ body { overflow-y: auto; }
 .grid-card__header .selectors .vs { font-size: var(--fs-12); color: var(--text-muted); }
 .grid-card__body { min-height: 280px; display: flex; align-items: center; justify-content: center; }
 
+/* ----- Chart palette -----
+   Categorical slots for Chart.js, kept in CSS so both themes swap in one
+   place and the canvas never hardcodes hex. Validated with the dataviz
+   validator against the card surface in each mode (all six checks pass;
+   worst adjacent CVD ΔE 22.4 dark / 21.3 light, normal-vision 30.8 / 31.9).
+
+   Two slots is the whole set on purpose. Every comparison here is a
+   head-to-head — two players, two teams — and beyond three slots no
+   ordering clears the all-pairs floors, so a fourth would be decorative
+   at best and indistinguishable at worst. Identity comes from the legend
+   and the selectors, not from a hue per entity.
+
+   The brand accent #38BDF8 is deliberately NOT slot 1: at L 0.754 it sits
+   outside the dark lightness band and fails contrast pairing. #0284C7 is
+   the same brand blue stepped into the band. */
+:root {
+  --viz-1: #0284C7;
+  --viz-2: #EB6834;
+  --viz-grid: rgba(15, 23, 42, .08);
+  --viz-tick: #52525B;
+}
+:root:not([data-theme="light"]) {
+  --viz-1: #0284C7;
+  --viz-2: #D95926;
+  --viz-grid: rgba(255, 255, 255, .06);
+  --viz-tick: #9AA4B5;
+}
+:root[data-theme="light"] {
+  --viz-1: #0284C7;
+  --viz-2: #EB6834;
+  --viz-grid: rgba(15, 23, 42, .08);
+  --viz-tick: #52525B;
+}
+
 /* Chart containers */
 .chart-container { width: 100%; height: 320px; position: relative; }
 .chart-container-sm { width: 100%; height: 240px; position: relative; }
@@ -109,12 +164,20 @@ body { overflow-y: auto; }
 .court-zone { fill: var(--accent-soft); stroke: var(--accent-border); stroke-width: 1; cursor: pointer; transition: fill var(--dur-fast) var(--ease-out), stroke var(--dur-fast) var(--ease-out); }
 .court-zone:hover { fill: var(--accent); fill-opacity: 0.25; }
 .court-zone.active { fill: var(--accent); fill-opacity: 0.4; stroke: var(--accent); stroke-width: 2; }
-.zone-paint      { fill: rgba(56, 189, 248, 0.18); }
-.zone-mid-left   { fill: rgba(139, 92, 246, 0.15); }
-.zone-mid-right  { fill: rgba(139, 92, 246, 0.15); }
-.zone-three-left { fill: rgba(16, 185, 129, 0.12); }
-.zone-three-right{ fill: rgba(16, 185, 129, 0.12); }
-.zone-three-deep { fill: rgba(245, 158, 11, 0.12); }
+/* Zone fills carry the efficiency rating in zoneDatabase (58–85), so
+   this is sequential data and belongs on the validated --seq ramp. It
+   was four unrelated hues — blue, purple, green, amber — which encoded
+   nothing at all: mid-left and mid-right shared a colour despite an
+   8-point rating gap, while paint and three-deep differed by 23 points
+   and read as unrelated categories. Steps are spread across the actual
+   58–85 range rather than 0–100, otherwise everything collapses into
+   three adjacent shades and the map says nothing. */
+.zone-paint      { fill: var(--seq-7, #C8ECFE); fill-opacity: .90; }  /* 85 */
+.zone-three-right{ fill: var(--seq-6, #85D6FB); fill-opacity: .82; }  /* 78 */
+.zone-three-left { fill: var(--seq-5, #38BDF8); fill-opacity: .74; }  /* 74 */
+.zone-mid-right  { fill: var(--seq-4, #1D82B8); fill-opacity: .70; }  /* 66 */
+.zone-three-deep { fill: var(--seq-3, #17557D); fill-opacity: .70; }  /* 62 */
+.zone-mid-left   { fill: var(--seq-2, #10334A); fill-opacity: .70; }  /* 58 */
 
 .zone-stats-body { flex-direction: column; align-items: stretch; gap: var(--space-3); width: 100%; }
 .zone-stat { display: flex; justify-content: space-between; padding-block: var(--space-2); border-bottom: 1px solid var(--border-subtle); font-size: var(--fs-14); }
@@ -170,7 +233,11 @@ body { overflow-y: auto; }
 .prob-bar { display: flex; height: 32px; border-radius: var(--radius-md); overflow: hidden; font-size: var(--fs-12); font-weight: var(--fw-semibold); }
 .home-prob { background: var(--accent); color: var(--text-inverse); display: grid; place-items: center; transition: width var(--dur-slow) var(--ease-out); }
 .draw-prob { background: var(--bg-inset); color: var(--text-secondary); display: grid; place-items: center; transition: width var(--dur-slow) var(--ease-out); border-left: 1px solid var(--border-default); border-right: 1px solid var(--border-default); }
-.away-prob { background: rgba(139, 92, 246, 0.7); color: white; display: grid; place-items: center; transition: width var(--dur-slow) var(--ease-out); }
+/* Home/draw/away is not a sequence — it is three named outcomes. Accent
+   for home, neutral for the draw, slate for away, matching the home/away
+   kit pairing the background field uses. The away leg was purple, the
+   only purple left on the page. */
+.away-prob { background: #64748B; color: #F8FAFC; display: grid; place-items: center; transition: width var(--dur-slow) var(--ease-out); }
 .console-wrapper { display: flex; flex-direction: column; gap: var(--space-2); }
 .console-header { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-12); font-weight: var(--fw-semibold); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--text-muted); }
 .console { background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-4); font-family: var(--font-mono); font-size: var(--fs-12); color: var(--text-secondary); max-height: 240px; overflow-y: auto; }
@@ -194,4 +261,25 @@ body { overflow-y: auto; }
   .sidebar__nav-item { flex: 1 1 auto; }
   .main-content { padding: var(--space-4); }
   .welcome-banner { flex-direction: column; align-items: flex-start; }
+}
+
+/* ----- Sidebar workspace group -----
+   Tabs above switch panels in place; these leave the page. Keeping
+   them in the same rail merges the product into one shell instead of
+   sending people back out to the marketing nav, and the label plus
+   the arrow glyph mark the difference in behaviour. */
+.sidebar__group {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: var(--tracking-wide);
+  text-transform: uppercase; color: var(--text-muted);
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  margin-top: var(--space-2); border-top: 1px solid var(--border-subtle);
+}
+.sidebar__nav-item--link { text-decoration: none; }
+.sidebar__out { margin-left: auto; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); flex: none; }
+.sidebar__nav-item--link:hover .sidebar__out { opacity: .55; }
+
+@media (max-width: 768px) {
+  /* The rail turns horizontal on mobile, where a divider reads as a
+     break in the row rather than a heading. */
+  .sidebar__group { border-top: 0; padding: var(--space-2) var(--space-2) 0; flex-basis: 100%; margin-top: 0; }
 }

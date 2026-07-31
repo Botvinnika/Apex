@@ -198,15 +198,24 @@
   opacity: 0.4;
   transform-origin: 66px 66px;
 }
-.mini-gauge__ticks line:nth-child(1) { transform: rotate(90deg); }
-.mini-gauge__ticks line:nth-child(3) { transform: rotate(90deg); }
+/* The four ticks are already drawn at the four quadrant points in the
+   markup (top, right, bottom, left). Two stray rotate(90deg) rules used
+   to spin the top tick onto the right one and the bottom tick onto the
+   left one, so the gauge rendered two doubled-up ticks instead of four
+   quarter marks — the 0% and 50% positions were simply missing. */
+
 .mini-gauge__center {
   position: absolute; inset: 0;
   display: grid; place-items: center;
   pointer-events: none;
 }
+/* Only the number is centred. The label used to be a second grid child,
+   so place-items centred the value+label STACK as a group and pushed the
+   number 8.5px above the ring's true centre — which is what made it look
+   off. Taking the label out of the centring flow puts the number on the
+   optical centre and tucks the caption beneath it. */
 .mini-gauge__value {
-  display: flex; align-items: baseline; gap: 2px;
+  display: flex; align-items: baseline; gap: 3px;
   font-family: var(--font-display);
   font-size: var(--fs-32);
   font-weight: var(--fw-bold);
@@ -218,16 +227,20 @@
 .mini-gauge__pct {
   font-size: 0.5em;
   color: var(--text-muted);
-  margin-left: 2px;
   font-weight: var(--fw-semibold);
 }
 .mini-gauge__label {
+  position: absolute;
+  left: 50%;
+  /* half the 32px number + a 4px gap */
+  top: calc(50% + 20px);
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-top: 4px;
 }
 .mini-gauge__spark {
   width: 120px; height: 28px;
@@ -453,19 +466,23 @@
    so content can never collide at any viewport size.
    ============================================================ */
 .pl {
-  --pl-violet: #9945FF;
+  /* Renamed from --pl-violet/--pl-mint, which held a Solana-ish
+     violet and mint. The loader is the first thing anyone sees, so a
+     hue rainbow there set the whole site's tone before a single word
+     loaded. Depth now comes from value inside one hue family. */
+  --pl-deep:   #0369A1;
   --pl-cyan:   #38BDF8;
-  --pl-mint:   #14F195;
+  --pl-light:  #7DD3FC;
   --pl-ink:    #04060A;
-  /* Five stops rather than three: the extra indigo and sky steps stop
-     the violet→cyan transit passing through a muddy blue-grey, which is
-     what made the ramp look flat at large sizes. */
+  /* Five stops, but a monotone lightness climb rather than a hue
+     sweep — no stop doubles back in hue, so it reads as one material
+     catching light instead of a gradient demo. */
   --pl-ramp: linear-gradient(100deg,
-              #A855F7  0%,
-              #6366F1 26%,
-              var(--pl-cyan) 52%,
-              #22D3EE 76%,
-              var(--pl-mint) 100%);
+              var(--pl-deep)  0%,
+              #0284C7 28%,
+              var(--pl-cyan) 58%,
+              #7DD3FC 82%,
+              #C8ECFE 100%);
 
   /* Escalation dial, written each frame by the engine from real progress.
      0 = opening calm, 1 = peak chaos just before the curtain lifts. Only
@@ -506,7 +523,7 @@
   will-change: transform;
 }
 .pl__blob--1 {
-  background: radial-gradient(circle, var(--pl-violet) 0%, transparent 64%);
+  background: radial-gradient(circle, var(--pl-deep) 0%, transparent 64%);
   opacity: calc(.28 + var(--chaos) * .52);
   top: -24%; left: -18%;
   animation: plDrift1 4.6s ease-in-out infinite alternate;
@@ -518,20 +535,20 @@
   animation: plDrift2 5.9s ease-in-out infinite alternate;
 }
 .pl__blob--3 {
-  background: radial-gradient(circle, var(--pl-mint) 0%, transparent 66%);
+  background: radial-gradient(circle, var(--pl-light) 0%, transparent 66%);
   opacity: calc(.10 + var(--chaos) * .34);
   top: 24%; left: 40%;
   animation: plDrift3 3.8s ease-in-out infinite alternate;
 }
 .pl__blob--4 {
-  background: radial-gradient(circle, #F0349B 0%, transparent 62%);
+  background: radial-gradient(circle, #1E40AF 0%, transparent 62%);
   opacity: calc(.08 + var(--chaos) * .38);
   bottom: -14%; left: 14%;
   width: 46vmax; height: 46vmax;
   animation: plDrift4 5.2s ease-in-out infinite alternate;
 }
 .pl__blob--5 {
-  background: radial-gradient(circle, #6366F1 0%, transparent 62%);
+  background: radial-gradient(circle, #0284C7 0%, transparent 62%);
   opacity: calc(.14 + var(--chaos) * .42);
   top: -12%; right: 6%;
   width: 44vmax; height: 44vmax;
@@ -634,7 +651,7 @@
   left: calc(var(--s, 0) * 13% + 4%);
 }
 .pl__streak:nth-child(even) {
-  background: linear-gradient(to bottom, transparent, var(--pl-violet), transparent);
+  background: linear-gradient(to bottom, transparent, var(--pl-deep), transparent);
   height: 32vh;
   animation-duration: 1.7s;
 }
@@ -774,8 +791,8 @@
 }
 .pl__led {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--pl-mint);
-  box-shadow: 0 0 10px var(--pl-mint);
+  background: var(--pl-light);
+  box-shadow: 0 0 10px var(--pl-light);
   animation: plBlink 1.7s steps(2, end) infinite;
 }
 @keyframes plBlink { 0%,55% { opacity: 1; } 56%,100% { opacity: .28; } }
@@ -1058,17 +1075,25 @@
 }
 
 /* White flash on completion — the crescendo the escalation builds to. */
+/* Exit bloom.
+   Was a near-white blowout: #fff at .92 opacity reached in 60ms, which
+   read as a camera flash and is what made the handoff feel like a cut
+   rather than a transition. Now a cyan-tinted bloom at a third the
+   intensity, with an attack slow enough to be a swell instead of a
+   strobe — it lifts the mark off the backdrop without punching a hole
+   in the screen. */
 .pl__flash {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 46%, #fff, rgba(255,255,255,.35) 40%, transparent 72%);
+  background: radial-gradient(ellipse at 50% 46%,
+              rgba(186,230,253,.85), rgba(56,189,248,.22) 42%, transparent 74%);
   opacity: 0;
   pointer-events: none;
   z-index: 3;
 }
-.pl.is-flash .pl__flash { animation: plFlash .5s ease-out 1; }
+.pl.is-flash .pl__flash { animation: plFlash .72s cubic-bezier(.33,0,.25,1) 1; }
 @keyframes plFlash {
   0%   { opacity: 0; }
-  12%  { opacity: .92; }
+  38%  { opacity: .34; }
   100% { opacity: 0; }
 }
 
@@ -1083,25 +1108,39 @@
    would crop the mark mid-flight. */
 .pl.is-out {
   background-color: transparent;
-  transition: background-color .6s ease .1s;
-  /* The panel stays in the DOM for ~1s while the mark flies. Release
+  /* Longer and un-delayed, so the backdrop is already thinning while the
+     mark is still in flight. The old .1s delay meant the panel sat solid
+     for a beat after the wordmark left, which is the moment that read as
+     a stall. */
+  transition: background-color .8s cubic-bezier(.4,0,.2,1);
+  /* The panel stays in the DOM for ~1.1s while the mark flies. Release
      input immediately so the page is clickable the moment it appears. */
   pointer-events: none;
 }
 .pl.is-out .pl__fx {
   opacity: 0;
-  transition: opacity .6s ease;
+  transition: opacity .8s cubic-bezier(.4,0,.2,1);
 }
+/* Chrome leaves first and staggered, bottom row trailing the top, so the
+   panel empties in a direction instead of everything vanishing at once
+   on three different curves. */
 .pl.is-out .pl__row,
 .pl.is-out .pl__tagline,
 .pl.is-out .pl__status {
   opacity: 0;
-  transform: translateY(-18px);
+  transform: translateY(-14px);
   transition:
-    opacity   .34s ease,
-    transform .5s cubic-bezier(.76,0,.24,1);
+    opacity   .38s cubic-bezier(.4,0,1,1),
+    transform .52s cubic-bezier(.72,0,.24,1);
 }
-.pl.is-out .pl__bar { opacity: 0; transition: opacity .28s ease; }
+.pl.is-out .pl__row--bottom { transition-delay: .06s; }
+.pl.is-out .pl__status { transition-delay: .03s; }
+.pl.is-out .pl__bar {
+  opacity: 0;
+  transform: scaleX(1.04);
+  transform-origin: 50% 100%;
+  transition: opacity .34s ease, transform .5s cubic-bezier(.72,0,.24,1);
+}
 
 /* The centre column must not transform — it would compound with the
    mark's own flight transform and send it to the wrong place. */
@@ -1209,4 +1248,58 @@
 @media (max-width: 480px) {
   .stats-strip__inner { grid-template-columns: 1fr; }
   .ledger-stats { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================
+   PAGE ENTRANCE
+
+   The site used to be revealed fully formed behind a fading panel, so
+   however smooth the loader's exit was, the page itself simply
+   appeared. This gives it a short rise so the two overlap and the
+   handoff reads as one movement.
+
+   Written so it cannot strand the page: the keyframe's `from` is the
+   offset state and `to` is normal, and there is no fill-mode holding
+   either end. If the class is never added, never removed, or the
+   animation never runs, the page sits at its natural state — the
+   failure mode is "no animation", never "invisible content".
+   ============================================================ */
+@keyframes siteEnter {
+  from { opacity: .001; transform: translate3d(0, 10px, 0) scale(.994); }
+  to   { opacity: 1;    transform: none; }
+}
+/* An ALLOWLIST of real page containers, not `body > *`.
+
+   The first version excluded only .pl and script, which swept up every
+   panel the scripts append to <body> — the shortcuts cheat sheet, the
+   command palette, back-to-top, the toast stack. Those hide with
+   `opacity: 0`, and an animation ending at `opacity: 1` overrides a
+   normal declaration for as long as it plays, so the keyboard-shortcuts
+   overlay was forced visible for the full 680ms and flashed on every
+   load.
+
+   Naming the containers instead means anything injected later is
+   inert here by default, which is the safer direction for a rule that
+   can only ever cause harm by matching too much. */
+html.site-enter body > nav,
+html.site-enter body > header,
+html.site-enter body > main,
+html.site-enter body > section,
+html.site-enter body > footer,
+html.site-enter body > .ticker {
+  animation: siteEnter .68s cubic-bezier(.22,1,.3,1) both;
+}
+/* Nav arrives first — it is where the wordmark is flying to, so it needs
+   to be in place before the mark lands. */
+html.site-enter body > nav { animation-duration: .5s; }
+html.site-enter body > section:first-of-type { animation-delay: .05s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.site-enter body > nav,
+  html.site-enter body > header,
+  html.site-enter body > main,
+  html.site-enter body > section,
+  html.site-enter body > footer,
+  html.site-enter body > .ticker { animation: none; }
 }

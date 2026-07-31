@@ -50,8 +50,7 @@
   width: 100%;
   transform-origin: 0 50%;
   transform: scaleX(var(--ui-progress, 0));
-  background: linear-gradient(90deg, #9945FF, var(--ui-accent) 55%, #14F195);
-  box-shadow: 0 0 12px rgba(56,189,248,.55);
+  background: var(--ui-accent);
 }
 @supports (animation-timeline: scroll()) {
   .ui-progress__bar {
@@ -284,7 +283,7 @@
   border-radius: inherit;
   background: conic-gradient(from var(--ang, 0deg),
     transparent 0deg, var(--ui-accent) 60deg,
-    #9945FF 120deg, transparent 200deg, transparent 360deg);
+    #0369A1 120deg, transparent 200deg, transparent 360deg);
   animation: uiSpin 6s linear infinite;
   opacity: .55;
 }
@@ -375,7 +374,7 @@ html.ui-leaving body {
   height: 100%;
   width: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--ui-accent), #14F195);
+  background: var(--ui-accent);
   transition: width 900ms var(--ui-ease);
 }
 .ui-prob--muted .ui-prob__fill { background: var(--ui-line); }
